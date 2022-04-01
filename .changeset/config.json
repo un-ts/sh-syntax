@@ -3,7 +3,7 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "rx-ts/lib-boilerplate"
+      "repo": "rx-ts/sh-syntax"
     }
   ],
   "commit": false,

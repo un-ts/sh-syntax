@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "lib-boilerplate": ["src"]
+      "sh-syntax": ["src"]
     }
-  }
+  },
+  "exclude": ["lib"]
 }
