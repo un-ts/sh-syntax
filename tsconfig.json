@@ -1,0 +1,9 @@
+{
+  "extends": "@1stg/tsconfig/lib",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "lib-boilerplate": ["src"]
+    }
+  }
+}
