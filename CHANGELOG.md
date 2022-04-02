@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.0.2
+
+### Patch Changes
+
+- [#6](https://github.com/rx-ts/sh-syntax/pull/6) [`3ed45c3`](https://github.com/rx-ts/sh-syntax/commit/3ed45c37d2278043e7847d837155a35014c4e7b9) Thanks [@JounQin](https://github.com/JounQin)! - feat: add parse error details
+
 ## 0.0.1
 
 ### Patch Changes
