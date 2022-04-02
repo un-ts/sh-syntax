@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import fs from 'fs'
+import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 import './shim.js'
 import { ShOptions } from './types.js'
+
+/* istanbul ignore next */
+const cjsRequire =
+  typeof require === 'undefined' ? createRequire(import.meta.url) : require
+
+cjsRequire('../vendors/wasm_exec.cjs')
 
 /* istanbul ignore next */
 const _dirname =
@@ -35,8 +42,6 @@ export const print = async (
     functionNextLine = false,
   }: Partial<ShOptions> = {},
 ) => {
-  await import('../vendors/wasm_exec.cjs')
-
   if (!wasmFile) {
     wasmFile = await fs.promises.readFile(
       path.resolve(_dirname, '../main.wasm'),
