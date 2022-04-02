@@ -15,11 +15,15 @@ describe('parser and printer', () => {
     for (const filepath of await fs.promises.readdir(fixtures)) {
       const input = fs.readFileSync(path.resolve(fixtures, filepath), 'utf8')
 
-      const output = await print(input, {
-        filepath,
-      })
-
-      expect(output).toMatchSnapshot(filepath)
+      try {
+        const output = await print(input, {
+          filepath,
+        })
+        expect(output).toMatchSnapshot(filepath)
+      } catch (err: unknown) {
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(err).toMatchSnapshot(filepath)
+      }
     }
   })
 })

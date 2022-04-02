@@ -3,6 +3,41 @@ import { ShOptions } from './types.js'
 
 let id = 0
 
+export class ParseError extends Error {
+  filename: string
+  incomplete: boolean
+  text: string
+  pos: {
+    col: number
+    line: number
+    offset: number
+  }
+
+  constructor({
+    filename,
+    incomplete,
+    text,
+    pos,
+    message,
+  }: {
+    filename: string
+    incomplete: boolean
+    text: string
+    pos: {
+      col: number
+      line: number
+      offset: number
+    }
+    message: string
+  }) {
+    super(message)
+    this.filename = filename
+    this.incomplete = incomplete
+    this.text = text
+    this.pos = pos
+  }
+}
+
 export const getPrinter = (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
 ) => {
@@ -78,7 +113,10 @@ export const getPrinter = (
     delete Go.__shProcessing[uid]
 
     if ('error' in processed) {
-      throw new Error(processed.error)
+      /* istanbul ignore if */
+      throw typeof processed.error === 'string'
+        ? new Error(processed.error)
+        : new ParseError(processed.error)
     }
 
     return processed.text

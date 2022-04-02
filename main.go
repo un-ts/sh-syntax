@@ -69,7 +69,22 @@ func main() {
 
 	file, err := parser.Parse(bytes.NewReader([]byte(*text)), "path")
 	if err != nil {
-		result["error"] = err.Error()
+		error, ok := err.(syntax.ParseError)
+		if ok {
+			result["error"] = map[string]interface{}{
+				"filename":   error.Filename,
+				"incomplete": error.Incomplete,
+				"text":       error.Text,
+				"pos": map[string]interface{}{
+					"col":    error.Col(),
+					"line":   error.Line(),
+					"offset": error.Offset(),
+				},
+				"message": error.Error(),
+			}
+		} else {
+			result["error"] = err.Error()
+		}
 	} else {
 		var buf bytes.Buffer
 		writer := io.Writer(&buf)
