@@ -42,9 +42,20 @@ npm i sh-syntax
 ### API
 
 ```js
-import echo from 'sh-syntax'
+// node
+import { print } from 'sh-syntax'
 
-echo()
+await print("echo 'Hello World!'")
+```
+
+```js
+// browser
+import { getPrinter } from 'sh-syntax'
+
+const print = getPrinter(() =>
+  fetch('path/to/main.wasm').then(res => res.arrayBuffer()),
+)
+await print("echo 'Hello World!'")
 ```
 
 ## Changelog

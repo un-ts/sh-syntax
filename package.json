@@ -12,17 +12,19 @@
   "exports": {
     "import": "./lib/index.js",
     "require": "./lib/index.cjs",
+    "browser": "./lib/browser.js",
     "types": "./lib/index.d.ts"
   },
   "types": "lib",
   "files": [
     "lib",
     "main.wasm",
-    "!*.tsbuildinfo"
+    "vendors",
+    "!**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "run-p build:*",
-    "build:r": "r -f cjs -x '**/vendors/*.js'",
+    "build:r": "r -f cjs",
     "build:ts": "tsc -p src",
     "lint": "run-p lint:*",
     "lint:es": "eslint . --cache -f friendly --max-warnings 10",
