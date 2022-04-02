@@ -38,6 +38,8 @@ EXPOSE 2015
 "
 `;
 
+exports[`parser and printer should format all fixtures: error.sh 1`] = `[Error: path:1:6: a command can only contain words and redirects; encountered )]`;
+
 exports[`parser and printer should format all fixtures: hosts 1`] = `
 "##
 # Host Database

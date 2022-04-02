@@ -7,7 +7,22 @@ declare global {
     class Go {
       static __shProcessing: Record<
         number,
-        { error: string } | { text: string }
+        | {
+            error:
+              | string
+              | {
+                  filename: string
+                  incomplete: boolean
+                  text: string
+                  pos: {
+                    col: number
+                    line: number
+                    offset: number
+                  }
+                  message: string
+                }
+          }
+        | { text: string }
       >
 
       _pendingEvent: { id: number }
