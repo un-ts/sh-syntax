@@ -113,7 +113,7 @@ export const getPrinter = (
     delete Go.__shProcessing[uid]
 
     if ('error' in processed) {
-      /* istanbul ignore if */
+      /* istanbul ignore next */
       throw typeof processed.error === 'string'
         ? new Error(processed.error)
         : new ParseError(processed.error)
