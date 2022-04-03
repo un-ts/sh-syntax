@@ -13,7 +13,10 @@ describe('parser and printer', () => {
   it('should format all fixtures', async () => {
     const fixtures = path.resolve(_dirname, 'fixtures')
     for (const filepath of await fs.promises.readdir(fixtures)) {
-      const input = fs.readFileSync(path.resolve(fixtures, filepath), 'utf8')
+      const input = await fs.promises.readFile(
+        path.resolve(fixtures, filepath),
+        'utf8',
+      )
 
       try {
         const ast = await parse(input, { filepath })

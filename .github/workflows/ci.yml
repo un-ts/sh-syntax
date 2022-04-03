@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         node:
-          - 12
+          # - 12
           - 14
           - 16
     runs-on: ubuntu-latest
@@ -34,8 +34,9 @@ jobs:
 
       - name: Build, Lint and test
         run: |
-          pnpm test
+          pnpm test -- -u
           pnpm lint
+          git diff
         env:
           EFF_NO_LINK_RULES: true
           PARSER_NO_WATCH: true
