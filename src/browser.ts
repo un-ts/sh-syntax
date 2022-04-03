@@ -1,4 +1,4 @@
 import '../vendors/wasm_exec.js'
 
-export * from './print.js'
+export * from './processor.js'
 export * from './types.js'
