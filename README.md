@@ -43,19 +43,32 @@ npm i sh-syntax
 
 ```js
 // node
-import { print } from 'sh-syntax'
+import { parse, print } from 'sh-syntax'
 
-await print("echo 'Hello World!'")
+const text = "echo 'Hello World!'"
+const ast = await parse(text)
+const newText = await print(ast, {
+  // `originalText` is required for now, hope we will find better solution later
+  originalText: text,
+})
 ```
 
 ```js
 // browser
-import { getPrinter } from 'sh-syntax'
+import { getProcessor } from 'sh-syntax'
 
-const print = getPrinter(() =>
+const processor = getProcessor(() =>
   fetch('path/to/main.wasm').then(res => res.arrayBuffer()),
 )
-await print("echo 'Hello World!'")
+
+const parse = (text, options) => processor(text, options)
+
+const print = (ast, options) => processor(ast, options)
+
+// just like node again
+const text = "echo 'Hello World!'"
+const ast = await parse(text)
+const newText = await print(ast, { originalText: text })
 ```
 
 ## Changelog

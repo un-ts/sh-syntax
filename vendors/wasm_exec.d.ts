@@ -1,29 +1,13 @@
 import _fs from 'fs'
 
+import { IParseError, ParseResult } from 'sh-syntax'
+
 declare global {
   namespace globalThis {
     var fs: typeof _fs
 
     class Go {
-      static __shProcessing: Record<
-        number,
-        | {
-            error:
-              | string
-              | {
-                  filename: string
-                  incomplete: boolean
-                  text: string
-                  pos: {
-                    col: number
-                    line: number
-                    offset: number
-                  }
-                  message: string
-                }
-          }
-        | { text: string }
-      >
+      static readonly __shProcessing: Record<string, ParseResult>
 
       _pendingEvent: { id: number }
       argv: string[]

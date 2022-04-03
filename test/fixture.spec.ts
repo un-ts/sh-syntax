@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { print } from 'sh-syntax'
+import { parse, print } from 'sh-syntax'
 
 const _dirname =
   typeof __dirname === 'undefined'
@@ -16,10 +16,11 @@ describe('parser and printer', () => {
       const input = fs.readFileSync(path.resolve(fixtures, filepath), 'utf8')
 
       try {
-        const output = await print(input, {
-          filepath,
-        })
-        expect(output).toMatchSnapshot(filepath)
+        const ast = await parse(input, { filepath })
+        expect(ast).toMatchSnapshot(filepath)
+        expect(
+          await print(ast, { filepath, originalText: input }),
+        ).toMatchSnapshot(filepath)
       } catch (err: unknown) {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(err).toMatchSnapshot(filepath)

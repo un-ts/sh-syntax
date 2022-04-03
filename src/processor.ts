@@ -1,53 +1,41 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { ShOptions } from './types.js'
+import { nanoid } from 'nanoid/async'
 
-let id = 0
+import { IParseError, File, ShOptions } from './types.js'
 
-export class ParseError extends Error {
-  filename: string
-  incomplete: boolean
-  text: string
-  pos: {
-    col: number
-    line: number
-    offset: number
+export class ParseError extends Error implements IParseError {
+  Filename: string
+  Incomplete: boolean
+  Text: string
+  Pos: {
+    Col: number
+    Line: number
+    Offset: number
   }
 
-  constructor({
-    filename,
-    incomplete,
-    text,
-    pos,
-    message,
-  }: {
-    filename: string
-    incomplete: boolean
-    text: string
-    pos: {
-      col: number
-      line: number
-      offset: number
-    }
-    message: string
-  }) {
-    super(message)
-    this.filename = filename
-    this.incomplete = incomplete
-    this.text = text
-    this.pos = pos
+  constructor({ Filename, Incomplete, Text, Pos }: IParseError) {
+    super(Text)
+    this.Filename = Filename
+    this.Incomplete = Incomplete
+    this.Text = Text
+    this.Pos = Pos
   }
 }
 
-export const getPrinter = (
+export const getProcessor = (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
 ) => {
   let wasmFile: BufferSource | undefined
   let wasmFilePromise: Promise<BufferSource> | undefined
 
-  return async (
-    text: string,
+  function processor(text: string, options?: ShOptions): Promise<File>
+  function processor(ast: File, options?: ShOptions): Promise<string>
+  async function processor(
+    textOrAst: File | string,
     {
       filepath,
+      originalText,
+
       keepComments = true,
       stopAt,
       variant,
@@ -61,8 +49,8 @@ export const getPrinter = (
       keepPadding = false,
       minify = false,
       functionNextLine = false,
-    }: Partial<ShOptions> = {},
-  ) => {
+    }: ShOptions = {},
+  ) {
     if (!wasmFile) {
       if (!wasmFilePromise) {
         wasmFilePromise = Promise.resolve(getWasmFile())
@@ -72,12 +60,12 @@ export const getPrinter = (
 
     const go = new Go()
 
-    const uid = id++
+    const uid = await nanoid()
 
     const argv = [
       'js',
       '-uid=' + uid,
-      '-text=' + text,
+      '-text=' + textOrAst,
       '-keepComments=' + keepComments,
       '-indent=' + indent,
       '-binaryNextLine=' + binaryNextLine,
@@ -90,6 +78,17 @@ export const getPrinter = (
 
     if (filepath != null) {
       argv.push('-filepath=' + filepath)
+    }
+
+    if (typeof textOrAst !== 'string') {
+      argv.push('-ast=' + JSON.stringify(textOrAst))
+      if (originalText == null) {
+        console.warn(
+          '`originalText` is required for now, hope we will find better solution later',
+        )
+      } else {
+        argv.push('-originalText=' + originalText)
+      }
     }
 
     if (stopAt != null) {
@@ -112,13 +111,15 @@ export const getPrinter = (
 
     delete Go.__shProcessing[uid]
 
-    if ('error' in processed) {
+    if ('Error' in processed && processed.Error != null) {
       /* istanbul ignore next */
-      throw typeof processed.error === 'string'
-        ? new Error(processed.error)
-        : new ParseError(processed.error)
+      throw typeof processed.Error === 'string'
+        ? new Error(processed.Error)
+        : new ParseError(processed.Error)
     }
 
-    return processed.text
+    return processed.Data
   }
+
+  return processor
 }

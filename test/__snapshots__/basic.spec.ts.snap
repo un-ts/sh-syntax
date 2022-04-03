@@ -1,0 +1,233 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it should just work 1`] = `
+Object {
+  "End": Object {
+    "Col": 17,
+    "Line": 1,
+    "Offset": 16,
+  },
+  "Last": Array [],
+  "Name": "",
+  "Pos": Object {
+    "Col": 3,
+    "Line": 1,
+    "Offset": 2,
+  },
+  "Stmt": Array [
+    Object {
+      "Background": false,
+      "Cmd": Object {
+        "End": Object {
+          "Col": 17,
+          "Line": 1,
+          "Offset": 16,
+        },
+        "Pos": Object {
+          "Col": 3,
+          "Line": 1,
+          "Offset": 2,
+        },
+      },
+      "Comments": Array [],
+      "Coprocess": false,
+      "End": Object {
+        "Col": 17,
+        "Line": 1,
+        "Offset": 16,
+      },
+      "Negated": false,
+      "Pos": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Position": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Redirs": Array [],
+      "Semicolon": Object {
+        "Col": 0,
+        "Line": 0,
+        "Offset": 0,
+      },
+    },
+  ],
+}
+`;
+
+exports[`it should just work 2`] = `
+Object {
+  "End": Object {
+    "Col": 16,
+    "Line": 1,
+    "Offset": 15,
+  },
+  "Last": Array [],
+  "Name": "",
+  "Pos": Object {
+    "Col": 3,
+    "Line": 1,
+    "Offset": 2,
+  },
+  "Stmt": Array [
+    Object {
+      "Background": false,
+      "Cmd": Object {
+        "End": Object {
+          "Col": 16,
+          "Line": 1,
+          "Offset": 15,
+        },
+        "Pos": Object {
+          "Col": 3,
+          "Line": 1,
+          "Offset": 2,
+        },
+      },
+      "Comments": Array [],
+      "Coprocess": false,
+      "End": Object {
+        "Col": 16,
+        "Line": 1,
+        "Offset": 15,
+      },
+      "Negated": false,
+      "Pos": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Position": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Redirs": Array [],
+      "Semicolon": Object {
+        "Col": 0,
+        "Line": 0,
+        "Offset": 0,
+      },
+    },
+  ],
+}
+`;
+
+exports[`it should just work 3`] = `
+Object {
+  "End": Object {
+    "Col": 20,
+    "Line": 1,
+    "Offset": 19,
+  },
+  "Last": Array [],
+  "Name": "",
+  "Pos": Object {
+    "Col": 3,
+    "Line": 1,
+    "Offset": 2,
+  },
+  "Stmt": Array [
+    Object {
+      "Background": false,
+      "Cmd": Object {
+        "End": Object {
+          "Col": 20,
+          "Line": 1,
+          "Offset": 19,
+        },
+        "Pos": Object {
+          "Col": 3,
+          "Line": 1,
+          "Offset": 2,
+        },
+      },
+      "Comments": Array [],
+      "Coprocess": false,
+      "End": Object {
+        "Col": 20,
+        "Line": 1,
+        "Offset": 19,
+      },
+      "Negated": false,
+      "Pos": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Position": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Redirs": Array [],
+      "Semicolon": Object {
+        "Col": 0,
+        "Line": 0,
+        "Offset": 0,
+      },
+    },
+  ],
+}
+`;
+
+exports[`it should just work 4`] = `
+Object {
+  "End": Object {
+    "Col": 20,
+    "Line": 1,
+    "Offset": 19,
+  },
+  "Last": Array [],
+  "Name": "",
+  "Pos": Object {
+    "Col": 3,
+    "Line": 1,
+    "Offset": 2,
+  },
+  "Stmt": Array [
+    Object {
+      "Background": false,
+      "Cmd": Object {
+        "End": Object {
+          "Col": 20,
+          "Line": 1,
+          "Offset": 19,
+        },
+        "Pos": Object {
+          "Col": 3,
+          "Line": 1,
+          "Offset": 2,
+        },
+      },
+      "Comments": Array [],
+      "Coprocess": false,
+      "End": Object {
+        "Col": 20,
+        "Line": 1,
+        "Offset": 19,
+      },
+      "Negated": false,
+      "Pos": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Position": Object {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Redirs": Array [],
+      "Semicolon": Object {
+        "Col": 0,
+        "Line": 0,
+        "Offset": 0,
+      },
+    },
+  ],
+}
+`;

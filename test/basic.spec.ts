@@ -1,30 +1,39 @@
-import { LangVariant, print } from 'sh-syntax'
+import { jest } from '@jest/globals'
+import { Mock } from 'jest-mock'
+
+import { LangVariant, parse, print } from 'sh-syntax'
+
+const originalConsoleWarn = console.warn
+let spyConsoleWarn: Mock<unknown>
+
+beforeEach(() => {
+  spyConsoleWarn = console.warn = jest.fn()
+})
+
+afterEach(() => {
+  console.warn = originalConsoleWarn
+})
 
 test('it should just work', async () => {
-  expect(await print('  Hello   World!')).toMatchInlineSnapshot(`
-    "Hello World!
-    "
-  `)
+  expect(await parse('  Hello   World!')).toMatchSnapshot()
 
-  expect(await print('  Hello   World ! a', { stopAt: '!' }))
-    .toMatchInlineSnapshot(`
-      "Hello World
-      "
-    `)
+  expect(await parse('  Hello   World ! a', { stopAt: '!' })).toMatchSnapshot()
 
-  expect(await print('  Hello   World ! b', { variant: LangVariant.LangPOSIX }))
-    .toMatchInlineSnapshot(`
-      "Hello World ! b
-      "
-    `)
+  expect(
+    await parse('  Hello   World ! b', {
+      variant: LangVariant.LangPOSIX,
+    }),
+  ).toMatchSnapshot()
 
-  expect(await print('  Hello   World ! c', { useTabs: true }))
-    .toMatchInlineSnapshot(`
-      "Hello World ! c
-      "
-    `)
+  expect(
+    await parse('  Hello   World ! c', { useTabs: true }),
+  ).toMatchSnapshot()
 
-  await expect(print('echo )')).rejects.toMatchInlineSnapshot(
-    `[Error: path:1:6: a command can only contain words and redirects; encountered )]`,
+  expect(await print(null!, { filepath: 'foo.sh' })).toBe('\n')
+
+  expect(spyConsoleWarn).toHaveBeenCalledTimes(1)
+
+  await expect(parse('echo )')).rejects.toMatchInlineSnapshot(
+    `[Error: a command can only contain words and redirects; encountered )]`,
   )
 })

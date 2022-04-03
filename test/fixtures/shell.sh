@@ -12,3 +12,5 @@ docker container rm ${NAME}
 
 echo 'run a new container.'
 docker run -d --restart always -p 2015:2015 --name ${NAME} ${NAME}:latest
+
+>a <b
