@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.1.0
+
+### Minor Changes
+
+- [#8](https://github.com/rx-ts/sh-syntax/pull/8) [`c3c9aaa`](https://github.com/rx-ts/sh-syntax/commit/c3c9aaa050b777afe603f4fedfce035eb569944a) Thanks [@JounQin](https://github.com/JounQin)! - feat: support parse as AST
+
 ## 0.0.2
 
 ### Patch Changes
