@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { IParseError, File, ShOptions } from './types.js'
+import type { IParseError, File, ShOptions } from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename: string

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import './shim.js'
 import '../vendors/wasm_exec.js'
 import { getProcessor } from './processor.js'
-import { File, ShOptions } from './types.js'
+import type { File, ShOptions } from './types.js'
 
 /* istanbul ignore next */
 const _dirname =

@@ -1,6 +1,6 @@
 import _fs from 'fs'
 
-import { IParseError, ParseResult } from 'sh-syntax'
+import type { IParseError, ParseResult } from 'sh-syntax'
 
 declare global {
   namespace globalThis {
