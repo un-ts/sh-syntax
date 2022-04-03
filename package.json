@@ -9,13 +9,15 @@
   "engines": {
     "node": ">=v12.20"
   },
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.js",
   "exports": {
     "import": "./lib/index.js",
     "require": "./lib/index.cjs",
     "browser": "./lib/browser.js",
     "types": "./lib/index.d.ts"
   },
-  "types": "lib",
+  "types": "./lib/index.d.ts",
   "files": [
     "lib",
     "main.wasm",

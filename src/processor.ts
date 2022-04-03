@@ -114,7 +114,7 @@ export const getProcessor = (
     if ('Error' in processed && processed.Error != null) {
       /* istanbul ignore next */
       throw typeof processed.Error === 'string'
-        ? new Error(processed.Error)
+        ? new SyntaxError(processed.Error)
         : new ParseError(processed.Error)
     }
 
