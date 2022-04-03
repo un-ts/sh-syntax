@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.1.1
+
+### Patch Changes
+
+- [#11](https://github.com/rx-ts/sh-syntax/pull/11) [`19e755d`](https://github.com/rx-ts/sh-syntax/commit/19e755d4600bb6b60dc6733506296d80283cd3b3) Thanks [@JounQin](https://github.com/JounQin)! - feat: use nanoid as uid
+
 ## 0.1.0
 
 ### Minor Changes
