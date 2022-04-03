@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { nanoid } from 'nanoid/async'
-
 import { IParseError, File, ShOptions } from './types.js'
 
 export class ParseError extends Error implements IParseError {
@@ -21,6 +19,8 @@ export class ParseError extends Error implements IParseError {
     this.Pos = Pos
   }
 }
+
+let id = 0
 
 export const getProcessor = (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
@@ -60,7 +60,7 @@ export const getProcessor = (
 
     const go = new Go()
 
-    const uid = await nanoid()
+    const uid = id++
 
     const argv = [
       'js',
