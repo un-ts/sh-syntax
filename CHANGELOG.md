@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.1.3
+
+### Patch Changes
+
+- [`b652c1a`](https://github.com/rx-ts/sh-syntax/commit/b652c1ac86073f00773ff925c0bc42bd368f1419) Thanks [@JounQin](https://github.com/JounQin)! - fix: add main/module field for compatibility
+
 ## 0.1.2
 
 ### Patch Changes
