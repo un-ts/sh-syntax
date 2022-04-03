@@ -81,7 +81,7 @@ export const getProcessor = (
     }
 
     if (typeof textOrAst !== 'string') {
-      argv.push('-ast=' + JSON.stringify(textOrAst))
+      argv.push('-ast=ast')
       if (originalText == null) {
         console.warn(
           '`originalText` is required for now, hope we will find better solution later',
