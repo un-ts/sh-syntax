@@ -1,2 +1,3 @@
 test/fixtures
 vendors
+/pnpm-lock.yaml
