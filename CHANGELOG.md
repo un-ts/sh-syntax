@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.1.2
+
+### Patch Changes
+
+- [`af7c8ad`](https://github.com/rx-ts/sh-syntax/commit/af7c8ad0df82424854669e4fbbddcc35a84d87bb) Thanks [@JounQin](https://github.com/JounQin)! - fix: do not stringify ast for now
+
 ## 0.1.1
 
 ### Patch Changes
