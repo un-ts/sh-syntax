@@ -84,7 +84,8 @@ export interface IParseError {
   Pos: Pos
 }
 
-export interface ParseResult {
+export interface ShProcessing {
+  Text: string | null
   Data: File | string | null
   Error: IParseError | string | null
 }
