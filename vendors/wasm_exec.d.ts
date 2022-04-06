@@ -1,13 +1,15 @@
+/* eslint-disable unicorn/filename-case */
 import _fs from 'fs'
 
-import type { IParseError, ParseResult } from 'sh-syntax'
+import type { IParseError, ShProcessing } from 'sh-syntax'
 
 declare global {
   namespace globalThis {
+    // eslint-disable-next-line no-var
     var fs: typeof _fs
 
     class Go {
-      static readonly __shProcessing: Record<string, ParseResult>
+      static __shProcessing?: Record<string, ShProcessing>
 
       _pendingEvent: { id: number }
       argv: string[]

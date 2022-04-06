@@ -214,20 +214,41 @@ func main() {
 		Go.Set("__shProcessing", js.ValueOf(map[string]interface{}{}))
 	}
 
+	__shProcessing := Go.Get("__shProcessing")
+
+	if __shProcessing.Get(*uid).IsUndefined() {
+		__shProcessing.Set(*uid, js.ValueOf(map[string]interface{}{}))
+	}
+
+	Text := __shProcessing.Get(*uid).Get("Text")
+
+	var finalText string
+
+	if Text.IsUndefined() {
+		if *ast == "" {
+			finalText = *text
+		} else {
+			finalText = *originalText
+		}
+	} else {
+		finalText = Text.String()
+	}
+
 	var Data interface{}
 	var Error interface{}
 
 	if *ast == "" {
-		file, err := parse(*text, *filepath)
+		file, err := parse(finalText, *filepath)
 		Data = fileToMap(*file)
 		Error = mapParseError(err)
 	} else {
-		result, err := print(*originalText, *filepath)
+		result, err := print(finalText, *filepath)
 		Data = result
 		Error = mapParseError(err)
 	}
 
-	Go.Get("__shProcessing").Set(*uid, js.ValueOf(map[string]interface{}{
+	__shProcessing.Set(*uid, js.ValueOf(map[string]interface{}{
+		"Text":  nil,
 		"Data":  Data,
 		"Error": Error,
 	}))

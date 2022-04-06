@@ -30,6 +30,7 @@ export const getProcessor = (
 
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(ast: File, options?: ShOptions): Promise<string>
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async function processor(
     textOrAst: File | string,
     {
@@ -65,7 +66,6 @@ export const getProcessor = (
     const argv = [
       'js',
       '-uid=' + uid,
-      '-text=' + textOrAst,
       '-keepComments=' + keepComments,
       '-indent=' + indent,
       '-binaryNextLine=' + binaryNextLine,
@@ -80,14 +80,15 @@ export const getProcessor = (
       argv.push('-filepath=' + filepath)
     }
 
+    let isAst = false
+
     if (typeof textOrAst !== 'string') {
+      isAst = true
       argv.push('-ast=ast')
       if (originalText == null) {
         console.warn(
           '`originalText` is required for now, hope we will find better solution later',
         )
-      } else {
-        argv.push('-originalText=' + originalText)
       }
     }
 
@@ -104,6 +105,16 @@ export const getProcessor = (
     const result = await WebAssembly.instantiate(wasmFile, go.importObject)
 
     const wasm = result.instance
+
+    if (!Go.__shProcessing) {
+      Go.__shProcessing = {}
+    }
+
+    Go.__shProcessing[uid] = {
+      Text: isAst ? originalText! : (textOrAst as string),
+      Data: null,
+      Error: null,
+    }
 
     await go.run(wasm)
 

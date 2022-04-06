@@ -1,7 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@1stg/lib-config': ^5.4.0
+  '@1stg/lib-config': ^5.5.0
   '@changesets/changelog-github': ^0.4.4
   '@changesets/cli': ^2.22.0
   '@types/jest': ^27.4.1
@@ -18,7 +18,7 @@ dependencies:
   tslib: 2.3.1
 
 devDependencies:
-  '@1stg/lib-config': 5.4.0_typescript@4.6.3
+  '@1stg/lib-config': 5.5.0_typescript@4.6.3
   '@changesets/changelog-github': 0.4.4
   '@changesets/cli': 2.22.0
   '@types/jest': 27.4.1
@@ -71,17 +71,17 @@ packages:
       - lerna
     dev: true
 
-  /@1stg/common-config/3.4.0_jest@27.5.1+typescript@4.6.3:
-    resolution: {integrity: sha512-Vj42UkUEYy6iokG0jVkir/4NgezBLXG6jRv4lWEcs/870B9RsLxAqjXFjZwccxp02rO+fkj5mK9KUxquucN2Og==}
+  /@1stg/common-config/3.5.0_jest@27.5.1+typescript@4.6.3:
+    resolution: {integrity: sha512-LE7FwX3Jx0FpjI60jM0hg83Q/DRkc/2qQN1dltetXW4YcHfp+XwUHFOuCaZH/eMPBu6iZbqtRBAsI+KCK4aZJQ==}
     engines: {node: '>=12'}
     dependencies:
       '@1stg/babel-preset': 2.2.0_ae3b9447df613e6578bbb6d083fbf381
       '@1stg/commitlint-config': 2.0.1
-      '@1stg/eslint-config': 3.4.0_d2a0ea4891b98d09b861e9c88ab6a703
+      '@1stg/eslint-config': 3.4.0_40a48b7b4af3d77e32fe72c2c28037db
       '@1stg/lint-staged': 1.7.5_7b0ec2462ff6fd63966398ab126709a2
       '@1stg/markuplint-config': 1.0.2_eslint@8.12.0
-      '@1stg/prettier-config': 2.1.0_prettier@2.6.1
-      '@1stg/remark-config': 2.0.0_prettier@2.6.1
+      '@1stg/prettier-config': 2.2.0_prettier@2.6.2
+      '@1stg/remark-config': 2.0.0_prettier@2.6.2
       '@1stg/simple-git-hooks': 0.1.2_ce3d4b297bb12fd52c7cc4c97d23889c
       '@1stg/tsconfig': 2.0.1_typescript@4.6.3
       '@babel/core': 7.17.8
@@ -89,7 +89,7 @@ packages:
       eslint: 8.12.0
       lint-staged: 12.3.7
       npm-run-all: 4.1.5
-      prettier: 2.6.1
+      prettier: 2.6.2
       simple-git-hooks: 2.7.0
       tslib: 2.3.1
       yarn-deduplicate: 4.0.0
@@ -106,7 +106,7 @@ packages:
       - typescript
     dev: true
 
-  /@1stg/eslint-config/3.4.0_d2a0ea4891b98d09b861e9c88ab6a703:
+  /@1stg/eslint-config/3.4.0_40a48b7b4af3d77e32fe72c2c28037db:
     resolution: {integrity: sha512-wyPK0sgaXvLbFONVu3+eI6Xpq706NvERYmSpBAUGmRBdQhXK3AnUQd5wrro2qBhdR95f3rQzuARPor3T1kt1nA==}
     engines: {node: '>=12'}
     peerDependencies:
@@ -136,7 +136,7 @@ packages:
       eslint-plugin-markup: 0.8.0_eslint@8.12.0
       eslint-plugin-mdx: 2.0.0-next.1_eslint@8.12.0
       eslint-plugin-node: 11.1.0_eslint@8.12.0
-      eslint-plugin-prettier: 4.0.0_b253a92c95b42c3296c682f11cccb3bd
+      eslint-plugin-prettier: 4.0.0_f2c91d0f54113167d2bd9214a5ab5a36
       eslint-plugin-promise: 6.0.0_eslint@8.12.0
       eslint-plugin-react: 7.29.4_eslint@8.12.0
       eslint-plugin-react-hooks: 4.4.0_eslint@8.12.0
@@ -156,11 +156,11 @@ packages:
       - typescript
     dev: true
 
-  /@1stg/lib-config/5.4.0_typescript@4.6.3:
-    resolution: {integrity: sha512-5JQzDYZWXTUVrZodJbbTymrGfTGLwfjZK1wwy++As5jozj7T/FqqQMuKR8PSKM2TRdWH6mstqP01SO1C8G9oJw==}
+  /@1stg/lib-config/5.5.0_typescript@4.6.3:
+    resolution: {integrity: sha512-x8hyxJWm+et+FJwfZEa7keuuG4ahoQ/HlXsLAVJS7fc+n/aUL4pdqILaGKSwvm6dP0rxEu9MpXyLYHzOR9iMHQ==}
     engines: {node: '>=12'}
     dependencies:
-      '@1stg/common-config': 3.4.0_jest@27.5.1+typescript@4.6.3
+      '@1stg/common-config': 3.5.0_jest@27.5.1+typescript@4.6.3
       '@pkgr/rollup': 3.0.1
       jest: 27.5.1
     transitivePeerDependencies:
@@ -188,12 +188,12 @@ packages:
     peerDependencies:
       lint-staged: '>=10.0.0'
     dependencies:
-      '@1stg/prettier-config': 2.1.0_prettier@2.6.1
+      '@1stg/prettier-config': 2.2.0_prettier@2.6.2
       '@1stg/tsconfig': 2.0.1_typescript@4.6.3
       '@pkgr/utils': 2.0.3
       cross-env: 7.0.3
       lint-staged: 12.3.7
-      prettier: 2.6.1
+      prettier: 2.6.2
     transitivePeerDependencies:
       - svelte
       - typescript
@@ -213,31 +213,31 @@ packages:
       - supports-color
     dev: true
 
-  /@1stg/prettier-config/2.1.0_prettier@2.6.1:
-    resolution: {integrity: sha512-V+2iCzjtOtr5Jd9rA7qccY+dtb8OzQIVDsMsGjD9N2aR/VWBveYwhju8TrYYAIt+B8j/1y0HPJ5e3RB3tEEN+w==}
+  /@1stg/prettier-config/2.2.0_prettier@2.6.2:
+    resolution: {integrity: sha512-gfoexQu/cl31I05vnIq5GOK3R1d/2Tid7Qv0p61QaaWqEQaqVeGO/3rk40Pt9ZfwUubFQNK58uvhh/q/rOOK1g==}
     peerDependencies:
       prettier: '>=1.18.0'
     dependencies:
-      '@prettier/plugin-pug': 1.20.0_prettier@2.6.1
+      '@prettier/plugin-pug': 1.20.0_prettier@2.6.2
       '@prettier/plugin-ruby': 2.0.0
       '@prettier/plugin-xml': 2.0.1
-      prettier: 2.6.1
-      prettier-plugin-pkg: 0.12.0_prettier@2.6.1
-      prettier-plugin-sh: 0.9.0_prettier@2.6.1
-      prettier-plugin-svelte: 2.6.0_prettier@2.6.1
+      prettier: 2.6.2
+      prettier-plugin-pkg: 0.13.0_prettier@2.6.2
+      prettier-plugin-sh: 0.10.0_prettier@2.6.2
+      prettier-plugin-svelte: 2.6.0_prettier@2.6.2
       prettier-plugin-toml: 0.3.1
     transitivePeerDependencies:
       - svelte
     dev: true
 
-  /@1stg/remark-config/2.0.0_prettier@2.6.1:
+  /@1stg/remark-config/2.0.0_prettier@2.6.2:
     resolution: {integrity: sha512-Zpb6K1y5GCY/8Wi6xyPLn0i1SacuplHWVCVB3IGGhWQ9NnU3B4ke3mJD7R+Oun0W0g+XXvgBLYniQIaKY2YbpQ==}
     dependencies:
       remark-lint: 9.1.1
       remark-preset-lint-consistent: 5.1.1
       remark-preset-lint-markdown-style-guide: 5.1.2
       remark-preset-lint-recommended: 6.1.2
-      remark-preset-prettier: 1.0.0_prettier@2.6.1
+      remark-preset-prettier: 1.0.0_prettier@2.6.2
       remark-validate-links: 11.0.2
     transitivePeerDependencies:
       - prettier
@@ -2507,7 +2507,7 @@ packages:
       '@markuplint/ml-core': 2.1.2
       glob: 7.2.0
       mustache: 4.2.0
-      prettier: 2.6.1
+      prettier: 2.6.2
       tslib: 2.3.1
       typescript: 4.6.3
     transitivePeerDependencies:
@@ -2763,26 +2763,26 @@ packages:
       tslib: 2.3.1
     dev: true
 
-  /@prettier/plugin-pug/1.20.0_prettier@2.6.1:
+  /@prettier/plugin-pug/1.20.0_prettier@2.6.2:
     resolution: {integrity: sha512-NT5gVO/SOVNKOPYyLttWSzryO3prVRrw5X8N7NFOTlkDwkOoRXSvGAsUa8OrPxOiV21/vkKTjUic2kbCYw6lig==}
     peerDependencies:
       prettier: ^2.3.0
     dependencies:
-      prettier: 2.6.1
+      prettier: 2.6.2
       pug-lexer: 5.0.1
     dev: true
 
   /@prettier/plugin-ruby/2.0.0:
     resolution: {integrity: sha512-pA0rjTi5J7cT86XPNhXp7CpdV2Tlyj5oqDIsnQRxMu2P7LY2KJI/pyOSM8pzTH8BgRyQfe1P1NPCcTwxUnUWtQ==}
     dependencies:
-      prettier: 2.6.1
+      prettier: 2.6.2
     dev: true
 
   /@prettier/plugin-xml/2.0.1:
     resolution: {integrity: sha512-zJ2+/J5ujo23oHwaiuo3DEnxnRWSw/52IP7to+XmHiTC/qG17w2ld6FbDfVrsnO2PTPp0HFotPtZFlbrPJnaqA==}
     dependencies:
       '@xml-tools/parser': 1.0.11
-      prettier: 2.6.1
+      prettier: 2.6.2
     dev: true
 
   /@rollup/plugin-babel/5.3.1_@babel+core@7.17.8+rollup@2.70.1:
@@ -5398,7 +5398,7 @@ packages:
       eslint: 8.12.0
       eslint-plugin-utils: 0.2.0_eslint@8.12.0
       markuplint: 2.5.0
-      synckit: 0.6.0
+      synckit: 0.6.2
       tslib: 2.3.1
     transitivePeerDependencies:
       - supports-color
@@ -5438,7 +5438,7 @@ packages:
       semver: 6.3.0
     dev: true
 
-  /eslint-plugin-prettier/4.0.0_b253a92c95b42c3296c682f11cccb3bd:
+  /eslint-plugin-prettier/4.0.0_f2c91d0f54113167d2bd9214a5ab5a36:
     resolution: {integrity: sha512-98MqmCJ7vJodoQK359bqQWaxOE0CS8paAz/GgjaZLyex4TTk3g9HugoO89EqWCrFiOqn9EVvcoo7gZzONCWVwQ==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -5451,7 +5451,7 @@ packages:
     dependencies:
       eslint: 8.12.0
       eslint-config-prettier: 8.5.0_eslint@8.12.0
-      prettier: 2.6.1
+      prettier: 2.6.2
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -9220,33 +9220,33 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-pkg/0.12.0_prettier@2.6.1:
-    resolution: {integrity: sha512-eRIJj4CZMbVedY93KxVW5cfRB/ZC5ydKzSVNt4NkvaNBkmIsyFdgW+FZTetb9KES2CclKBF5NelU+LxPedzI/g==}
+  /prettier-plugin-pkg/0.13.0_prettier@2.6.2:
+    resolution: {integrity: sha512-0eUQf15kmvcTT7x9L6p0ZX3BDLZMLdO47426e3Huc90rv0HLuiY9GTifVXCoDGaQw4EUjpOllNBEg0WS0xOHCw==}
     engines: {node: '>=12.20'}
     peerDependencies:
       prettier: ^2.0.0
     dependencies:
-      prettier: 2.6.1
+      prettier: 2.6.2
     dev: true
 
-  /prettier-plugin-sh/0.9.0_prettier@2.6.1:
-    resolution: {integrity: sha512-a9oZXWf24NI86qSq0swaKDMPVff7JjzGnHiupqb/ZORJqPwqbaYR1/M7d8ZRfTLr6A8mOQe90Y4gIUr0rb2F0g==}
+  /prettier-plugin-sh/0.10.0_prettier@2.6.2:
+    resolution: {integrity: sha512-sRxd+GH9xYD9EXuuEGpJSKJBBLKDQY6Fw1TViHEpF1Ce2Oo7CYKQ3fktDBwEDhnXQmo65y/+yovaJGIVR8zaAg==}
     engines: {node: '>=12.20'}
     peerDependencies:
       prettier: ^2.0.0
     dependencies:
-      prettier: 2.6.1
-      sh-syntax: 0.0.2
+      prettier: 2.6.2
+      sh-syntax: 0.1.3
       synckit: 0.6.2
     dev: true
 
-  /prettier-plugin-svelte/2.6.0_prettier@2.6.1:
+  /prettier-plugin-svelte/2.6.0_prettier@2.6.2:
     resolution: {integrity: sha512-NPSRf6Y5rufRlBleok/pqg4+1FyGsL0zYhkYP6hnueeL1J/uCm3OfOZPsLX4zqD9VAdcXfyEL2PYqGv8ZoOSfA==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
       svelte: ^3.2.0
     dependencies:
-      prettier: 2.6.1
+      prettier: 2.6.2
     dev: true
 
   /prettier-plugin-toml/0.3.1:
@@ -9262,8 +9262,8 @@ packages:
     hasBin: true
     dev: true
 
-  /prettier/2.6.1:
-    resolution: {integrity: sha512-8UVbTBYGwN37Bs9LERmxCPjdvPxlEowx2urIL6urHzdb3SDq4B/Z6xLFCblrSnE4iKWcS6ziJ3aOYrc1kz/E2A==}
+  /prettier/2.6.2:
+    resolution: {integrity: sha512-PkUpF+qoXTqhOeWL9fu7As8LXsIUZ1WYaJiY/a7McAQzxjk82OF0tibkFXVCDImZtWxbvojFjerkiLb0/q8mew==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
@@ -10228,13 +10228,13 @@ packages:
       - supports-color
     dev: true
 
-  /remark-preset-prettier/1.0.0_prettier@2.6.1:
+  /remark-preset-prettier/1.0.0_prettier@2.6.2:
     resolution: {integrity: sha512-e0VvU1J7WJSl5WsejEPKgJzTE84A3NNm/S3oA75fkw9p/k/IPu1dr0vEO4FdeoaqsLlG0xZ544E+kQgmiSlG0g==}
     engines: {node: '>=12'}
     peerDependencies:
       prettier: '>=1.0.0'
     dependencies:
-      prettier: 2.6.1
+      prettier: 2.6.2
       remark-lint-blank-lines-1-0-2: 3.0.0
       remark-lint-blockquote-indentation: 3.1.1
       remark-lint-books-links: 2.1.0
@@ -10577,10 +10577,11 @@ packages:
     resolution: {integrity: sha1-BF+XgtARrppoA93TgrJDkrPYkPc=}
     dev: true
 
-  /sh-syntax/0.0.2:
-    resolution: {integrity: sha512-xChuD/H+FB/e9JlE9+X0qi4Bani3d2OnNnCSukCazKmlF4kHw6hZ0Go2HSdJ5bcG7brJVtSyX5HYfD10wGCf+Q==}
+  /sh-syntax/0.1.3:
+    resolution: {integrity: sha512-h7PHRWnFzzIam5yFNON7deCoRb3DQBOlkP0cWXW7mTytNcDGDF3P0i1BDMmxmzuK6UxbVyANgiaQ73z4eDv2XQ==}
     engines: {node: '>=v12.20'}
     dependencies:
+      nanoid: 3.3.2
       tslib: 2.3.1
     dev: true
 
@@ -10980,13 +10981,6 @@ packages:
 
   /symbol-tree/3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
-    dev: true
-
-  /synckit/0.6.0:
-    resolution: {integrity: sha512-AYuCJsMNa/3m1UKxfM9edZEjsdz0Hj7namBHs1RAMcMxEJIBNrq3pUI5EmwtGNWPxOvozuVQtixMnzcMSWJ0xg==}
-    engines: {node: '>=12.3'}
-    dependencies:
-      tslib: 2.3.1
     dev: true
 
   /synckit/0.6.2:
