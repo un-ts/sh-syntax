@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.1.4
+
+### Patch Changes
+
+- [#15](https://github.com/rx-ts/sh-syntax/pull/15) [`174f66c`](https://github.com/rx-ts/sh-syntax/commit/174f66c58174006b2e6ec82a0591e645c1bc5650) Thanks [@JounQin](https://github.com/JounQin)! - fix: use global Go to store text due to go.argv limitation
+
 ## 0.1.3
 
 ### Patch Changes
