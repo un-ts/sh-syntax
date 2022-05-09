@@ -1,18 +1,8 @@
 import { jest } from '@jest/globals'
-import { Mock } from 'jest-mock'
 
 import { LangVariant, parse, print } from 'sh-syntax'
 
-const originalConsoleWarn = console.warn
-let spyConsoleWarn: Mock<unknown>
-
-beforeEach(() => {
-  spyConsoleWarn = console.warn = jest.fn()
-})
-
-afterEach(() => {
-  console.warn = originalConsoleWarn
-})
+jest.spyOn(console, 'warn').mockImplementationOnce(jest.fn())
 
 test('it should just work', async () => {
   expect(await parse('  Hello   World!')).toMatchSnapshot()
@@ -31,7 +21,7 @@ test('it should just work', async () => {
 
   expect(await print(null!, { filepath: 'foo.sh' })).toBe('\n')
 
-  expect(spyConsoleWarn).toHaveBeenCalledTimes(1)
+  expect(console.warn).toHaveBeenCalledTimes(1)
 
   await expect(parse('echo )')).rejects.toMatchInlineSnapshot(
     `[Error: a command can only contain words and redirects; encountered )]`,
