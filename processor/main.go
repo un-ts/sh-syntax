@@ -15,7 +15,7 @@ var (
 type ParserOptions struct {
 	KeepComments bool
 	StopAt       string
-	Variant      int
+	Variant      syntax.LangVariant
 }
 
 type PrinterOptions struct {
@@ -36,7 +36,7 @@ type SyntaxOptions struct {
 func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
 	var options []syntax.ParserOption
 
-	options = append(options, syntax.KeepComments(parserOptions.KeepComments), syntax.Variant(syntax.LangVariant(parserOptions.Variant)))
+	options = append(options, syntax.KeepComments(parserOptions.KeepComments), syntax.Variant(parserOptions.Variant))
 
 	if parserOptions.StopAt != "" {
 		options = append(options, syntax.StopAt(parserOptions.StopAt))

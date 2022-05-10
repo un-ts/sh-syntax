@@ -5,19 +5,13 @@ export enum LangVariant {
   LangBats = 3,
 }
 
-export interface ShOptions {
-  filepath?: string
-  originalText?: string
-
-  useTabs?: boolean
-  tabWidth?: number
-
-  // parser
+export interface ShParserOptions {
   keepComments?: boolean
   stopAt?: string
   variant?: LangVariant
+}
 
-  // printer
+export interface ShPrinterOptions {
   indent?: number
   binaryNextLine?: boolean
   switchCaseIndent?: boolean
@@ -25,6 +19,16 @@ export interface ShOptions {
   keepPadding?: boolean
   minify?: boolean
   functionNextLine?: boolean
+}
+
+export interface ShSyntaxOptions extends ShParserOptions, ShPrinterOptions {}
+
+export interface ShOptions extends ShSyntaxOptions {
+  filepath?: string
+  originalText?: string
+
+  useTabs?: boolean
+  tabWidth?: number
 }
 
 export interface Pos {
@@ -84,8 +88,30 @@ export interface IParseError {
   Pos: Pos
 }
 
-export interface ShProcessing {
-  Text: string | null
-  Data: File | string | null
+export interface ShProcessing<T extends File | string> {
+  Data: T | null
   Error: IParseError | string | null
 }
+
+export type Parse = (
+  text: string,
+  filePath: string,
+  ...parserOption: [keepComments: boolean, stopAt: string, variant: LangVariant]
+) => ShProcessing<File>
+
+export type Print = (
+  originalText: string,
+  filePath: string,
+  ...syntaxOptions: [
+    keepComments: boolean,
+    stopAt: string,
+    variant: LangVariant,
+    indent: number,
+    binaryNextLine: boolean,
+    switchCaseIndent: boolean,
+    spaceRedirects: boolean,
+    keepPadding: boolean,
+    minify: boolean,
+    functionNextLine: boolean,
+  ]
+) => ShProcessing<string>

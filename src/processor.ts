@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { nanoid } from 'nanoid/async'
-
-import type { IParseError, File, ShOptions } from './types.js'
+import {
+  IParseError,
+  File,
+  ShOptions,
+  Parse,
+  Print,
+  LangVariant,
+} from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename: string
@@ -30,7 +34,7 @@ export const getProcessor = (
 
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(ast: File, options?: ShOptions): Promise<string>
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+
   async function processor(
     textOrAst: File | string,
     {
@@ -38,8 +42,8 @@ export const getProcessor = (
       originalText,
 
       keepComments = true,
-      stopAt,
-      variant,
+      stopAt = '',
+      variant = LangVariant.LangBash,
 
       useTabs = false,
       tabWidth = 2,
@@ -59,10 +63,6 @@ export const getProcessor = (
       wasmFile = await wasmFilePromise
     }
 
-    const go = new Go()
-
-    const uid = await nanoid()
-
     let isAst = false
 
     if (typeof textOrAst !== 'string') {
@@ -75,67 +75,51 @@ export const getProcessor = (
       }
     }
 
-    if ('argv' in go) {
-      const argv = [
-        'js',
-        '-uid=' + uid,
-        '-keepComments=' + keepComments,
-        '-indent=' + indent,
-        '-binaryNextLine=' + binaryNextLine,
-        '-switchCaseIndent=' + switchCaseIndent,
-        '-spaceRedirects=' + spaceRedirects,
-        '-keepPadding=' + keepPadding,
-        '-minify=' + minify,
-        '-functionNextLine=' + functionNextLine,
-      ]
-
-      if (filepath != null) {
-        argv.push('-filepath=' + filepath)
-      }
-
-      if (isAst) {
-        argv.push('-ast=ast')
-      }
-
-      if (stopAt != null) {
-        argv.push('-stopAt=' + stopAt)
-      }
-
-      if (variant != null) {
-        argv.push('-variant=' + variant)
-      }
-
-      go.argv = argv
-    }
+    const go = new Go()
 
     const result = await WebAssembly.instantiate(wasmFile, go.importObject)
 
     const wasm = result.instance
 
-    if (!Go.__shProcessing) {
-      Go.__shProcessing = {}
+    // eslint-disable-next-line no-void
+    void go.run(wasm)
+
+    const { parse, print } = wasm.exports as {
+      parse: Parse
+      print: Print
     }
 
-    Go.__shProcessing[uid] = {
-      Text: isAst ? originalText! : (textOrAst as string),
-      Data: null,
-      Error: null,
-    }
+    const parserOptions = [keepComments, stopAt, variant] as const
 
-    await go.run(wasm)
+    const processed = isAst
+      ? print(
+          originalText!,
+          filepath!,
+          ...([
+            ...parserOptions,
+            indent,
+            binaryNextLine,
+            switchCaseIndent,
+            spaceRedirects,
+            keepPadding,
+            minify,
+            functionNextLine,
+          ] as const),
+        )
+      : parse(textOrAst as string, filepath!, ...parserOptions)
 
-    const processed = Go.__shProcessing[uid]
+    console.log('processed:', typeof processed)
 
-    delete Go.__shProcessing[uid]
+    const { Data, Error } = processed
 
-    if ('Error' in processed && processed.Error != null) {
+    if (Error) {
       /* istanbul ignore next */
-      throw typeof processed.Error === 'string'
-        ? new SyntaxError(processed.Error)
-        : new ParseError(processed.Error)
+      throw typeof Error === 'string'
+        ? new SyntaxError(Error)
+        : new ParseError(Error)
     }
 
-    return processed.Data
+    return Data
   }
 
   return processor
