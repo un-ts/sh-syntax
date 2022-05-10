@@ -63,28 +63,11 @@ export const getProcessor = (
 
     const uid = await nanoid()
 
-    const argv = [
-      'js',
-      '-uid=' + uid,
-      '-keepComments=' + keepComments,
-      '-indent=' + indent,
-      '-binaryNextLine=' + binaryNextLine,
-      '-switchCaseIndent=' + switchCaseIndent,
-      '-spaceRedirects=' + spaceRedirects,
-      '-keepPadding=' + keepPadding,
-      '-minify=' + minify,
-      '-functionNextLine=' + functionNextLine,
-    ]
-
-    if (filepath != null) {
-      argv.push('-filepath=' + filepath)
-    }
-
     let isAst = false
 
     if (typeof textOrAst !== 'string') {
       isAst = true
-      argv.push('-ast=ast')
+
       if (originalText == null) {
         console.warn(
           '`originalText` is required for now, hope we will find better solution later',
@@ -92,15 +75,38 @@ export const getProcessor = (
       }
     }
 
-    if (stopAt != null) {
-      argv.push('-stopAt=' + stopAt)
-    }
+    if ('argv' in go) {
+      const argv = [
+        'js',
+        '-uid=' + uid,
+        '-keepComments=' + keepComments,
+        '-indent=' + indent,
+        '-binaryNextLine=' + binaryNextLine,
+        '-switchCaseIndent=' + switchCaseIndent,
+        '-spaceRedirects=' + spaceRedirects,
+        '-keepPadding=' + keepPadding,
+        '-minify=' + minify,
+        '-functionNextLine=' + functionNextLine,
+      ]
 
-    if (variant != null) {
-      argv.push('-variant=' + variant)
-    }
+      if (filepath != null) {
+        argv.push('-filepath=' + filepath)
+      }
 
-    go.argv = argv
+      if (isAst) {
+        argv.push('-ast=ast')
+      }
+
+      if (stopAt != null) {
+        argv.push('-stopAt=' + stopAt)
+      }
+
+      if (variant != null) {
+        argv.push('-variant=' + variant)
+      }
+
+      go.argv = argv
+    }
 
     const result = await WebAssembly.instantiate(wasmFile, go.importObject)
 

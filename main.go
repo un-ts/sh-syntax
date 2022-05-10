@@ -4,10 +4,9 @@
 package main
 
 import (
-	"bytes"
 	"flag"
-	"io"
 	"reflect"
+	"sh-syntax/processor"
 	"syscall/js"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -163,46 +162,30 @@ func fileToMap(file syntax.File) map[string]interface{} {
 }
 
 func parse(text string, filepath string) (*syntax.File, error) {
-	var options []syntax.ParserOption
-
-	options = append(options, syntax.KeepComments(*keepComments), syntax.Variant(syntax.LangVariant(*variant)))
-
-	if *stopAt != "" {
-		options = append(options, syntax.StopAt(*stopAt))
-	}
-
-	parser = syntax.NewParser(options...)
-
-	return parser.Parse(bytes.NewReader([]byte(text)), filepath)
+	return processor.Parse(text, filepath, processor.ParserOptions{
+		KeepComments: *keepComments,
+		StopAt:       *stopAt,
+		Variant:      *variant,
+	})
 }
 
 func print(originalText string, filepath string) (string, error) {
-	file, err := parse(originalText, filepath)
-
-	if err != nil {
-		return "", err
-	}
-
-	printer = syntax.NewPrinter(
-		syntax.Indent(*indent),
-		syntax.BinaryNextLine(*binaryNextLine),
-		syntax.SwitchCaseIndent(*switchCaseIndent),
-		syntax.SpaceRedirects(*spaceRedirects),
-		syntax.KeepPadding(*keepPadding),
-		syntax.Minify(*minify),
-		syntax.FunctionNextLine(*functionNextLine),
-	)
-
-	var buf bytes.Buffer
-	writer := io.Writer(&buf)
-
-	err = printer.Print(writer, file)
-
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), err
+	return processor.Print(originalText, filepath, processor.SyntaxOptions{
+		ParserOptions: processor.ParserOptions{
+			KeepComments: *keepComments,
+			StopAt:       *stopAt,
+			Variant:      *variant,
+		},
+		PrinterOptions: processor.PrinterOptions{
+			Indent:           *indent,
+			BinaryNextLine:   *binaryNextLine,
+			SwitchCaseIndent: *switchCaseIndent,
+			SpaceRedirects:   *spaceRedirects,
+			KeepPadding:      *keepPadding,
+			Minify:           *minify,
+			FunctionNextLine: *functionNextLine,
+		},
+	})
 }
 
 func main() {
