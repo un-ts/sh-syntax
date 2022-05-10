@@ -88,30 +88,11 @@ export interface IParseError {
   Pos: Pos
 }
 
-export interface ShProcessing<T extends File | string> {
-  Data: T | null
-  Error: IParseError | string | null
+export interface ShProcessing<T extends File | string = File | string>
+  extends ShOptions {
+  ast?: string
+  text?: string
+
+  data?: T | null
+  error?: IParseError | string | null
 }
-
-export type Parse = (
-  text: string,
-  filePath: string,
-  ...parserOption: [keepComments: boolean, stopAt: string, variant: LangVariant]
-) => ShProcessing<File>
-
-export type Print = (
-  originalText: string,
-  filePath: string,
-  ...syntaxOptions: [
-    keepComments: boolean,
-    stopAt: string,
-    variant: LangVariant,
-    indent: number,
-    binaryNextLine: boolean,
-    switchCaseIndent: boolean,
-    spaceRedirects: boolean,
-    keepPadding: boolean,
-    minify: boolean,
-    functionNextLine: boolean,
-  ]
-) => ShProcessing<string>

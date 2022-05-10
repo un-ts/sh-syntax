@@ -9,7 +9,7 @@ declare global {
     var fs: typeof _fs
 
     class Go {
-      static __shProcessing?: Record<string, ShProcessing>
+      static __shProcessing?: Record<number, ShProcessing>
 
       _pendingEvent: { id: number }
       argv: string[]

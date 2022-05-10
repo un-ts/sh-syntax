@@ -1,11 +1,4 @@
-import {
-  IParseError,
-  File,
-  ShOptions,
-  Parse,
-  Print,
-  LangVariant,
-} from './types.js'
+import { IParseError, File, ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename: string
@@ -25,6 +18,8 @@ export class ParseError extends Error implements IParseError {
     this.Pos = Pos
   }
 }
+
+let uid = -1
 
 export const getProcessor = (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
@@ -77,49 +72,59 @@ export const getProcessor = (
 
     const go = new Go()
 
+    uid++
+
+    if (uid === Number.MAX_SAFE_INTEGER) {
+      uid = 0
+    }
+
+    Object.assign(go.importObject.env, {
+      'main.getUid': () => uid,
+    })
+
     const result = await WebAssembly.instantiate(wasmFile, go.importObject)
 
     const wasm = result.instance
 
+    if (!Go.__shProcessing) {
+      Go.__shProcessing = {}
+    }
+
+    Go.__shProcessing[uid] = {
+      filepath,
+      ast: isAst ? 'ast' : '',
+      text: isAst ? originalText : (textOrAst as string),
+
+      keepComments,
+      stopAt,
+      variant,
+
+      indent,
+      binaryNextLine,
+      switchCaseIndent,
+      spaceRedirects,
+      keepPadding,
+      minify,
+      functionNextLine,
+    }
+
     // eslint-disable-next-line no-void
     void go.run(wasm)
 
-    const { parse, print } = wasm.exports as {
-      parse: Parse
-      print: Print
-    }
+    const processed = Go.__shProcessing[uid]
 
-    const parserOptions = [keepComments, stopAt, variant] as const
+    delete Go.__shProcessing[uid]
 
-    const processed = isAst
-      ? print(
-          originalText!,
-          filepath!,
-          ...([
-            ...parserOptions,
-            indent,
-            binaryNextLine,
-            switchCaseIndent,
-            spaceRedirects,
-            keepPadding,
-            minify,
-            functionNextLine,
-          ] as const),
-        )
-      : parse(textOrAst as string, filepath!, ...parserOptions)
+    const { data, error } = processed
 
-    console.log('processed:', typeof processed)
-
-    const { Data, Error } = processed
-
-    if (Error) {
+    if (error) {
       /* istanbul ignore next */
-      throw typeof Error === 'string'
-        ? new SyntaxError(Error)
-        : new ParseError(Error)
+      throw typeof error === 'string'
+        ? new SyntaxError(error)
+        : new ParseError(error)
     }
 
-    return Data
+    return data
   }
 
   return processor

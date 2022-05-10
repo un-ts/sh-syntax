@@ -5,15 +5,12 @@ package main
 
 import (
 	"reflect"
+	"strconv"
+	"syscall/js"
 
 	"github.com/rx-ts/sh-syntax/processor"
 
 	"mvdan.cc/sh/v3/syntax"
-)
-
-var (
-	parser  *syntax.Parser
-	printer *syntax.Printer
 )
 
 func mapParseError(err error) interface{} {
@@ -138,62 +135,105 @@ func fileToMap(file syntax.File) map[string]interface{} {
 	}
 }
 
-func parse(text string, filepath string, parserOptions processor.ParserOptions) (*syntax.File, error) {
+func Parse(text string, filepath string, parserOptions processor.ParserOptions) (*syntax.File, error) {
 	return processor.Parse(text, filepath, parserOptions)
 }
 
-func print(originalText string, filepath string, syntaxOptions processor.SyntaxOptions) (string, error) {
+func Print(originalText string, filepath string, syntaxOptions processor.SyntaxOptions) (string, error) {
 	return processor.Print(originalText, filepath, syntaxOptions)
 }
 
-func getParserOptions(keepComments bool, stopAt string, variant int) processor.ParserOptions {
+func jsBool(value js.Value) bool {
+	if value.IsUndefined() || value.IsNull() {
+		return false
+	}
+
+	return value.Bool()
+}
+
+func jsInt(value js.Value) int {
+	if value.IsUndefined() || value.IsNull() {
+		return 0
+	}
+
+	return value.Int()
+}
+
+func jsString(value js.Value) string {
+	if value.IsUndefined() || value.IsNull() {
+		return ""
+	}
+
+	return value.String()
+}
+
+func getParserOptions(options js.Value) processor.ParserOptions {
 	return processor.ParserOptions{
-		KeepComments: keepComments,
-		StopAt:       stopAt,
-		Variant:      syntax.LangVariant(variant),
+		KeepComments: jsBool(options.Get("keepComments")),
+		StopAt:       jsString(options.Get("stopAt")),
+		Variant:      syntax.LangVariant(jsInt(options.Get("variant"))),
 	}
 }
 
-type Result struct {
-	Data  interface{} `json:"data"`
-	Error interface{} `json:"error"`
-}
-
-//export parse
-func Parse(text string, filepath string, keepComments bool, stopAt string, variant int) Result {
-	file, err := parse(text, filepath, getParserOptions(keepComments, stopAt, variant))
-	Data := fileToMap(*file)
-	Error := mapParseError(err)
-	return Result{
-		Data,
-		Error,
+func getPrinterOptions(options js.Value) processor.PrinterOptions {
+	return processor.PrinterOptions{
+		Indent:           uint(jsInt(options.Get("indent"))),
+		BinaryNextLine:   jsBool(options.Get("binaryNextLine")),
+		SwitchCaseIndent: jsBool(options.Get("switchCaseIndent")),
+		SpaceRedirects:   jsBool(options.Get("spaceRedirects")),
+		KeepPadding:      jsBool(options.Get("keepPadding")),
+		Minify:           jsBool(options.Get("minify")),
+		FunctionNextLine: jsBool(options.Get("functionNextLine")),
 	}
 }
 
-//export print
-func Print(originalText string, filepath string,
-	// parser
-	keepComments bool, stopAt string, variant int,
-	// printer
-	indent int, binaryNextLine, switchCaseIndent, spaceRedirects, keepPadding, minify, functionNextLine bool,
-) Result {
-	Data, err := print(originalText, filepath, processor.SyntaxOptions{
-		ParserOptions: getParserOptions(keepComments, stopAt, variant),
-		PrinterOptions: processor.PrinterOptions{
-			Indent:           uint(indent),
-			BinaryNextLine:   binaryNextLine,
-			SwitchCaseIndent: switchCaseIndent,
-			SpaceRedirects:   spaceRedirects,
-			KeepPadding:      keepPadding,
-			Minify:           minify,
-			FunctionNextLine: functionNextLine,
-		},
-	})
-	Error := mapParseError(err)
-	return Result{
-		Data,
-		Error,
+func main() {
+	uid := strconv.Itoa(getUid())
+
+	println("uid:", uid)
+
+	Go := js.Global().Get("Go")
+
+	if Go.Get("__shProcessing").IsUndefined() {
+		Go.Set("__shProcessing", js.ValueOf(map[string]interface{}{}))
 	}
+
+	__shProcessing := Go.Get("__shProcessing")
+
+	if __shProcessing.Get(uid).IsUndefined() {
+		__shProcessing.Set(uid, js.ValueOf(map[string]interface{}{}))
+	}
+
+	options := __shProcessing.Get(uid)
+
+	filepath := jsString(options.Get("filepath"))
+	ast := jsString(options.Get("ast"))
+	text := jsString(options.Get("text"))
+
+	parserOptions := getParserOptions(options)
+
+	var data interface{}
+	var error interface{}
+
+	println("filepath:", filepath)
+
+	if ast == "" {
+		file, err := Parse(text, filepath, parserOptions)
+		data = fileToMap(*file)
+		error = mapParseError(err)
+	} else {
+		result, err := Print(text, filepath, processor.SyntaxOptions{
+			ParserOptions:  parserOptions,
+			PrinterOptions: getPrinterOptions(options),
+		})
+		data = result
+		error = mapParseError(err)
+	}
+
+	__shProcessing.Set(uid, js.ValueOf(map[string]interface{}{
+		"data":  data,
+		"error": error,
+	}))
 }
 
-func main() {}
+func getUid() int
