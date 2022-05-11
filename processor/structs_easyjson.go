@@ -465,7 +465,15 @@ func easyjson6a975c40DecodeGithubComRxTsShSyntaxProcessor3(in *jlexer.Lexer, out
 		case "Op":
 			out.Op = string(in.String())
 		case "N":
-			(out.N).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.N = nil
+			} else {
+				if out.N == nil {
+					out.N = new(Lit)
+				}
+				(*out.N).UnmarshalEasyJSON(in)
+			}
 		case "Word":
 			if in.IsNull() {
 				in.Skip()
@@ -517,7 +525,11 @@ func easyjson6a975c40EncodeGithubComRxTsShSyntaxProcessor3(out *jwriter.Writer, 
 	{
 		const prefix string = ",\"N\":"
 		out.RawString(prefix)
-		(in.N).MarshalEasyJSON(out)
+		if in.N == nil {
+			out.RawString("null")
+		} else {
+			(*in.N).MarshalEasyJSON(out)
+		}
 	}
 	{
 		const prefix string = ",\"Word\":"

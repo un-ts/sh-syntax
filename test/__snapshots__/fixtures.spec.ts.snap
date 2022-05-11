@@ -6430,29 +6430,7 @@ Object {
             "Offset": 354,
           },
           "Hdoc": null,
-          "N": Object {
-            "End": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "Pos": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "Value": "",
-            "ValueEnd": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "ValuePos": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-          },
+          "N": null,
           "Op": ">",
           "OpPos": Object {
             "Col": 1,
@@ -6499,29 +6477,7 @@ Object {
             "Offset": 357,
           },
           "Hdoc": null,
-          "N": Object {
-            "End": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "Pos": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "Value": "",
-            "ValueEnd": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-            "ValuePos": Object {
-              "Col": 0,
-              "Line": 0,
-              "Offset": 0,
-            },
-          },
+          "N": null,
           "Op": "<",
           "OpPos": Object {
             "Col": 4,

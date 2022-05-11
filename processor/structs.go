@@ -40,7 +40,7 @@ type Lit struct {
 type Redirect struct {
 	OpPos Pos
 	Op    string
-	N     Lit
+	N     *Lit
 	Word  *Word
 	Hdoc  *Word
 	Pos   Pos
@@ -155,11 +155,11 @@ func mapRedirects(redirects []*syntax.Redirect) []Redirect {
 	redirs := make([]Redirect, redirsSize)
 	for i := 0; i < redirsSize; i++ {
 		curr := redirects[i]
-		var N Lit
+		var N *Lit
 		if curr.N != nil {
 			ValuePos := mapPos(curr.N.Pos())
 			ValueEnd := mapPos(curr.N.End())
-			N = Lit{
+			N = &Lit{
 				ValuePos: ValuePos,
 				ValueEnd: ValueEnd,
 				Value:    curr.N.Value,
