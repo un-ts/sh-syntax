@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.2.0
+
+### Minor Changes
+
+- [`d81883f`](https://github.com/rx-ts/sh-syntax/commit/d81883f20437f2259cdc5ef9f1c0b9f11269c59f) Thanks [@JounQin](https://github.com/JounQin)! - feat: use tinygo to decrease wasm file size
+
 ## 0.1.4
 
 ### Patch Changes
