@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.2.1
+
+### Patch Changes
+
+- [`04be352`](https://github.com/rx-ts/sh-syntax/commit/04be352916ec9527d39b07ca7ad3c41a203d9f9e) Thanks [@JounQin](https://github.com/JounQin)! - fix: types field should always come first
+
 ## 0.2.0
 
 ### Minor Changes
