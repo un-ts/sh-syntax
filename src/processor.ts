@@ -19,18 +19,74 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-let uid = -1
-
-export const getProcessor = (
+export const getProcessor = async (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
-  let wasmFile: BufferSource | undefined
-  let wasmFilePromise: Promise<BufferSource> | undefined
+  const encoder = new TextEncoder()
+  const decoder = new TextDecoder()
 
-  function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(ast: File, options?: ShOptions): Promise<string>
+  const go = new Go()
 
-  async function processor(
+  const result = await WebAssembly.instantiate(
+    await getWasmFile(),
+    go.importObject,
+  )
+
+  const wasm = result.instance
+
+  // Do not await this promise, because it only resolves once the go main()
+  // function has exited. But we need the main function to stay alive to be
+  // able to call the `parse` and `print` function.
+  // eslint-disable-next-line no-void
+  void go.run(wasm)
+
+  const { memory, wasmAlloc, wasmFree, process } = wasm.exports as {
+    memory: WebAssembly.Memory
+    wasmAlloc: (size: number) => number
+    wasmFree: (pointer: number) => void
+    process: (
+      filePathPointer: number,
+      filePath0: number,
+      filePath1: number,
+
+      textPointer: number,
+      text0: number,
+      text1: number,
+
+      isAst: boolean,
+
+      keepComments: boolean,
+      stopAtPointer: number,
+      stopAt0: number,
+      stopAt1: number,
+      variant: LangVariant,
+
+      indent: number,
+      binaryNextLine: boolean,
+      switchCaseIndent: boolean,
+      spaceRedirects: boolean,
+      keepPadding: boolean,
+      minify: boolean,
+      functionNextLine: boolean,
+    ) => number
+  }
+
+  if (
+    !(memory instanceof WebAssembly.Memory) ||
+    !(wasmAlloc instanceof Function) ||
+    !(wasmFree instanceof Function) ||
+    !(process instanceof Function)
+  ) {
+    throw new TypeError(
+      'Invalid wasm exports. Expected memory, wasmAlloc, wasmFree, process.',
+    )
+  }
+
+  function processor(text: string, options?: ShOptions): File
+  function processor(ast: File, options?: ShOptions): string
+
+  function processor(
     textOrAst: File | string,
     {
       filepath,
@@ -51,13 +107,6 @@ export const getProcessor = (
       functionNextLine = false,
     }: ShOptions = {},
   ) {
-    if (!wasmFile) {
-      if (!wasmFilePromise) {
-        wasmFilePromise = Promise.resolve(getWasmFile())
-      }
-      wasmFile = await wasmFilePromise
-    }
-
     let isAst = false
 
     if (typeof textOrAst !== 'string') {
@@ -70,33 +119,34 @@ export const getProcessor = (
       }
     }
 
-    const go = new Go()
+    const filePath = encoder.encode(filepath)
+    const text = encoder.encode(isAst ? originalText : (textOrAst as string))
+    const uStopAt = encoder.encode(stopAt)
 
-    uid++
+    const filePathPointer = wasmAlloc(filePath.byteLength)
+    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
 
-    if (uid === Number.MAX_SAFE_INTEGER) {
-      uid = 0
-    }
+    const textPointer = wasmAlloc(text.byteLength)
+    new Uint8Array(memory.buffer).set(text, textPointer)
 
-    Object.assign(go.importObject.env, {
-      'main.getUid': () => uid,
-    })
+    const stopAtPointer = wasmAlloc(uStopAt.byteLength)
+    new Uint8Array(memory.buffer).set(uStopAt, stopAtPointer)
 
-    const result = await WebAssembly.instantiate(wasmFile, go.importObject)
+    const resultPointer = process(
+      filePathPointer,
+      filePath.byteLength,
+      filePath.byteLength,
 
-    const wasm = result.instance
+      textPointer,
+      text.byteLength,
+      text.byteLength,
 
-    if (!Go.__shProcessing) {
-      Go.__shProcessing = {}
-    }
-
-    Go.__shProcessing[uid] = {
-      filepath,
-      ast: isAst ? 'ast' : '',
-      text: isAst ? originalText : (textOrAst as string),
+      isAst,
 
       keepComments,
-      stopAt,
+      stopAtPointer,
+      uStopAt.byteLength,
+      uStopAt.byteLength,
       variant,
 
       indent,
@@ -106,25 +156,37 @@ export const getProcessor = (
       keepPadding,
       minify,
       functionNextLine,
+    )
+
+    wasmFree(filePathPointer)
+    wasmFree(textPointer)
+    wasmFree(stopAtPointer)
+
+    const result = new Uint8Array(memory.buffer).subarray(resultPointer)
+    const end = result.indexOf(0)
+
+    const string = decoder.decode(result.subarray(0, end))
+
+    const {
+      file,
+      text: processedText,
+      parseError,
+      message,
+    } = JSON.parse(string) as {
+      file: File
+      text: string
+      parseError: IParseError | null
+      message: string
     }
 
-    // eslint-disable-next-line no-void
-    void go.run(wasm)
-
-    const processed = Go.__shProcessing[uid]
-
-    delete Go.__shProcessing[uid]
-
-    const { data, error } = processed
-
-    if (error) {
+    if (parseError || message) {
       /* istanbul ignore next */
-      throw typeof error === 'string'
-        ? new SyntaxError(error)
-        : new ParseError(error)
+      throw parseError == null
+        ? new SyntaxError(message)
+        : new ParseError(parseError)
     }
 
-    return data
+    return isAst ? processedText : file
   }
 
   return processor
