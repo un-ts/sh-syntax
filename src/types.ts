@@ -87,12 +87,3 @@ export interface IParseError {
   Text: string
   Pos: Pos
 }
-
-export interface ShProcessing<T extends File | string = File | string>
-  extends ShOptions {
-  ast?: string
-  text?: string
-
-  data?: T | null
-  error?: IParseError | string | null
-}
