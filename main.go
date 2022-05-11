@@ -51,8 +51,8 @@ func Print(originalText string, filepath string, syntaxOptions processor.SyntaxO
 
 //export process
 func process(
-	filepath []byte,
-	text []byte,
+	filepathBytes []byte,
+	textBytes []byte,
 
 	isAst bool,
 
@@ -70,8 +70,8 @@ func process(
 	minify,
 	functionNextLine bool,
 ) *byte {
-	filepathStr := string(filepath)
-	textStr := string(text)
+	filepath := string(filepathBytes)
+	text := string(textBytes)
 
 	parserOptions := processor.ParserOptions{
 		KeepComments: keepComments,
@@ -93,13 +93,13 @@ func process(
 			FunctionNextLine: functionNextLine,
 		}
 
-		textStr, error = Print(textStr, filepathStr, processor.SyntaxOptions{
+		text, error = Print(text, filepath, processor.SyntaxOptions{
 			ParserOptions:  parserOptions,
 			PrinterOptions: printerOptions,
 		})
 
 	} else {
-		astFile, err := Parse(textStr, filepathStr, parserOptions)
+		astFile, err := Parse(text, filepath, parserOptions)
 		file = processor.MapFile(*astFile)
 		error = err
 	}
@@ -108,7 +108,7 @@ func process(
 
 	result := processor.Result{
 		File:       file,
-		Text:       textStr,
+		Text:       text,
 		ParseError: parseError,
 		Message:    message,
 	}
