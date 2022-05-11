@@ -18,10 +18,10 @@ export const processor = getProcessor(() =>
 )
 
 export const parse = async (text: string, options?: ShOptions) =>
-  (await processor)(text, options)
+  processor(text, options)
 
 export const print = async (ast: File, options?: ShOptions) =>
-  (await processor)(ast, options)
+  processor(ast, options)
 
 export * from './processor.js'
 export * from './types.js'

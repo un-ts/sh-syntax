@@ -41,15 +41,15 @@ type Redirect struct {
 	OpPos Pos
 	Op    string
 	N     Lit
-	Word  Word
-	Hdoc  Word
+	Word  *Word
+	Hdoc  *Word
 	Pos   Pos
 	End   Pos
 }
 
 type Stmt struct {
 	Comments   []Comment
-	Cmd        Node
+	Cmd        *Node
 	Position   Pos
 	Semicolon  Pos
 	Negated    bool
@@ -171,8 +171,8 @@ func mapRedirects(redirects []*syntax.Redirect) []Redirect {
 			OpPos: mapPos(curr.OpPos),
 			Op:    curr.Op.String(),
 			N:     N,
-			Word:  *mapWord(curr.Word),
-			Hdoc:  *mapWord(curr.Hdoc),
+			Word:  mapWord(curr.Word),
+			Hdoc:  mapWord(curr.Hdoc),
 			Pos:   mapPos(curr.Pos()),
 			End:   mapPos(curr.End()),
 		}
@@ -187,7 +187,7 @@ func mapStmts(stmts []*syntax.Stmt) []Stmt {
 		curr := stmts[i]
 		stmtList[i] = Stmt{
 			Comments:   mapComments(curr.Comments),
-			Cmd:        *mapNode(curr.Cmd),
+			Cmd:        mapNode(curr.Cmd),
 			Position:   mapPos(curr.Position),
 			Semicolon:  mapPos(curr.Semicolon),
 			Negated:    curr.Negated,

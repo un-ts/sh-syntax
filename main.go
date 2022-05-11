@@ -123,5 +123,4 @@ func process(
 }
 
 func main() {
-	<-make(chan bool)
 }

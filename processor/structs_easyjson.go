@@ -179,7 +179,15 @@ func easyjson6a975c40DecodeGithubComRxTsShSyntaxProcessor1(in *jlexer.Lexer, out
 				in.Delim(']')
 			}
 		case "Cmd":
-			(out.Cmd).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Cmd = nil
+			} else {
+				if out.Cmd == nil {
+					out.Cmd = new(Node)
+				}
+				(*out.Cmd).UnmarshalEasyJSON(in)
+			}
 		case "Position":
 			(out.Position).UnmarshalEasyJSON(in)
 		case "Semicolon":
@@ -250,7 +258,11 @@ func easyjson6a975c40EncodeGithubComRxTsShSyntaxProcessor1(out *jwriter.Writer, 
 	{
 		const prefix string = ",\"Cmd\":"
 		out.RawString(prefix)
-		(in.Cmd).MarshalEasyJSON(out)
+		if in.Cmd == nil {
+			out.RawString("null")
+		} else {
+			(*in.Cmd).MarshalEasyJSON(out)
+		}
 	}
 	{
 		const prefix string = ",\"Position\":"
@@ -455,9 +467,25 @@ func easyjson6a975c40DecodeGithubComRxTsShSyntaxProcessor3(in *jlexer.Lexer, out
 		case "N":
 			(out.N).UnmarshalEasyJSON(in)
 		case "Word":
-			(out.Word).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Word = nil
+			} else {
+				if out.Word == nil {
+					out.Word = new(Word)
+				}
+				(*out.Word).UnmarshalEasyJSON(in)
+			}
 		case "Hdoc":
-			(out.Hdoc).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Hdoc = nil
+			} else {
+				if out.Hdoc == nil {
+					out.Hdoc = new(Word)
+				}
+				(*out.Hdoc).UnmarshalEasyJSON(in)
+			}
 		case "Pos":
 			(out.Pos).UnmarshalEasyJSON(in)
 		case "End":
@@ -494,12 +522,20 @@ func easyjson6a975c40EncodeGithubComRxTsShSyntaxProcessor3(out *jwriter.Writer, 
 	{
 		const prefix string = ",\"Word\":"
 		out.RawString(prefix)
-		(in.Word).MarshalEasyJSON(out)
+		if in.Word == nil {
+			out.RawString("null")
+		} else {
+			(*in.Word).MarshalEasyJSON(out)
+		}
 	}
 	{
 		const prefix string = ",\"Hdoc\":"
 		out.RawString(prefix)
-		(in.Hdoc).MarshalEasyJSON(out)
+		if in.Hdoc == nil {
+			out.RawString("null")
+		} else {
+			(*in.Hdoc).MarshalEasyJSON(out)
+		}
 	}
 	{
 		const prefix string = ",\"Pos\":"
