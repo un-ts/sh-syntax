@@ -17,11 +17,10 @@ export const processor = getProcessor(() =>
   fs.promises.readFile(path.resolve(_dirname, '../main.wasm')),
 )
 
-export const parse = async (text: string, options?: ShOptions) =>
+export const parse = (text: string, options?: ShOptions) =>
   processor(text, options)
 
-export const print = async (ast: File, options?: ShOptions) =>
-  processor(ast, options)
+export const print = (ast: File, options?: ShOptions) => processor(ast, options)
 
 export * from './processor.js'
 export * from './types.js'

@@ -22,6 +22,9 @@ export class ParseError extends Error implements IParseError {
 export const getProcessor = (
   getWasmFile: () => BufferSource | Promise<BufferSource>,
 ) => {
+  let wasmFile: BufferSource | undefined
+  let wasmFilePromise: Promise<BufferSource> | undefined
+
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
@@ -49,6 +52,13 @@ export const getProcessor = (
       functionNextLine = false,
     }: ShOptions = {},
   ) {
+    if (!wasmFile) {
+      if (!wasmFilePromise) {
+        wasmFilePromise = Promise.resolve(getWasmFile())
+      }
+      wasmFile = await wasmFilePromise
+    }
+
     let isAst = false
 
     if (typeof textOrAst !== 'string') {
@@ -63,10 +73,7 @@ export const getProcessor = (
 
     const go = new Go()
 
-    const wasm = await WebAssembly.instantiate(
-      await getWasmFile(),
-      go.importObject,
-    )
+    const wasm = await WebAssembly.instantiate(wasmFile, go.importObject)
 
     // Do not await this promise, because it only resolves once the go main()
     // function has exited. But we need the main function to stay alive to be
