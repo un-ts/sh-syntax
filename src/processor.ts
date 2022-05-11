@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { nanoid } from 'nanoid/async'
-
-import type { IParseError, File, ShOptions } from './types.js'
+import { IParseError, File, ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename: string
@@ -28,9 +25,12 @@ export const getProcessor = (
   let wasmFile: BufferSource | undefined
   let wasmFilePromise: Promise<BufferSource> | undefined
 
+  const encoder = new TextEncoder()
+  const decoder = new TextDecoder()
+
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(ast: File, options?: ShOptions): Promise<string>
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+
   async function processor(
     textOrAst: File | string,
     {
@@ -38,8 +38,8 @@ export const getProcessor = (
       originalText,
 
       keepComments = true,
-      stopAt,
-      variant,
+      stopAt = '',
+      variant = LangVariant.LangBash,
 
       useTabs = false,
       tabWidth = 2,
@@ -59,32 +59,11 @@ export const getProcessor = (
       wasmFile = await wasmFilePromise
     }
 
-    const go = new Go()
-
-    const uid = await nanoid()
-
-    const argv = [
-      'js',
-      '-uid=' + uid,
-      '-keepComments=' + keepComments,
-      '-indent=' + indent,
-      '-binaryNextLine=' + binaryNextLine,
-      '-switchCaseIndent=' + switchCaseIndent,
-      '-spaceRedirects=' + spaceRedirects,
-      '-keepPadding=' + keepPadding,
-      '-minify=' + minify,
-      '-functionNextLine=' + functionNextLine,
-    ]
-
-    if (filepath != null) {
-      argv.push('-filepath=' + filepath)
-    }
-
     let isAst = false
 
     if (typeof textOrAst !== 'string') {
       isAst = true
-      argv.push('-ast=ast')
+
       if (originalText == null) {
         console.warn(
           '`originalText` is required for now, hope we will find better solution later',
@@ -92,44 +71,115 @@ export const getProcessor = (
       }
     }
 
-    if (stopAt != null) {
-      argv.push('-stopAt=' + stopAt)
+    const go = new Go()
+
+    const wasm = await WebAssembly.instantiate(wasmFile, go.importObject)
+
+    // Do not await this promise, because it only resolves once the go main()
+    // function has exited. But we need the main function to stay alive to be
+    // able to call the `parse` and `print` function.
+    // eslint-disable-next-line no-void
+    void go.run(wasm.instance)
+
+    const { memory, wasmAlloc, wasmFree, process } = wasm.instance.exports as {
+      memory: WebAssembly.Memory
+      wasmAlloc: (size: number) => number
+      wasmFree: (pointer: number) => void
+      process: (
+        filePathPointer: number,
+        filePath0: number,
+        filePath1: number,
+
+        textPointer: number,
+        text0: number,
+        text1: number,
+
+        isAst: boolean,
+
+        keepComments: boolean,
+        stopAtPointer: number,
+        stopAt0: number,
+        stopAt1: number,
+        variant: LangVariant,
+
+        indent: number,
+        binaryNextLine: boolean,
+        switchCaseIndent: boolean,
+        spaceRedirects: boolean,
+        keepPadding: boolean,
+        minify: boolean,
+        functionNextLine: boolean,
+      ) => number
     }
 
-    if (variant != null) {
-      argv.push('-variant=' + variant)
+    const filePath = encoder.encode(filepath)
+    const text = encoder.encode(isAst ? originalText : (textOrAst as string))
+    const uStopAt = encoder.encode(stopAt)
+
+    const filePathPointer = wasmAlloc(filePath.byteLength)
+    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+
+    const textPointer = wasmAlloc(text.byteLength)
+    new Uint8Array(memory.buffer).set(text, textPointer)
+
+    const stopAtPointer = wasmAlloc(uStopAt.byteLength)
+    new Uint8Array(memory.buffer).set(uStopAt, stopAtPointer)
+
+    const resultPointer = process(
+      filePathPointer,
+      filePath.byteLength,
+      filePath.byteLength,
+
+      textPointer,
+      text.byteLength,
+      text.byteLength,
+
+      isAst,
+
+      keepComments,
+      stopAtPointer,
+      uStopAt.byteLength,
+      uStopAt.byteLength,
+      variant,
+
+      indent,
+      binaryNextLine,
+      switchCaseIndent,
+      spaceRedirects,
+      keepPadding,
+      minify,
+      functionNextLine,
+    )
+
+    wasmFree(filePathPointer)
+    wasmFree(textPointer)
+    wasmFree(stopAtPointer)
+
+    const result = new Uint8Array(memory.buffer).subarray(resultPointer)
+    const end = result.indexOf(0)
+
+    const string = decoder.decode(result.subarray(0, end))
+
+    const {
+      file,
+      text: processedText,
+      parseError,
+      message,
+    } = JSON.parse(string) as {
+      file: File
+      text: string
+      parseError: IParseError | null
+      message: string
     }
 
-    go.argv = argv
-
-    const result = await WebAssembly.instantiate(wasmFile, go.importObject)
-
-    const wasm = result.instance
-
-    if (!Go.__shProcessing) {
-      Go.__shProcessing = {}
-    }
-
-    Go.__shProcessing[uid] = {
-      Text: isAst ? originalText! : (textOrAst as string),
-      Data: null,
-      Error: null,
-    }
-
-    await go.run(wasm)
-
-    const processed = Go.__shProcessing[uid]
-
-    delete Go.__shProcessing[uid]
-
-    if ('Error' in processed && processed.Error != null) {
+    if (parseError || message) {
       /* istanbul ignore next */
-      throw typeof processed.Error === 'string'
-        ? new SyntaxError(processed.Error)
-        : new ParseError(processed.Error)
+      throw parseError == null
+        ? new SyntaxError(message)
+        : new ParseError(parseError)
     }
 
-    return processed.Data
+    return isAst ? processedText : file
   }
 
   return processor
