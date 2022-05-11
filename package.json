@@ -13,10 +13,10 @@
   "module": "./lib/index.js",
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
       "require": "./lib/index.cjs",
-      "browser": "./lib/browser.js",
-      "types": "./lib/index.d.ts"
+      "browser": "./lib/browser.js"
     },
     "./package.json": "./package.json",
     "./vendors/wasm_exec": "./vendors/wasm_exec.js",
