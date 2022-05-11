@@ -112,18 +112,6 @@ export const getProcessor = (
       ) => number
     }
 
-    // istanbul ignore if
-    if (
-      !(memory instanceof WebAssembly.Memory) ||
-      !(wasmAlloc instanceof Function) ||
-      !(wasmFree instanceof Function) ||
-      !(process instanceof Function)
-    ) {
-      throw new TypeError(
-        'Invalid wasm exports. Expected memory, wasmAlloc, wasmFree, process.',
-      )
-    }
-
     const filePath = encoder.encode(filepath)
     const text = encoder.encode(isAst ? originalText : (textOrAst as string))
     const uStopAt = encoder.encode(stopAt)
