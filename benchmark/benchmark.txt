@@ -1,3 +1,3 @@
-sh-syntax x 12.69 ops/sec ±9.16% (65 runs sampled)
-mvdan-sh x 13.81 ops/sec ±4.06% (40 runs sampled)
-Fastest is mvdan-sh
+sh-syntax x 16.18 ops/sec ±18.68% (46 runs sampled)
+mvdan-sh x 13.68 ops/sec ±3.25% (39 runs sampled)
+Fastest is sh-syntax
