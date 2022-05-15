@@ -57,7 +57,7 @@
     "@types/node": "^17.0.33",
     "@types/web": "^0.0.64",
     "mvdan-sh": "^0.10.1",
-    "tinybench": "tinylibs/tinybench#async-wrapper",
+    "tinybench": "^1.0.0",
     "ts-jest": "^28.0.2",
     "type-coverage": "^2.21.1",
     "typescript": "^4.6.4"

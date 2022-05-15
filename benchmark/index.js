@@ -54,14 +54,18 @@ const shOptions = {
 }
 
 suite
-  .add(
-    'sh-syntax',
+  .add('sh-syntax', {
+    defer: true,
     /**
-     * @param {() => void} done
-     * @returns {Promise<void>}
+     *
+     * @param {{resolve: () => void, reject: (reason?: unknown) => void}} deferred
      */
-    done => print(text, shOptions).then(() => done()),
-  )
+    fn: deferred =>
+      print(text, shOptions).then(
+        deferred.resolve.bind(deferred),
+        deferred.reject.bind(deferred),
+      ),
+  })
   .add('mvdan-sh', () => {
     const { syntax } = sh
     syntax
