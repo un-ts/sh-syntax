@@ -38,11 +38,15 @@ jobs:
 
       - name: Build, Lint and test
         run: |
-          pnpm test
+          pnpm build
           pnpm lint
+          pnpm test
         env:
           EFF_NO_LINK_RULES: true
           PARSER_NO_WATCH: true
+
+      - name: Benchmark
+        run: node benchmark
 
       - name: Codecov
         uses: codecov/codecov-action@v3

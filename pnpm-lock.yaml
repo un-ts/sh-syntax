@@ -6,8 +6,11 @@ specifiers:
   '@changesets/cli': ^2.22.0
   '@types/golang-wasm-exec': ^1.15.0
   '@types/jest': ^27.5.1
+  '@types/mvdan-sh': ^0.5.1
   '@types/node': ^17.0.33
   '@types/web': ^0.0.64
+  mvdan-sh: ^0.10.1
+  tinybench: tinylibs/tinybench#async-wrapper
   ts-jest: ^28.0.2
   tslib: ^2.4.0
   type-coverage: ^2.21.1
@@ -22,8 +25,11 @@ devDependencies:
   '@changesets/cli': 2.22.0
   '@types/golang-wasm-exec': 1.15.0
   '@types/jest': 27.5.1
+  '@types/mvdan-sh': 0.5.1
   '@types/node': 17.0.33
   '@types/web': 0.0.64
+  mvdan-sh: 0.10.1
+  tinybench: github.com/tinylibs/tinybench/ba3e09e01909c49a173e4d7427f8365f703254ad
   ts-jest: 28.0.2_jvw3aug6tmdf3dbuinfd2eclcy
   type-coverage: 2.21.1_typescript@4.6.4
   typescript: 4.6.4
@@ -3093,6 +3099,10 @@ packages:
 
   /@types/ms/0.7.31:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
+    dev: true
+
+  /@types/mvdan-sh/0.5.1:
+    resolution: {integrity: sha512-MEUuh4VnqwqiKT2feCAsIBQIWkeR50MmN76pXNlxTLZg+7JEKvwycokN7r3yQvRDrj3de0LfNJMQE8AhrNajTg==}
     dev: true
 
   /@types/node/12.20.52:
@@ -11864,4 +11874,10 @@ packages:
 
   /zwitch/2.0.2:
     resolution: {integrity: sha512-JZxotl7SxAJH0j7dN4pxsTV6ZLXoLdGME+PsjkL/DaBrVryK9kTGq06GfKrwcSOqypP+fdXGoCHE36b99fWVoA==}
+    dev: true
+
+  github.com/tinylibs/tinybench/ba3e09e01909c49a173e4d7427f8365f703254ad:
+    resolution: {tarball: https://codeload.github.com/tinylibs/tinybench/tar.gz/ba3e09e01909c49a173e4d7427f8365f703254ad}
+    name: benchmark
+    version: 2.1.4
     dev: true
