@@ -1,5 +1,13 @@
 # sh-syntax
 
+## 0.3.0
+
+### Minor Changes
+
+- [#26](https://github.com/rx-ts/sh-syntax/pull/26) [`7ed3de3`](https://github.com/rx-ts/sh-syntax/commit/7ed3de30d24fe1c16a9427f848b7a5e36774df1d) Thanks [@JounQin](https://github.com/JounQin)! - feat: upgrade go 1.18 and deps
+
+* [#26](https://github.com/rx-ts/sh-syntax/pull/26) [`7ed3de3`](https://github.com/rx-ts/sh-syntax/commit/7ed3de30d24fe1c16a9427f848b7a5e36774df1d) Thanks [@JounQin](https://github.com/JounQin)! - feat: print with text directly
+
 ## 0.2.1
 
 ### Patch Changes
