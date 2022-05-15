@@ -10,7 +10,7 @@ specifiers:
   '@types/node': ^17.0.33
   '@types/web': ^0.0.64
   mvdan-sh: ^0.10.1
-  tinybench: tinylibs/tinybench#async-wrapper
+  tinybench: ^1.0.0
   ts-jest: ^28.0.2
   tslib: ^2.4.0
   type-coverage: ^2.21.1
@@ -29,7 +29,7 @@ devDependencies:
   '@types/node': 17.0.33
   '@types/web': 0.0.64
   mvdan-sh: 0.10.1
-  tinybench: github.com/tinylibs/tinybench/ba3e09e01909c49a173e4d7427f8365f703254ad
+  tinybench: 1.0.0
   ts-jest: 28.0.2_jvw3aug6tmdf3dbuinfd2eclcy
   type-coverage: 2.21.1_typescript@4.6.4
   typescript: 4.6.4
@@ -11079,6 +11079,10 @@ packages:
       globrex: 0.1.2
     dev: true
 
+  /tinybench/1.0.0:
+    resolution: {integrity: sha512-sLHtRpVmhQWa1tclT7aPhUhwLFstBX0t35hNou2nx/h+3x/JdXA6aL3uX0zh0jfZpOKqFc3rRnpsIf0JdjxkGg==}
+    dev: true
+
   /tmp/0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
     engines: {node: '>=0.6.0'}
@@ -11874,10 +11878,4 @@ packages:
 
   /zwitch/2.0.2:
     resolution: {integrity: sha512-JZxotl7SxAJH0j7dN4pxsTV6ZLXoLdGME+PsjkL/DaBrVryK9kTGq06GfKrwcSOqypP+fdXGoCHE36b99fWVoA==}
-    dev: true
-
-  github.com/tinylibs/tinybench/ba3e09e01909c49a173e4d7427f8365f703254ad:
-    resolution: {tarball: https://codeload.github.com/tinylibs/tinybench/tar.gz/ba3e09e01909c49a173e4d7427f8365f703254ad}
-    name: benchmark
-    version: 2.1.4
     dev: true
