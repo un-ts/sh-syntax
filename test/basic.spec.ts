@@ -17,6 +17,10 @@ test('it should just work', async () => {
 
   await expect(print(null!, { filepath: 'foo.sh' })).rejects.toMatchSnapshot()
 
+  expect(
+    await print('  Hello   World ! d', { filepath: 'bar.sh' }),
+  ).toMatchSnapshot()
+
   await expect(parse('echo )')).rejects.toMatchInlineSnapshot(
     `[Error: a command can only contain words and redirects; encountered )]`,
   )
