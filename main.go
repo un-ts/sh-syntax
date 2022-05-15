@@ -54,7 +54,7 @@ func process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	isAst bool,
+	print bool,
 
 	// parser
 	keepComments bool,
@@ -82,7 +82,7 @@ func process(
 	var file processor.File
 	var error error
 
-	if isAst {
+	if print {
 		printerOptions := processor.PrinterOptions{
 			Indent:           uint(indent),
 			BinaryNextLine:   binaryNextLine,

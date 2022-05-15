@@ -25,10 +25,13 @@ export interface ShSyntaxOptions extends ShParserOptions, ShPrinterOptions {}
 
 export interface ShOptions extends ShSyntaxOptions {
   filepath?: string
-  originalText?: string
 
   useTabs?: boolean
   tabWidth?: number
+}
+
+export interface ShPrintOptions extends ShOptions {
+  originalText: string
 }
 
 export interface Pos {

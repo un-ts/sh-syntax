@@ -231,3 +231,5 @@ Object {
   ],
 }
 `;
+
+exports[`it should just work 5`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;

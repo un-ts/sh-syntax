@@ -29,12 +29,22 @@ export const getProcessor = (
   const decoder = new TextDecoder()
 
   function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(ast: File, options?: ShOptions): Promise<string>
+  function processor(
+    text: string,
+    options?: ShOptions & { print: true },
+  ): Promise<string>
+  function processor(
+    ast: File,
+    options?: ShOptions & {
+      originalText: string
+    },
+  ): Promise<string>
 
   async function processor(
     textOrAst: File | string,
     {
       filepath,
+      print = false,
       originalText,
 
       keepComments = true,
@@ -50,7 +60,7 @@ export const getProcessor = (
       keepPadding = false,
       minify = false,
       functionNextLine = false,
-    }: ShOptions = {},
+    }: ShOptions & { print?: boolean; originalText?: string } = {},
   ) {
     if (!wasmFile) {
       if (!wasmFilePromise) {
@@ -59,13 +69,11 @@ export const getProcessor = (
       wasmFile = await wasmFilePromise
     }
 
-    let isAst = false
-
-    if (typeof textOrAst !== 'string') {
-      isAst = true
+    if (typeof textOrAst !== 'string' && !print) {
+      print = true
 
       if (originalText == null) {
-        console.warn(
+        throw new TypeError(
           '`originalText` is required for now, hope we will find better solution later',
         )
       }
@@ -113,7 +121,7 @@ export const getProcessor = (
     }
 
     const filePath = encoder.encode(filepath)
-    const text = encoder.encode(isAst ? originalText : (textOrAst as string))
+    const text = encoder.encode(originalText || (textOrAst as string))
     const uStopAt = encoder.encode(stopAt)
 
     const filePathPointer = wasmAlloc(filePath.byteLength)
@@ -134,7 +142,7 @@ export const getProcessor = (
       text.byteLength,
       text.byteLength,
 
-      isAst,
+      print,
 
       keepComments,
       stopAtPointer,
@@ -179,7 +187,7 @@ export const getProcessor = (
         : new ParseError(parseError)
     }
 
-    return isAst ? processedText : file
+    return print ? processedText : file
   }
 
   return processor

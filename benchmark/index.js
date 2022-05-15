@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import sh from 'mvdan-sh'
 import Benchmark from 'tinybench'
 
-import { parse, print } from '../lib/index.js'
+import { print } from '../lib/index.js'
 
 /**
  * @typedef {import('../lib').ShOptions} ShOptions
@@ -40,7 +40,7 @@ const text = fs.readFileSync(filePath, 'utf8')
 /**
  * @type {ShOptions}
  */
-const shParseOptions = {
+const shOptions = {
   keepComments,
   variant,
 
@@ -53,16 +53,15 @@ const shParseOptions = {
   functionNextLine,
 }
 
-const shPrintOptions = {
-  originalText: text,
-  ...shParseOptions,
-}
-
 suite
-  .add('sh-syntax', async () => {
-    const file = await parse(text, shParseOptions)
-    return print(file, shPrintOptions)
-  })
+  .add(
+    'sh-syntax',
+    /**
+     * @param {() => void} done
+     * @returns {Promise<void>}
+     */
+    done => print(text, shOptions).then(() => done()),
+  )
   .add('mvdan-sh', () => {
     const { syntax } = sh
     syntax
