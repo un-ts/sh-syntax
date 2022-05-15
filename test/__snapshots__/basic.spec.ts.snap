@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`it should just work 1`] = `
+exports[`parse 1`] = `
 Object {
   "End": Object {
     "Col": 17,
@@ -58,7 +58,7 @@ Object {
 }
 `;
 
-exports[`it should just work 2`] = `
+exports[`parse 2`] = `
 Object {
   "End": Object {
     "Col": 16,
@@ -116,7 +116,7 @@ Object {
 }
 `;
 
-exports[`it should just work 3`] = `
+exports[`parse 3`] = `
 Object {
   "End": Object {
     "Col": 20,
@@ -174,7 +174,7 @@ Object {
 }
 `;
 
-exports[`it should just work 4`] = `
+exports[`parse 4`] = `
 Object {
   "End": Object {
     "Col": 20,
@@ -232,9 +232,9 @@ Object {
 }
 `;
 
-exports[`it should just work 5`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;
-
-exports[`it should just work 6`] = `
+exports[`print 1`] = `
 "Hello World ! d
 "
 `;
+
+exports[`print 2`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;
