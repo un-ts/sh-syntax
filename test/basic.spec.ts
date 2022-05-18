@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { LangVariant, parse, print } from 'sh-syntax'
 
 test('parse', async () => {

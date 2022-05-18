@@ -54,7 +54,7 @@ jobs:
       - name: Codacy Coverage
         if: matrix.os != 'windows-latest'
         run: |
-          bash <(curl -Ls https://coverage.codacy.com/get.sh)
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) -- -r coverage/*.json
         env:
           CI: 'true'
           CODACY_ACCOUNT_TOKEN: ${{ secrets.CODACY_ACCOUNT_TOKEN }}

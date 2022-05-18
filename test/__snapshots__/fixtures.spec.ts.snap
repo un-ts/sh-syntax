@@ -1,288 +1,288 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1
 
-exports[`parser and printer should format all fixtures: .dockerignore 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > .dockerignore 1`] = `
+{
+  "End": {
     "Col": 18,
     "Line": 7,
     "Offset": 104,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": ".dockerignore",
-  "Pos": Object {
+  "Pos": {
     "Col": 7,
     "Line": 1,
     "Offset": 6,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 18,
           "Line": 1,
           "Offset": 17,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 7,
           "Line": 1,
           "Offset": 6,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 18,
         "Line": 1,
         "Offset": 17,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 7,
         "Line": 1,
         "Offset": 6,
       },
-      "Position": Object {
+      "Position": {
         "Col": 7,
         "Line": 1,
         "Offset": 6,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 7,
           "Line": 2,
           "Offset": 24,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 2,
           "Line": 2,
           "Offset": 19,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 7,
         "Line": 2,
         "Offset": 24,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 2,
         "Line": 2,
         "Offset": 19,
       },
-      "Position": Object {
+      "Position": {
         "Col": 2,
         "Line": 2,
         "Offset": 19,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 3,
           "Offset": 44,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 7,
           "Line": 3,
           "Offset": 31,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 3,
         "Offset": 44,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 7,
         "Line": 3,
         "Offset": 31,
       },
-      "Position": Object {
+      "Position": {
         "Col": 7,
         "Line": 3,
         "Offset": 31,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 13,
           "Line": 4,
           "Offset": 57,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 6,
           "Line": 4,
           "Offset": 50,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 13,
         "Line": 4,
         "Offset": 57,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 6,
         "Line": 4,
         "Offset": 50,
       },
-      "Position": Object {
+      "Position": {
         "Col": 6,
         "Line": 4,
         "Offset": 50,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 14,
           "Line": 5,
           "Offset": 71,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 6,
           "Line": 5,
           "Offset": 63,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 14,
         "Line": 5,
         "Offset": 71,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 6,
         "Line": 5,
         "Offset": 63,
       },
-      "Position": Object {
+      "Position": {
         "Col": 6,
         "Line": 5,
         "Offset": 63,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 15,
           "Line": 6,
           "Offset": 86,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 11,
           "Line": 6,
           "Offset": 82,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 15,
         "Line": 6,
         "Offset": 86,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 11,
         "Line": 6,
         "Offset": 82,
       },
-      "Position": Object {
+      "Position": {
         "Col": 11,
         "Line": 6,
         "Offset": 82,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 18,
           "Line": 7,
           "Offset": 104,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 6,
           "Line": 7,
           "Offset": 92,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 18,
         "Line": 7,
         "Offset": 104,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 6,
         "Line": 7,
         "Offset": 92,
       },
-      "Position": Object {
+      "Position": {
         "Col": 6,
         "Line": 7,
         "Offset": 92,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -292,7 +292,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: .dockerignore 2`] = `
+exports[`parser and printer > should format all fixtures > .dockerignore 2`] = `
 "*.less.json
 *.log
 *.tsbuildinfo
@@ -303,66 +303,66 @@ node_modules
 "
 `;
 
-exports[`parser and printer should format all fixtures: .properties 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > .properties 1`] = `
+{
+  "End": {
     "Col": 17,
     "Line": 6,
     "Offset": 151,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": ".properties",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 4,
           "Offset": 104,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 4,
           "Offset": 85,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 65,
             "Line": 1,
             "Offset": 64,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
           "Text": " THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 19,
             "Line": 2,
             "Offset": 83,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 2,
             "Offset": 65,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 2,
             "Offset": 65,
@@ -371,102 +371,102 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 4,
         "Offset": 104,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 4,
         "Offset": 85,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 4,
         "Offset": 85,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 30,
           "Line": 5,
           "Offset": 134,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 5,
           "Offset": 105,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 30,
         "Line": 5,
         "Offset": 134,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 5,
         "Offset": 105,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 5,
         "Offset": 105,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 17,
           "Line": 6,
           "Offset": 151,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 6,
           "Offset": 135,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 17,
         "Line": 6,
         "Offset": 151,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 6,
         "Offset": 135,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 6,
         "Offset": 135,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -476,7 +476,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: .properties 2`] = `
+exports[`parser and printer > should format all fixtures > .properties 2`] = `
 "# THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.
 # yarn lockfile v1
 
@@ -486,87 +486,87 @@ username jounqin
 "
 `;
 
-exports[`parser and printer should format all fixtures: Dockerfile 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > Dockerfile 1`] = `
+{
+  "End": {
     "Col": 12,
     "Line": 13,
     "Offset": 289,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "Dockerfile",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 32,
           "Line": 1,
           "Offset": 31,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 1,
           "Offset": 0,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 32,
         "Line": 1,
         "Offset": 31,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 1,
         "Offset": 0,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 1,
         "Offset": 0,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 12,
           "Line": 4,
           "Offset": 68,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 4,
           "Offset": 57,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 24,
             "Line": 3,
             "Offset": 56,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 3,
             "Offset": 33,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 3,
             "Offset": 33,
@@ -575,134 +575,134 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 12,
         "Line": 4,
         "Offset": 68,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 4,
         "Offset": 57,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 4,
         "Offset": 57,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 13,
           "Line": 5,
           "Offset": 81,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 5,
           "Offset": 69,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 13,
         "Line": 5,
         "Offset": 81,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 5,
         "Offset": 69,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 5,
         "Offset": 69,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 52,
           "Line": 8,
           "Offset": 180,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 6,
           "Offset": 82,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 52,
         "Line": 8,
         "Offset": 180,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 6,
         "Offset": 82,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 6,
         "Offset": 82,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 11,
           "Offset": 219,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 11,
           "Offset": 200,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 18,
             "Line": 10,
             "Offset": 199,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 10,
             "Offset": 182,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 10,
             "Offset": 182,
@@ -711,102 +711,102 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 11,
         "Offset": 219,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 11,
         "Offset": 200,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 11,
         "Offset": 200,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 58,
           "Line": 12,
           "Offset": 277,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 12,
           "Offset": 220,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 58,
         "Line": 12,
         "Offset": 277,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 12,
         "Offset": 220,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 12,
         "Offset": 220,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 12,
           "Line": 13,
           "Offset": 289,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 13,
           "Offset": 278,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 12,
         "Line": 13,
         "Offset": 289,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 13,
         "Offset": 278,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 13,
         "Offset": 278,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -816,7 +816,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: Dockerfile 2`] = `
+exports[`parser and printer > should format all fixtures > Dockerfile 2`] = `
 "FROM node:lts-alpine as builder
 
 # 安装与编译代码
@@ -833,28 +833,28 @@ EXPOSE 2015
 "
 `;
 
-exports[`parser and printer should format all fixtures: error.sh 1`] = `[Error: a command can only contain words and redirects; encountered )]`;
+exports[`parser and printer > should format all fixtures > error.sh 1`] = `[Error: a command can only contain words and redirects; encountered )]`;
 
-exports[`parser and printer should format all fixtures: hosts 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > hosts 1`] = `
+{
+  "End": {
     "Col": 18,
     "Line": 13,
     "Offset": 405,
   },
-  "Last": Array [
-    Object {
-      "End": Object {
+  "Last": [
+    {
+      "End": {
         "Col": 18,
         "Line": 13,
         "Offset": 405,
       },
-      "Hash": Object {
+      "Hash": {
         "Col": 2,
         "Line": 13,
         "Offset": 389,
       },
-      "Pos": Object {
+      "Pos": {
         "Col": 2,
         "Line": 13,
         "Offset": 389,
@@ -863,129 +863,129 @@ Object {
     },
   ],
   "Name": "hosts",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 31,
           "Line": 7,
           "Offset": 167,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 5,
           "Line": 7,
           "Offset": 141,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 3,
             "Line": 1,
             "Offset": 2,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
           "Text": "#",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 16,
             "Line": 2,
             "Offset": 18,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 2,
             "Offset": 3,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 2,
             "Offset": 3,
           },
           "Text": " Host Database",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 2,
             "Line": 3,
             "Offset": 20,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 3,
             "Offset": 19,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 3,
             "Offset": 19,
           },
           "Text": "",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 56,
             "Line": 4,
             "Offset": 76,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 4,
             "Offset": 21,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 4,
             "Offset": 21,
           },
           "Text": " localhost is used to configure the loopback interface",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 57,
             "Line": 5,
             "Offset": 133,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 5,
             "Offset": 77,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 5,
             "Offset": 77,
           },
           "Text": " when the system is booting.  Do not change this entry.",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 3,
             "Line": 6,
             "Offset": 136,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 6,
             "Offset": 134,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 6,
             "Offset": 134,
@@ -994,152 +994,152 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 31,
         "Line": 7,
         "Offset": 167,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 5,
         "Line": 7,
         "Offset": 141,
       },
-      "Position": Object {
+      "Position": {
         "Col": 5,
         "Line": 7,
         "Offset": 141,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 46,
           "Line": 8,
           "Offset": 213,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 4,
           "Line": 8,
           "Offset": 171,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 46,
         "Line": 8,
         "Offset": 213,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 4,
         "Line": 8,
         "Offset": 171,
       },
-      "Position": Object {
+      "Position": {
         "Col": 4,
         "Line": 8,
         "Offset": 171,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 26,
           "Line": 9,
           "Offset": 239,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 9,
           "Offset": 214,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 26,
         "Line": 9,
         "Offset": 239,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 9,
         "Offset": 214,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 9,
         "Offset": 214,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 44,
           "Line": 12,
           "Offset": 387,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 12,
           "Offset": 344,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 30,
             "Line": 10,
             "Offset": 269,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 5,
             "Line": 10,
             "Offset": 244,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 5,
             "Line": 10,
             "Offset": 244,
           },
           "Text": " Added by Docker Desktop",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 74,
             "Line": 11,
             "Offset": 343,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 3,
             "Line": 11,
             "Offset": 272,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 3,
             "Line": 11,
             "Offset": 272,
@@ -1148,24 +1148,24 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 44,
         "Line": 12,
         "Offset": 387,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 12,
         "Offset": 344,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 12,
         "Offset": 344,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -1175,7 +1175,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: hosts 2`] = `
+exports[`parser and printer > should format all fixtures > hosts 2`] = `
 "##
 # Host Database
 #
@@ -1192,210 +1192,210 @@ exports[`parser and printer should format all fixtures: hosts 2`] = `
 "
 `;
 
-exports[`parser and printer should format all fixtures: install.sh 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > install.sh 1`] = `
+{
+  "End": {
     "Col": 2,
     "Line": 4353,
     "Offset": 139894,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "install.sh",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 2,
           "Line": 4353,
           "Offset": 139894,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 11,
           "Offset": 375,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 23,
             "Line": 1,
             "Offset": 22,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
           "Text": " Node Version Manager",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 44,
             "Line": 2,
             "Offset": 66,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 2,
             "Offset": 23,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 2,
             "Offset": 23,
           },
           "Text": " Implemented as a POSIX-compliant function",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 42,
             "Line": 3,
             "Offset": 108,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 3,
             "Offset": 67,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 3,
             "Offset": 67,
           },
           "Text": " Should work on sh, dash, bash, ksh, zsh",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 49,
             "Line": 4,
             "Offset": 157,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 4,
             "Offset": 109,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 4,
             "Offset": 109,
           },
           "Text": " To use source this file from your bash profile",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 2,
             "Line": 5,
             "Offset": 159,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 5,
             "Offset": 158,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 5,
             "Offset": 158,
           },
           "Text": "",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 50,
             "Line": 6,
             "Offset": 209,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 6,
             "Offset": 160,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 6,
             "Offset": 160,
           },
           "Text": " Implemented by Tim Caswell <tim@creationix.com>",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 42,
             "Line": 7,
             "Offset": 251,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 7,
             "Offset": 210,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 7,
             "Offset": 210,
           },
           "Text": " with much bash help from Matthew Ranney",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 73,
             "Line": 9,
             "Offset": 325,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 9,
             "Offset": 253,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 9,
             "Offset": 253,
           },
           "Text": " \\"local\\" warning, quote expansion warning, sed warning, \`local\` warning",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 49,
             "Line": 10,
             "Offset": 374,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 10,
             "Offset": 326,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 10,
             "Offset": 326,
           },
           "Text": " shellcheck disable=SC2039,SC2016,SC2001,SC3043",
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 51,
             "Line": 4353,
             "Offset": 139943,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 3,
             "Line": 4353,
             "Offset": 139895,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 3,
             "Line": 4353,
             "Offset": 139895,
@@ -1404,24 +1404,24 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 2,
         "Line": 4353,
         "Offset": 139894,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 11,
         "Offset": 375,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 11,
         "Offset": 375,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -1431,7 +1431,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: install.sh 2`] = `
+exports[`parser and printer > should format all fixtures > install.sh 2`] = `
 "# Node Version Manager
 # Implemented as a POSIX-compliant function
 # Should work on sh, dash, bash, ksh, zsh
@@ -5809,48 +5809,48 @@ EOF
 "
 `;
 
-exports[`parser and printer should format all fixtures: jvm.options 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > jvm.options 1`] = `
+{
+  "End": {
     "Col": 41,
     "Line": 4,
     "Offset": 161,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "jvm.options",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 100,
           "Line": 2,
           "Offset": 119,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 2,
           "Offset": 20,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 20,
             "Line": 1,
             "Offset": 19,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
@@ -5859,63 +5859,63 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 100,
         "Line": 2,
         "Offset": 119,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 2,
         "Offset": 20,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 2,
         "Offset": 20,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 41,
           "Line": 4,
           "Offset": 161,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 4,
           "Offset": 121,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 41,
         "Line": 4,
         "Offset": 161,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 4,
         "Offset": 121,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 4,
         "Offset": 121,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -5925,7 +5925,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: jvm.options 2`] = `
+exports[`parser and printer > should format all fixtures > jvm.options 2`] = `
 "# this is a comment
 -mx2048m -XX:MaxPermSize=2048m -Drebel.spring_plugin=true -Drebel.hibernate_plugin=true
 
@@ -5933,48 +5933,48 @@ idea.cycle.buffer.size = 1024
 "
 `;
 
-exports[`parser and printer should format all fixtures: no-ext 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > no-ext 1`] = `
+{
+  "End": {
     "Col": 20,
     "Line": 2,
     "Offset": 36,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "no-ext",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 2,
           "Offset": 36,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 5,
           "Line": 2,
           "Offset": 21,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 17,
             "Line": 1,
             "Offset": 16,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
@@ -5983,24 +5983,24 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 2,
         "Offset": 36,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 5,
         "Line": 2,
         "Offset": 21,
       },
-      "Position": Object {
+      "Position": {
         "Col": 5,
         "Line": 2,
         "Offset": 21,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -6010,54 +6010,54 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: no-ext 2`] = `
+exports[`parser and printer > should format all fixtures > no-ext 2`] = `
 "#/usr/bin/env sh
 echo 'foo'
 "
 `;
 
-exports[`parser and printer should format all fixtures: shell.sh 1`] = `
-Object {
-  "End": Object {
+exports[`parser and printer > should format all fixtures > shell.sh 1`] = `
+{
+  "End": {
     "Col": 6,
     "Line": 16,
     "Offset": 357,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "shell.sh",
-  "Pos": Object {
+  "Pos": {
     "Col": 1,
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 23,
           "Line": 2,
           "Offset": 34,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 2,
           "Offset": 12,
         },
       },
-      "Comments": Array [
-        Object {
-          "End": Object {
+      "Comments": [
+        {
+          "End": {
             "Col": 12,
             "Line": 1,
             "Offset": 11,
           },
-          "Hash": Object {
+          "Hash": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 1,
             "Offset": 0,
@@ -6066,365 +6066,365 @@ Object {
         },
       ],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 23,
         "Line": 2,
         "Offset": 34,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 2,
         "Offset": 12,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 2,
         "Offset": 12,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 9,
           "Line": 4,
           "Offset": 44,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 4,
           "Offset": 36,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 9,
         "Line": 4,
         "Offset": 44,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 4,
         "Offset": 36,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 4,
         "Offset": 36,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 33,
           "Line": 6,
           "Offset": 78,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 6,
           "Offset": 46,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 33,
         "Line": 6,
         "Offset": 78,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 6,
         "Offset": 46,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 6,
         "Offset": 46,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 64,
           "Line": 7,
           "Offset": 142,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 7,
           "Offset": 79,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 64,
         "Line": 7,
         "Offset": 142,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 7,
         "Offset": 79,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 7,
         "Offset": 79,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 46,
           "Line": 9,
           "Offset": 189,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 9,
           "Offset": 144,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 46,
         "Line": 9,
         "Offset": 189,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 9,
         "Offset": 144,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 9,
         "Offset": 144,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 30,
           "Line": 10,
           "Offset": 219,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 10,
           "Offset": 190,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 30,
         "Line": 10,
         "Offset": 219,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 10,
         "Offset": 190,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 10,
         "Offset": 190,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 28,
           "Line": 11,
           "Offset": 247,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 11,
           "Offset": 220,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 28,
         "Line": 11,
         "Offset": 247,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 11,
         "Offset": 220,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 11,
         "Offset": 220,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 28,
           "Line": 13,
           "Offset": 276,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 13,
           "Offset": 249,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 28,
         "Line": 13,
         "Offset": 276,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 13,
         "Offset": 249,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 13,
         "Offset": 249,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 74,
           "Line": 14,
           "Offset": 350,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 1,
           "Line": 14,
           "Offset": 277,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 74,
         "Line": 14,
         "Offset": 350,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 14,
         "Offset": 277,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 14,
         "Offset": 277,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
       },
     },
-    Object {
+    {
       "Background": false,
       "Cmd": null,
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 6,
         "Line": 16,
         "Offset": 357,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 1,
         "Line": 16,
         "Offset": 352,
       },
-      "Position": Object {
+      "Position": {
         "Col": 1,
         "Line": 16,
         "Offset": 352,
       },
-      "Redirs": Array [
-        Object {
-          "End": Object {
+      "Redirs": [
+        {
+          "End": {
             "Col": 3,
             "Line": 16,
             "Offset": 354,
@@ -6432,46 +6432,46 @@ Object {
           "Hdoc": null,
           "N": null,
           "Op": ">",
-          "OpPos": Object {
+          "OpPos": {
             "Col": 1,
             "Line": 16,
             "Offset": 352,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 1,
             "Line": 16,
             "Offset": 352,
           },
-          "Word": Object {
-            "End": Object {
+          "Word": {
+            "End": {
               "Col": 3,
               "Line": 16,
               "Offset": 354,
             },
             "Lit": "a",
-            "Parts": Array [
-              Object {
-                "End": Object {
+            "Parts": [
+              {
+                "End": {
                   "Col": 3,
                   "Line": 16,
                   "Offset": 354,
                 },
-                "Pos": Object {
+                "Pos": {
                   "Col": 2,
                   "Line": 16,
                   "Offset": 353,
                 },
               },
             ],
-            "Pos": Object {
+            "Pos": {
               "Col": 2,
               "Line": 16,
               "Offset": 353,
             },
           },
         },
-        Object {
-          "End": Object {
+        {
+          "End": {
             "Col": 6,
             "Line": 16,
             "Offset": 357,
@@ -6479,38 +6479,38 @@ Object {
           "Hdoc": null,
           "N": null,
           "Op": "<",
-          "OpPos": Object {
+          "OpPos": {
             "Col": 4,
             "Line": 16,
             "Offset": 355,
           },
-          "Pos": Object {
+          "Pos": {
             "Col": 4,
             "Line": 16,
             "Offset": 355,
           },
-          "Word": Object {
-            "End": Object {
+          "Word": {
+            "End": {
               "Col": 6,
               "Line": 16,
               "Offset": 357,
             },
             "Lit": "b",
-            "Parts": Array [
-              Object {
-                "End": Object {
+            "Parts": [
+              {
+                "End": {
                   "Col": 6,
                   "Line": 16,
                   "Offset": 357,
                 },
-                "Pos": Object {
+                "Pos": {
                   "Col": 5,
                   "Line": 16,
                   "Offset": 356,
                 },
               },
             ],
-            "Pos": Object {
+            "Pos": {
               "Col": 5,
               "Line": 16,
               "Offset": 356,
@@ -6518,7 +6518,7 @@ Object {
           },
         },
       ],
-      "Semicolon": Object {
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -6528,7 +6528,7 @@ Object {
 }
 `;
 
-exports[`parser and printer should format all fixtures: shell.sh 2`] = `
+exports[`parser and printer > should format all fixtures > shell.sh 2`] = `
 "#!/bin/bash
 NAME= \\"ufc-web-client\\"
 

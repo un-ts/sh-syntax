@@ -1,54 +1,54 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1
 
 exports[`parse 1`] = `
-Object {
-  "End": Object {
+{
+  "End": {
     "Col": 17,
     "Line": 1,
     "Offset": 16,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "",
-  "Pos": Object {
+  "Pos": {
     "Col": 3,
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 17,
           "Line": 1,
           "Offset": 16,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 3,
           "Line": 1,
           "Offset": 2,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 17,
         "Line": 1,
         "Offset": 16,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Position": Object {
+      "Position": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -59,54 +59,54 @@ Object {
 `;
 
 exports[`parse 2`] = `
-Object {
-  "End": Object {
+{
+  "End": {
     "Col": 16,
     "Line": 1,
     "Offset": 15,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "",
-  "Pos": Object {
+  "Pos": {
     "Col": 3,
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 16,
           "Line": 1,
           "Offset": 15,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 3,
           "Line": 1,
           "Offset": 2,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 16,
         "Line": 1,
         "Offset": 15,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Position": Object {
+      "Position": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -117,54 +117,54 @@ Object {
 `;
 
 exports[`parse 3`] = `
-Object {
-  "End": Object {
+{
+  "End": {
     "Col": 20,
     "Line": 1,
     "Offset": 19,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "",
-  "Pos": Object {
+  "Pos": {
     "Col": 3,
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 1,
           "Offset": 19,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 3,
           "Line": 1,
           "Offset": 2,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 1,
         "Offset": 19,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Position": Object {
+      "Position": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,
@@ -175,54 +175,54 @@ Object {
 `;
 
 exports[`parse 4`] = `
-Object {
-  "End": Object {
+{
+  "End": {
     "Col": 20,
     "Line": 1,
     "Offset": 19,
   },
-  "Last": Array [],
+  "Last": [],
   "Name": "",
-  "Pos": Object {
+  "Pos": {
     "Col": 3,
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": Array [
-    Object {
+  "Stmt": [
+    {
       "Background": false,
-      "Cmd": Object {
-        "End": Object {
+      "Cmd": {
+        "End": {
           "Col": 20,
           "Line": 1,
           "Offset": 19,
         },
-        "Pos": Object {
+        "Pos": {
           "Col": 3,
           "Line": 1,
           "Offset": 2,
         },
       },
-      "Comments": Array [],
+      "Comments": [],
       "Coprocess": false,
-      "End": Object {
+      "End": {
         "Col": 20,
         "Line": 1,
         "Offset": 19,
       },
       "Negated": false,
-      "Pos": Object {
+      "Pos": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Position": Object {
+      "Position": {
         "Col": 3,
         "Line": 1,
         "Offset": 2,
       },
-      "Redirs": Array [],
-      "Semicolon": Object {
+      "Redirs": [],
+      "Semicolon": {
         "Col": 0,
         "Line": 0,
         "Offset": 0,

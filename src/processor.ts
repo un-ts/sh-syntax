@@ -181,7 +181,6 @@ export const getProcessor = (
     }
 
     if (parseError || message) {
-      /* istanbul ignore next */
       throw parseError == null
         ? new SyntaxError(message)
         : new ParseError(parseError)

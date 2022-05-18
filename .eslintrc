@@ -1,3 +1,7 @@
 {
-  "extends": "@1stg"
+  "extends": "@1stg",
+  "rules": {
+    "jest/no-conditional-expect": 0,
+    "jest/no-standalone-expect": 0
+  }
 }

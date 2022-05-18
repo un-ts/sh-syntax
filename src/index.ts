@@ -7,7 +7,6 @@ import '../vendors/wasm_exec.js'
 import { getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
-/* istanbul ignore next */
 const _dirname =
   typeof __dirname === 'undefined'
     ? path.dirname(fileURLToPath(import.meta.url))

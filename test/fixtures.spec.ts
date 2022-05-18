@@ -1,6 +1,8 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { describe, expect, it } from 'vitest'
 
 import { parse, print } from 'sh-syntax'
 
@@ -25,7 +27,6 @@ describe('parser and printer', () => {
           await print(ast, { filepath, originalText: input }),
         ).toMatchSnapshot(filepath)
       } catch (err: unknown) {
-        // eslint-disable-next-line jest/no-conditional-expect
         expect(err).toMatchSnapshot(filepath)
       }
     }
