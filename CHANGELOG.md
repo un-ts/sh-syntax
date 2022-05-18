@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.1
+
+### Patch Changes
+
+- [`2645131`](https://github.com/rx-ts/sh-syntax/commit/2645131e8727b3a5c07efb58b0b0e28cfed5e2d8) Thanks [@JounQin](https://github.com/JounQin)! - fix: add main.wasm into exports
+
 ## 0.3.0
 
 ### Minor Changes
