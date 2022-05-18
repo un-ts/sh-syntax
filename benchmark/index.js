@@ -54,17 +54,8 @@ const shOptions = {
 }
 
 suite
-  .add('sh-syntax', {
-    defer: true,
-    /**
-     *
-     * @param {{resolve: () => void, reject: (reason?: unknown) => void}} deferred
-     */
-    fn: deferred =>
-      print(text, shOptions).then(
-        deferred.resolve.bind(deferred),
-        deferred.reject.bind(deferred),
-      ),
+  .add('sh-syntax', async () => {
+    await print(text, shOptions)
   })
   .add('mvdan-sh', () => {
     const { syntax } = sh
@@ -84,22 +75,11 @@ suite
           .Parse(text, filePath),
       )
   })
-  .on(
-    'cycle',
-    /**
-     * @param {Benchmark.Event} event
-     */
-    event => {
-      console.log(String(event.target))
-    },
-  )
-  .on(
-    'complete',
-    /**
-     * @this {Benchmark.Suite}
-     */
-    function () {
-      console.log('Fastest is ' + this.filter('fastest').map('name'))
-    },
-  )
+  .on('cycle', event => {
+    console.log(String(event.target))
+  })
+  .on('complete', function () {
+    // eslint-disable-next-line @babel/no-invalid-this
+    console.log('Fastest is ' + this.filter('fastest').map('name'))
+  })
   .run({ async: true })

@@ -58,12 +58,20 @@ const newText = await print(ast, {
 import { getProcessor } from 'sh-syntax'
 
 const processor = getProcessor(() =>
-  fetch('path/to/main.wasm').then(res => res.arrayBuffer()),
+  fetch('sh-syntax/main.wasm').then(res => res.arrayBuffer()),
 )
 
 const parse = (text, options) => processor(text, options)
 
-const print = (ast, options) => processor(ast, options)
+const print = (textOrAst, options) => {
+  if (typeof textOrAst === 'string') {
+    return processor(textOrAst, {
+      ...options,
+      print: true,
+    })
+  }
+  return processor(textOrAst, options as ShPrintOptions)
+}
 
 // just like node again
 const text = "echo 'Hello World!'"

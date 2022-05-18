@@ -1,6 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import './shim.js'
 import '../vendors/wasm_exec.js'
@@ -14,7 +14,7 @@ const _dirname =
     : __dirname
 
 export const processor = getProcessor(() =>
-  fs.promises.readFile(path.resolve(_dirname, '../main.wasm')),
+  fs.readFile(path.resolve(_dirname, '../main.wasm')),
 )
 
 export const parse = (text: string, options?: ShOptions) =>
