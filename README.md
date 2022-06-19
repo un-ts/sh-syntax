@@ -70,7 +70,7 @@ const print = (textOrAst, options) => {
       print: true,
     })
   }
-  return processor(textOrAst, options as ShPrintOptions)
+  return processor(textOrAst, options)
 }
 
 // just like node again
