@@ -17,7 +17,7 @@
 [![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![changesets](https://img.shields.io/badge/maintained%20with-changesets-176de3.svg)](https://github.com/atlassian/changesets)
 
-A WASM shell parser and formatter with bash support, based on mvdan/sh
+A WASM shell parser and formatter with bash support, based on [mvdan/sh](https://github.com/mvdan/sh)
 
 ## TOC <!-- omit in toc -->
 
