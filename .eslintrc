@@ -1,4 +1,5 @@
 {
+  "root": true,
   "extends": "@1stg",
   "rules": {
     "jest/no-conditional-expect": 0,
