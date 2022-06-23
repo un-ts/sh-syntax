@@ -1,3 +1,11 @@
-sh-syntax x 17.22 ops/sec ±18.40% (47 runs sampled)
-mvdan-sh x 13.76 ops/sec ±3.47% (39 runs sampled)
-Fastest is sh-syntax
+cpu: Apple M1 Max
+runtime: node v16.15.1 (arm64-darwin)
+
+benchmark      time (avg)             (min … max)       p75       p99      p995
+------------------------------------------------- -----------------------------
+sh-syntax    2.43 µs/iter    (1.57 µs … 16.38 µs)   1.91 µs  16.38 µs  16.38 µs
+mvdan-sh    77.02 ms/iter   (73.95 ms … 80.72 ms)  79.91 ms  80.72 ms  80.72 ms
+
+summary
+  sh-syntax
+   31739.67x faster than mvdan-sh

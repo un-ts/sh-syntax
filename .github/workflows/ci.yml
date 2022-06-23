@@ -47,6 +47,7 @@ jobs:
 
       - name: Benchmark
         run: node benchmark
+        if: matrix.node != 14
 
       - name: Codecov
         uses: codecov/codecov-action@v3

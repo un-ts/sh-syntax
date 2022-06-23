@@ -9,8 +9,8 @@ specifiers:
   '@types/node': ^18.0.0
   '@types/web': ^0.0.68
   c8: ^7.11.3
+  mitata: ^0.1.5
   mvdan-sh: ^0.10.1
-  tinybench: ^1.0.2
   tslib: ^2.4.0
   type-coverage: ^2.21.1
   typescript: ^4.7.4
@@ -28,8 +28,8 @@ devDependencies:
   '@types/node': 18.0.0
   '@types/web': 0.0.68
   c8: 7.11.3
+  mitata: 0.1.5
   mvdan-sh: 0.10.1
-  tinybench: 1.0.2
   type-coverage: 2.21.1_typescript@4.7.4
   typescript: 4.7.4
   vitest: 0.15.2_c8@7.11.3
@@ -8428,6 +8428,10 @@ packages:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
     dev: true
 
+  /mitata/0.1.5:
+    resolution: {integrity: sha512-5yQK6k7gayArKQq+tLYffRjBqIa70d5E8a/ArGzpL8l7AD1s+NzHPsah45YMNG5CyFNsNqCXWckhjw0CVozW8g==}
+    dev: true
+
   /mixme/0.5.4:
     resolution: {integrity: sha512-3KYa4m4Vlqx98GPdOHghxSdNtTvcP8E0kkaJ5Dlh+h2DRzF7zpuVVcA8B0QpKd11YJeP9QQ7ASkKzOeu195Wzw==}
     engines: {node: '>= 8.0.0'}
@@ -11275,10 +11279,6 @@ packages:
     dependencies:
       globalyzer: 0.1.0
       globrex: 0.1.2
-    dev: true
-
-  /tinybench/1.0.2:
-    resolution: {integrity: sha512-BebpyGOoa+Mc4yUexuyY63wciXJshHHGeAP3SdJxAkadgfYYIX523zBmrmyzVbYofh6mXoU7ZtOjzh8n0kG2/g==}
     dev: true
 
   /tinypool/0.1.3:
