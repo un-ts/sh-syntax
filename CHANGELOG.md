@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.2
+
+### Patch Changes
+
+- [`6193518`](https://github.com/rx-ts/sh-syntax/commit/6193518c33f75f3d3d3c8284a436940f0efd1fa4) Thanks [@JounQin](https://github.com/JounQin)! - chore(deps): upgrade sh v3.5.1 and tinygo v0.23.0
+
 ## 0.3.1
 
 ### Patch Changes
