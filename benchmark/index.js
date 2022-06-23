@@ -5,8 +5,8 @@
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+import { baseline, bench, run } from 'mitata'
 import sh from 'mvdan-sh'
-import Benchmark from 'tinybench'
 
 import { print } from '../lib/index.js'
 
@@ -14,8 +14,6 @@ import { print } from '../lib/index.js'
  * @typedef {import('../lib').ShOptions} ShOptions
  * @typedef {import('mvdan-sh').LangVariant} LangVariant
  */
-
-const suite = new Benchmark.Suite()
 
 const keepComments = true
 /**
@@ -53,33 +51,27 @@ const shOptions = {
   functionNextLine,
 }
 
-suite
-  .add('sh-syntax', async () => {
-    await print(text, shOptions)
-  })
-  .add('mvdan-sh', () => {
-    const { syntax } = sh
-    syntax
-      .NewPrinter(
-        syntax.Indent(indent),
-        syntax.BinaryNextLine(binaryNextLine),
-        syntax.SwitchCaseIndent(switchCaseIndent),
-        syntax.SpaceRedirects(spaceRedirects),
-        syntax.KeepPadding(keepPadding),
-        syntax.Minify(minify),
-        syntax.FunctionNextLine(functionNextLine),
-      )
-      .Print(
-        syntax
-          .NewParser(syntax.KeepComments(keepComments), syntax.Variant(variant))
-          .Parse(text, filePath),
-      )
-  })
-  .on('cycle', event => {
-    console.log(String(event.target))
-  })
-  .on('complete', function () {
-    // eslint-disable-next-line @babel/no-invalid-this
-    console.log('Fastest is ' + this.filter('fastest').map('name'))
-  })
-  .run({ async: true })
+baseline('sh-syntax', async () => print(text, shOptions))
+
+bench('mvdan-sh', () => {
+  const { syntax } = sh
+  syntax
+    .NewPrinter(
+      syntax.Indent(indent),
+      syntax.BinaryNextLine(binaryNextLine),
+      syntax.SwitchCaseIndent(switchCaseIndent),
+      syntax.SpaceRedirects(spaceRedirects),
+      syntax.KeepPadding(keepPadding),
+      syntax.Minify(minify),
+      syntax.FunctionNextLine(functionNextLine),
+    )
+    .Print(
+      syntax
+        .NewParser(syntax.KeepComments(keepComments), syntax.Variant(variant))
+        .Parse(text, filePath),
+    )
+})
+
+await run({
+  colors: !['1', 'true'].includes(process.env.NO_COLOR?.toLowerCase()),
+})
