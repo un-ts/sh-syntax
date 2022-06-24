@@ -9,7 +9,7 @@ specifiers:
   '@types/node': ^18.0.0
   '@types/web': ^0.0.68
   c8: ^7.11.3
-  mitata: ^0.1.5
+  mitata: ^0.1.6
   mvdan-sh: ^0.10.1
   tslib: ^2.4.0
   type-coverage: ^2.21.1
@@ -28,7 +28,7 @@ devDependencies:
   '@types/node': 18.0.0
   '@types/web': 0.0.68
   c8: 7.11.3
-  mitata: 0.1.5
+  mitata: 0.1.6
   mvdan-sh: 0.10.1
   type-coverage: 2.21.1_typescript@4.7.4
   typescript: 4.7.4
@@ -130,8 +130,8 @@ packages:
       eslint: 8.18.0
       eslint-config-prettier: 8.5.0_eslint@8.18.0
       eslint-config-standard: 17.0.0_73zqogbxxwb3ijehtqwxiag47y
-      eslint-config-standard-jsx: 11.0.0_mbdpionzapkax4wyok6unqcrha
-      eslint-config-standard-react: 11.0.1_mbdpionzapkax4wyok6unqcrha
+      eslint-config-standard-jsx: 11.0.0_pvloe4reurrd7ffmicb2bet3ki
+      eslint-config-standard-react: 11.0.1_pvloe4reurrd7ffmicb2bet3ki
       eslint-formatter-friendly: 7.0.0
       eslint-import-resolver-typescript: 2.7.1_srrmf5la5dmnsfe2mpg6sboreu
       eslint-plugin-eslint-comments: 3.2.0_eslint@8.18.0
@@ -143,7 +143,7 @@ packages:
       eslint-plugin-n: 15.2.3_eslint@8.18.0
       eslint-plugin-prettier: 4.0.0_xu6ewijrtliw5q5lksq5uixwby
       eslint-plugin-promise: 6.0.0_eslint@8.18.0
-      eslint-plugin-react: 7.30.0_eslint@8.18.0
+      eslint-plugin-react: 7.30.1_eslint@8.18.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.18.0
       eslint-plugin-simple-import-sort: 7.0.0_eslint@8.18.0
       eslint-plugin-sonar: 0.8.0_ab6h3r64zohk23vz5sz2qw4gm4
@@ -3978,7 +3978,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001358
-      electron-to-chromium: 1.4.167
+      electron-to-chromium: 1.4.168
       node-releases: 2.0.5
       update-browserslist-db: 1.0.4_browserslist@4.21.0
     dev: true
@@ -4844,8 +4844,8 @@ packages:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: true
 
-  /electron-to-chromium/1.4.167:
-    resolution: {integrity: sha512-lPHuHXBwpkr4RcfaZBKm6TKOWG/1N9mVggUpP4fY3l1JIUU2x4fkM8928smYdZ5lF+6KCTAxo1aK9JmqT+X71Q==}
+  /electron-to-chromium/1.4.168:
+    resolution: {integrity: sha512-yz247hclRBaP8ABB1hf9kL7AMfa+yC2hB9F3XF8Y87VWMnYgq4QYvV6acRACcDkTDxfGQ4GYK/aZPQiuFMGbaA==}
     dev: true
 
   /emittery/0.10.2:
@@ -5221,24 +5221,24 @@ packages:
       eslint: 8.18.0
     dev: true
 
-  /eslint-config-standard-jsx/11.0.0_mbdpionzapkax4wyok6unqcrha:
+  /eslint-config-standard-jsx/11.0.0_pvloe4reurrd7ffmicb2bet3ki:
     resolution: {integrity: sha512-+1EV/R0JxEK1L0NGolAr8Iktm3Rgotx3BKwgaX+eAuSX8D952LULKtjgZD3F+e6SvibONnhLwoTi9DPxN5LvvQ==}
     peerDependencies:
       eslint: ^8.8.0
       eslint-plugin-react: ^7.28.0
     dependencies:
       eslint: 8.18.0
-      eslint-plugin-react: 7.30.0_eslint@8.18.0
+      eslint-plugin-react: 7.30.1_eslint@8.18.0
     dev: true
 
-  /eslint-config-standard-react/11.0.1_mbdpionzapkax4wyok6unqcrha:
+  /eslint-config-standard-react/11.0.1_pvloe4reurrd7ffmicb2bet3ki:
     resolution: {integrity: sha512-4WlBynOqBZJRaX81CBcIGDHqUiqxvw4j/DbEIICz8QkMs3xEncoPgAoysiqCSsg71X92uhaBc8sgqB96smaMmg==}
     peerDependencies:
       eslint: ^7.12.1
       eslint-plugin-react: ^7.21.5
     dependencies:
       eslint: 8.18.0
-      eslint-plugin-react: 7.30.0_eslint@8.18.0
+      eslint-plugin-react: 7.30.1_eslint@8.18.0
     dev: true
 
   /eslint-config-standard/17.0.0_73zqogbxxwb3ijehtqwxiag47y:
@@ -5531,8 +5531,8 @@ packages:
       eslint: 8.18.0
     dev: true
 
-  /eslint-plugin-react/7.30.0_eslint@8.18.0:
-    resolution: {integrity: sha512-RgwH7hjW48BleKsYyHK5vUAvxtE9SMPDKmcPRQgtRCYaZA0XQPt5FSkrU3nhz5ifzMZcA8opwmRJ2cmOO8tr5A==}
+  /eslint-plugin-react/7.30.1_eslint@8.18.0:
+    resolution: {integrity: sha512-NbEvI9jtqO46yJA3wcRF9Mo0lF9T/jhdHqhCHXiXtD+Zcb98812wvokjWpU7Q4QH5edo6dmqrukxVvWWXHlsUg==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
@@ -8428,8 +8428,8 @@ packages:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
     dev: true
 
-  /mitata/0.1.5:
-    resolution: {integrity: sha512-5yQK6k7gayArKQq+tLYffRjBqIa70d5E8a/ArGzpL8l7AD1s+NzHPsah45YMNG5CyFNsNqCXWckhjw0CVozW8g==}
+  /mitata/0.1.6:
+    resolution: {integrity: sha512-VKQ0r3jriTOU9E2Z+mwbZrUmbg4Li4QyFfi7kfHKl6reZhGzL0AYlu3wE0VPXzIwA5xnFzmEQoBwCcNT8stUkA==}
     dev: true
 
   /mixme/0.5.4:
