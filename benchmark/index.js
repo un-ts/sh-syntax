@@ -51,7 +51,7 @@ const shOptions = {
   functionNextLine,
 }
 
-baseline('sh-syntax', async () => print(text, shOptions))
+baseline('sh-syntax', () => print(text, shOptions))
 
 bench('mvdan-sh', () => {
   const { syntax } = sh
