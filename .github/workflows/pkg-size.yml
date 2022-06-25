@@ -2,7 +2,8 @@ name: Package Size Report
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
 
 jobs:
   pkg-size-report:
@@ -24,7 +25,7 @@ jobs:
           node-version: 16.x
           cache: pnpm
 
-      - name: Package size report
+      - name: Package Size Report
         uses: pkg-size/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

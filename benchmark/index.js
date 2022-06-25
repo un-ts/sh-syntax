@@ -73,5 +73,7 @@ bench('mvdan-sh', () => {
 })
 
 await run({
-  colors: !['1', 'true'].includes(process.env.NO_COLOR?.toLowerCase()),
+  colors: !['1', 'true'].includes(
+    /** @type {string} */ (process.env.NO_COLOR?.toLowerCase()),
+  ),
 })
