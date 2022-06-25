@@ -3,10 +3,12 @@
 /* eslint-disable @babel/new-cap */
 
 import fs from 'node:fs'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { baseline, bench, run } from 'mitata'
 import sh from 'mvdan-sh'
+import { createSyncFn } from 'synckit'
 
 import { print } from '../lib/index.js'
 
@@ -51,7 +53,16 @@ const shOptions = {
   functionNextLine,
 }
 
+/**
+ * @type {(text: string, options?: ShOptions) => string})}
+ */
+const printSync = createSyncFn(
+  path.resolve(fileURLToPath(import.meta.url), '../worker.mjs'),
+)
+
 baseline('sh-syntax', () => print(text, shOptions))
+
+bench('sh-syntax (synckit)', () => printSync(text, shOptions))
 
 bench('mvdan-sh', () => {
   const { syntax } = sh
