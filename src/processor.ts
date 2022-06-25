@@ -1,4 +1,10 @@
-import { IParseError, File, ShOptions, LangVariant } from './types.js'
+import {
+  IParseError,
+  File,
+  ShOptions,
+  LangVariant,
+  Processor,
+} from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename: string
@@ -28,19 +34,7 @@ export const getProcessor = (
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
-  function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(
-    text: string,
-    options?: ShOptions & { print: true },
-  ): Promise<string>
-  function processor(
-    ast: File,
-    options?: ShOptions & {
-      originalText: string
-    },
-  ): Promise<string>
-
-  async function processor(
+  return async function (
     textOrAst: File | string,
     {
       filepath,
@@ -187,7 +181,5 @@ export const getProcessor = (
     }
 
     return print ? processedText : file
-  }
-
-  return processor
+  } as Processor
 }
