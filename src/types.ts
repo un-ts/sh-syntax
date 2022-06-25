@@ -90,3 +90,14 @@ export interface IParseError {
   Text: string
   Pos: Pos
 }
+
+export interface Processor {
+  (text: string, options?: ShOptions): Promise<File>
+  (text: string, options?: ShOptions & { print: true }): Promise<string>
+  (
+    ast: File,
+    options?: ShOptions & {
+      originalText: string
+    },
+  ): Promise<string>
+}
