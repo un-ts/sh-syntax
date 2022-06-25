@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.3
+
+### Patch Changes
+
+- [#35](https://github.com/rx-ts/sh-syntax/pull/35) [`9cbf197`](https://github.com/rx-ts/sh-syntax/commit/9cbf19795807275c9f37647d00b128fc60587453) Thanks [@JounQin](https://github.com/JounQin)! - feat: export Processor type
+
 ## 0.3.2
 
 ### Patch Changes
