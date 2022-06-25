@@ -11,6 +11,7 @@ specifiers:
   c8: ^7.11.3
   mitata: ^0.1.6
   mvdan-sh: ^0.10.1
+  synckit: ^0.7.1
   tslib: ^2.4.0
   type-coverage: ^2.21.1
   typescript: ^4.7.4
@@ -30,6 +31,7 @@ devDependencies:
   c8: 7.11.3
   mitata: 0.1.6
   mvdan-sh: 0.10.1
+  synckit: 0.7.1
   type-coverage: 2.21.1_typescript@4.7.4
   typescript: 4.7.4
   vitest: 0.15.2_c8@7.11.3

@@ -1,11 +1,13 @@
 cpu: Apple M1 Max
 runtime: node v16.15.1 (arm64-darwin)
 
-benchmark      time (avg)             (min … max)       p75       p99      p995
-------------------------------------------------- -----------------------------
-sh-syntax   44.37 ms/iter   (43.35 ms … 45.64 ms)  44.53 ms  45.64 ms  45.64 ms
-mvdan-sh    74.06 ms/iter   (70.82 ms … 79.41 ms)  75.13 ms  79.41 ms  79.41 ms
+benchmark                time (avg)             (min … max)       p75       p99      p995
+----------------------------------------------------------- -----------------------------
+sh-syntax             43.84 ms/iter    (42.86 ms … 46.5 ms)  44.57 ms   46.5 ms   46.5 ms
+sh-syntax (synckit)   43.87 ms/iter   (43.11 ms … 45.34 ms)  44.08 ms  45.34 ms  45.34 ms
+mvdan-sh              72.97 ms/iter   (70.32 ms … 82.45 ms)  73.97 ms  82.45 ms  82.45 ms
 
 summary
   sh-syntax
-   1.67x faster than mvdan-sh
+   1x faster than sh-syntax (synckit)
+   1.66x faster than mvdan-sh
