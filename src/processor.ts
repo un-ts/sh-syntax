@@ -1,3 +1,5 @@
+import path, { isAbsolute } from 'node:path'
+
 import { IParseError, File, ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
@@ -16,6 +18,14 @@ export class ParseError extends Error implements IParseError {
     this.Incomplete = Incomplete
     this.Text = Text
     this.Pos = Pos
+  }
+}
+
+export const isFile = (path?: string | undefined): path is string => {
+  try {
+    return !!path && fs.statSync(path).isFile()
+  } catch {
+    return false
   }
 }
 
@@ -39,7 +49,7 @@ export const getProcessor = (
       originalText: string
     },
   ): Promise<string>
-
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async function processor(
     textOrAst: File | string,
     {
@@ -67,6 +77,11 @@ export const getProcessor = (
         wasmFilePromise = Promise.resolve(getWasmFile())
       }
       wasmFile = await wasmFilePromise
+    }
+
+    // turn non-existed filepath into filename
+    if (filepath && isAbsolute(filepath) && !isFile(filepath)) {
+      filepath = path.basename(filepath)
     }
 
     if (typeof textOrAst !== 'string' && !print) {

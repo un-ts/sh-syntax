@@ -232,9 +232,72 @@ exports[`parse 4`] = `
 }
 `;
 
+exports[`parse 5`] = `
+{
+  "End": {
+    "Col": 20,
+    "Line": 1,
+    "Offset": 19,
+  },
+  "Last": [],
+  "Name": "non-existed-1.sh",
+  "Pos": {
+    "Col": 3,
+    "Line": 1,
+    "Offset": 2,
+  },
+  "Stmt": [
+    {
+      "Background": false,
+      "Cmd": {
+        "End": {
+          "Col": 20,
+          "Line": 1,
+          "Offset": 19,
+        },
+        "Pos": {
+          "Col": 3,
+          "Line": 1,
+          "Offset": 2,
+        },
+      },
+      "Comments": [],
+      "Coprocess": false,
+      "End": {
+        "Col": 20,
+        "Line": 1,
+        "Offset": 19,
+      },
+      "Negated": false,
+      "Pos": {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Position": {
+        "Col": 3,
+        "Line": 1,
+        "Offset": 2,
+      },
+      "Redirs": [],
+      "Semicolon": {
+        "Col": 0,
+        "Line": 0,
+        "Offset": 0,
+      },
+    },
+  ],
+}
+`;
+
 exports[`print 1`] = `
-"Hello World ! d
+"Hello World ! e
 "
 `;
 
-exports[`print 2`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;
+exports[`print 2`] = `
+"Hello World ! f
+"
+`;
+
+exports[`print 3`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;
