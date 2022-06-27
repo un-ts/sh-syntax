@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.5
+
+### Patch Changes
+
+- [#42](https://github.com/rx-ts/sh-syntax/pull/42) [`de46f55`](https://github.com/rx-ts/sh-syntax/commit/de46f557f99d6ab90108852793843e513c0d77f8) Thanks [@JounQin](https://github.com/JounQin)! - fix: print error for workaround
+
 ## 0.3.4
 
 ### Patch Changes
