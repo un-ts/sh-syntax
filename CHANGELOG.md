@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.3
+
+### Patch Changes
+
+- [#38](https://github.com/rx-ts/sh-syntax/pull/38) [`44ee9f9`](https://github.com/rx-ts/sh-syntax/commit/44ee9f9b274828a1dab167294a353170d1172e72) Thanks [@JounQin](https://github.com/JounQin)! - fix: print error info before panic
+
 ## 0.3.2
 
 ### Patch Changes
