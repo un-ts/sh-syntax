@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.4
+
+### Patch Changes
+
+- [#40](https://github.com/rx-ts/sh-syntax/pull/40) [`fb92edf`](https://github.com/rx-ts/sh-syntax/commit/fb92edf1403aa87521aff2070522156edb580eab) Thanks [@JounQin](https://github.com/JounQin)! - fix: do not panic, return the error instead
+
 ## 0.3.3
 
 ### Patch Changes
