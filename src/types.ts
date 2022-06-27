@@ -85,8 +85,8 @@ export interface File extends Node {
 }
 
 export interface IParseError {
-  Filename: string
+  Filename?: string
   Incomplete: boolean
   Text: string
-  Pos: Pos
+  Pos?: Pos
 }
