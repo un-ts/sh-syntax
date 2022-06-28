@@ -5,7 +5,6 @@ package main
 
 import (
 	"container/list"
-	"fmt"
 
 	"github.com/mailru/easyjson"
 	"github.com/rx-ts/sh-syntax/processor"
@@ -117,7 +116,6 @@ func process(
 	bytes, err := easyjson.Marshal(&result)
 
 	if err != nil {
-		fmt.Println(err)
 		bytes = []byte(err.Error())
 	}
 
