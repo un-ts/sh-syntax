@@ -1105,8 +1105,8 @@ _help() {
 }
 
 case \\"$@\\" in
-  \\"init\\") _init ;;
-  *) _iemy! ;;
+  \\"init\\") %_initi ;;
+  *) _help ;;
 esac
 "
 `;

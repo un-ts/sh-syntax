@@ -116,7 +116,7 @@ func process(
 	bytes, err := easyjson.Marshal(&result)
 
 	if err != nil {
-		bytes = []byte(err.Error())
+		panic(err)
 	}
 
 	return &bytes[0]

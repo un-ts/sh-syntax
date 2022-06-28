@@ -39,7 +39,7 @@ export const getProcessor = (
       originalText: string
     },
   ): Promise<string>
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+
   async function processor(
     textOrAst: File | string,
     {
@@ -167,15 +167,6 @@ export const getProcessor = (
     const end = result.indexOf(0)
 
     const string = decoder.decode(result.subarray(0, end))
-
-    // naive check whether the string is a json
-    if (!string.startsWith('{"') && !string.endsWith('}')) {
-      throw new ParseError({
-        Filename: filepath,
-        Incomplete: true,
-        Text: string,
-      })
-    }
 
     const {
       file,
