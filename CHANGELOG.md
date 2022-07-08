@@ -1,5 +1,13 @@
 # sh-syntax
 
+## 0.3.6
+
+### Patch Changes
+
+- [`6c23285`](https://github.com/un-ts/sh-syntax/commit/6c23285060e8674b31d64479b1c4468e04fab557) Thanks [@JounQin](https://github.com/JounQin)! - chore: migrate to un-ts org
+
+* [`ddf06b0`](https://github.com/un-ts/sh-syntax/commit/ddf06b035e32f6e4f83b253a5c61335021d9d144) Thanks [@JounQin](https://github.com/JounQin)! - chore: add donate and funding fields
+
 ## 0.3.5
 
 ### Patch Changes
