@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/filename-case */
-import _fs from 'fs'
+import _fs from 'node:fs'
 
 declare global {
   namespace globalThis {
