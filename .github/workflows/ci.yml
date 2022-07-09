@@ -36,11 +36,8 @@ jobs:
       - name: Install Dependencies
         run: pnpm i
 
-      - name: Build, Lint and test
-        run: |
-          pnpm build
-          pnpm lint
-          pnpm test
+      - name: Build, Lint and Test
+        run: pnpm run-s build lint test typecov
         env:
           EFF_NO_LINK_RULES: true
           PARSER_NO_WATCH: true
