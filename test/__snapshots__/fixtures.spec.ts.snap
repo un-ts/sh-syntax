@@ -6016,6 +6016,8 @@ echo 'foo'
 "
 `;
 
+exports[`parser and printer > should format all fixtures > prettier-190.sh 1`] = `[RangeError: offset is out of bounds]`;
+
 exports[`parser and printer > should format all fixtures > shell.sh 1`] = `
 {
   "End": {
