@@ -2,4 +2,4 @@
 "sh-syntax": patch
 ---
 
-fix: only polyfill `globalThis.crypto` if unavailable
+fix: check property existence before patching
