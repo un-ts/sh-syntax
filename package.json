@@ -71,7 +71,7 @@
     "lint": "run-p lint:*",
     "lint:es": "eslint . --cache -f friendly --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
-    "prepare": "simple-git-hooks",
+    "prepare": "simple-git-hooks || exit 0",
     "prerelease": "pnpm build",
     "release": "changeset publish",
     "test": "vitest run --coverage",
