@@ -38,7 +38,7 @@
   },
   "funding": "https://opencollective.com/unts",
   "license": "MIT",
-  "packageManager": "pnpm@7.3.0",
+  "packageManager": "pnpm@7.8.0",
   "engines": {
     "node": "^12.20.0 || ^14.18.0 || >=16.0.0"
   },
@@ -82,21 +82,40 @@
     "tslib": "^2.4.0"
   },
   "devDependencies": {
-    "@1stg/lib-config": "^9.0.1",
+    "@1stg/lib-config": "^9.0.2",
     "@changesets/changelog-github": "^0.4.6",
-    "@changesets/cli": "^2.24.0",
+    "@changesets/cli": "^2.24.1",
     "@types/golang-wasm-exec": "^1.15.0",
-    "@types/mvdan-sh": "^0.5.1",
-    "@types/node": "^18.0.6",
-    "@types/web": "^0.0.69",
+    "@types/mvdan-sh": "^0.10.0",
+    "@types/node": "^18.6.3",
+    "@types/web": "^0.0.70",
     "c8": "^7.12.0",
     "mitata": "^0.1.6",
     "mvdan-sh": "^0.10.1",
+    "size-limit": "^8.0.0",
+    "size-limit-preset-node-lib": "^0.1.0",
     "synckit": "^0.8.1",
     "type-coverage": "^2.22.0",
     "typescript": "^4.7.4",
-    "vitest": "^0.19.0"
+    "vitest": "^0.20.2"
   },
+  "sideEffects": [
+    "lib/browser.js",
+    "lib/index.cjs",
+    "lib/index.js",
+    "lib/shim.js",
+    "vendors/wasm_exec.js"
+  ],
+  "size-limit": [
+    {
+      "path": "lib/browser.js",
+      "limit": "120B"
+    },
+    {
+      "path": "lib/index.js",
+      "limit": "400B"
+    }
+  ],
   "typeCoverage": {
     "atLeast": 100,
     "cache": true,
