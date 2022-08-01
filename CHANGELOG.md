@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.3.7
+
+### Patch Changes
+
+- [#52](https://github.com/un-ts/sh-syntax/pull/52) [`487fee4`](https://github.com/un-ts/sh-syntax/commit/487fee4b77c91e1e8c36dc979bbb94b340364d55) Thanks [@jlarmstrongiv](https://github.com/jlarmstrongiv)! - fix: check property existence before patching
+
 ## 0.3.6
 
 ### Patch Changes
