@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@1stg/lib-config": "^9.0.3",
-    "@changesets/changelog-github": "^0.4.6",
+    "@changesets/changelog-github": "^0.4.7",
     "@changesets/cli": "^2.24.4",
     "@types/golang-wasm-exec": "^1.15.0",
     "@types/mvdan-sh": "^0.10.0",
