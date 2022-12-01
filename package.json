@@ -94,7 +94,7 @@
     "mvdan-sh": "^0.10.1",
     "size-limit": "^8.0.0",
     "size-limit-preset-node-lib": "^0.1.0",
-    "synckit": "^0.8.1",
+    "synckit": "^0.8.4",
     "type-coverage": "^2.22.0",
     "typescript": "^4.7.4",
     "vitest": "^0.20.2"
