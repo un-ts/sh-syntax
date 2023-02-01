@@ -7,7 +7,7 @@ specifiers:
   '@types/golang-wasm-exec': ^1.15.0
   '@types/mvdan-sh': ^0.10.0
   '@types/node': ^18.6.3
-  '@types/web': ^0.0.86
+  '@types/web': ^0.0.90
   c8: ^7.12.0
   mitata: ^0.1.6
   mvdan-sh: ^0.10.1
@@ -29,7 +29,7 @@ devDependencies:
   '@types/golang-wasm-exec': 1.15.0
   '@types/mvdan-sh': 0.10.0
   '@types/node': 18.6.3
-  '@types/web': 0.0.86
+  '@types/web': 0.0.90
   c8: 7.12.0
   mitata: 0.1.6
   mvdan-sh: 0.10.1
@@ -2984,8 +2984,8 @@ packages:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: true
 
-  /@types/web/0.0.86:
-    resolution: {integrity: sha512-d8mYKwcKvkMSlxlDovHyRD7GhNpe10ti4GaX4dR0lsQqk+2l9Y72PU2yPpYlRajQrpfuOWlgGqs8jpbSU9udpg==}
+  /@types/web/0.0.90:
+    resolution: {integrity: sha512-ow8CiNCDI8J5bwZQoFrDr/uqDCeLPOlaJixP7hZqoxoPWBcUXAwHhi+hvPiHTZk6YACoIPQXghxYEy8htXHwuw==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.38.1_p3mxqq76cyiko4dez23ycf7bl4:
