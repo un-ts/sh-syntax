@@ -1,6 +1,11 @@
+github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
+github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
+github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
+github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
-mvdan.cc/sh/v3 v3.5.1 h1:hmP3UOw4f+EYexsJjFxvU38+kn+V/s2CclXHanIBkmQ=
-mvdan.cc/sh/v3 v3.5.1/go.mod h1:1JcoyAKm1lZw/2bZje/iYKWicU/KMd0rsyJeKHnsK4E=
+github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
+mvdan.cc/sh/v3 v3.6.0 h1:gtva4EXJ0dFNvl5bHjcUEvws+KRcDslT8VKheTYkbGU=
+mvdan.cc/sh/v3 v3.6.0/go.mod h1:U4mhtBLZ32iWhif5/lD+ygy1zrgaQhUu+XFy7C8+TTA=

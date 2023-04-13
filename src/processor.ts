@@ -169,7 +169,7 @@ export const getProcessor = (
     const string = decoder.decode(result.subarray(0, end))
 
     // naive check whether the string is a json
-    if (!string.startsWith('{"') && !string.endsWith('}')) {
+    if (!string.startsWith('{"') || !string.endsWith('}')) {
       throw new ParseError({
         Filename: filepath,
         Incomplete: true,

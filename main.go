@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/mailru/easyjson"
-	"github.com/rx-ts/sh-syntax/processor"
+	"github.com/un-ts/sh-syntax/processor"
 
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -120,6 +120,8 @@ func process(
 		fmt.Println(err)
 		bytes = []byte(err.Error())
 	}
+
+	bytes = append(bytes, 0)
 
 	return &bytes[0]
 }
