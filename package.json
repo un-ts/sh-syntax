@@ -22,8 +22,8 @@
     },
     "./main.wasm": "./main.wasm",
     "./package.json": "./package.json",
-    "./vendors/wasm_exec": "./vendors/wasm_exec.js",
-    "./vendors/wasm_exec.js": "./vendors/wasm_exec.js"
+    "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
+    "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -35,7 +35,7 @@
   "scripts": {
     "benchmark": "NO_COLOR=1 node benchmark > benchmark/benchmark.txt",
     "build": "run-p build:*",
-    "build:r": "r -f cjs",
+    "build:r": "r -f cjs -x **/vendors/wasm_exec.cjs",
     "build:ts": "tsc -p src",
     "lint": "run-p lint:*",
     "lint:es": "eslint . --cache -f friendly --max-warnings 10",

@@ -1,6 +1,6 @@
 coverage
 lib
-vendors/*.js
+vendors/*.cjs
 CHANGELOG.md
 !/.github
 !/.*.js

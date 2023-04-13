@@ -1,3 +1,3 @@
 test/fixtures
-vendors
+vendors/*.cjs
 /pnpm-lock.yaml

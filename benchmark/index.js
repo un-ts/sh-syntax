@@ -18,6 +18,7 @@ import { print } from '../lib/index.js'
  */
 
 const keepComments = true
+
 /**
  * @type {LangVariant}
  */
@@ -66,7 +67,7 @@ bench('sh-syntax (synckit)', () => printSync(text, shOptions))
 
 bench('mvdan-sh', () => {
   const { syntax } = sh
-  syntax
+  return syntax
     .NewPrinter(
       syntax.Indent(indent),
       syntax.BinaryNextLine(binaryNextLine),
