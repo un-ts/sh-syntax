@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     coverage: {
       exclude: ['test', 'vendors'],
+      provider: 'istanbul',
       reporter: ['json'],
     },
   },

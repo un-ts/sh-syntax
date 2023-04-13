@@ -5,42 +5,11 @@
   "description": "A WASM shell parser and formatter with bash support, based on mvdan/sh",
   "repository": "git+https://github.com/rx-ts/sh-syntax.git",
   "author": "JounQin (https://www.1stG.me) <admin@1stg.me>",
-  "donate": {
-    "recipients": [
-      {
-        "name": "unts",
-        "platform": "opencollective",
-        "address": "https://opencollective.com/unts",
-        "weight": 60
-      },
-      {
-        "name": "rxts",
-        "platform": "opencollective",
-        "address": "https://opencollective.com/rxts",
-        "weight": 20
-      },
-      {
-        "name": "1stG",
-        "email": "i@1stg.me",
-        "weight": 20,
-        "platforms": [
-          {
-            "platform": "opencollective",
-            "address": "https://opencollective.com/1stG"
-          },
-          {
-            "platform": "patreon",
-            "address": "https://www.patreon.com/1stG"
-          }
-        ]
-      }
-    ]
-  },
   "funding": "https://opencollective.com/unts",
   "license": "MIT",
-  "packageManager": "pnpm@7.8.0",
+  "packageManager": "pnpm@8.2.0",
   "engines": {
-    "node": "^12.20.0 || ^14.18.0 || >=16.0.0"
+    "node": ">=16.0.0"
   },
   "main": "./lib/index.cjs",
   "module": "./lib/index.js",
@@ -79,25 +48,25 @@
     "wasm": "tinygo build -o main.wasm -target wasm --no-debug"
   },
   "dependencies": {
-    "tslib": "^2.4.0"
+    "tslib": "^2.5.0"
   },
   "devDependencies": {
-    "@1stg/lib-config": "^9.0.2",
-    "@changesets/changelog-github": "^0.4.6",
-    "@changesets/cli": "^2.24.1",
+    "@1stg/lib-config": "^11.0.1",
+    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/cli": "^2.26.1",
     "@types/golang-wasm-exec": "^1.15.0",
     "@types/mvdan-sh": "^0.10.0",
-    "@types/node": "^18.6.3",
-    "@types/web": "^0.0.70",
-    "c8": "^7.12.0",
+    "@types/node": "^18.15.11",
+    "@types/web": "^0.0.99",
+    "@vitest/coverage-istanbul": "^0.30.1",
     "mitata": "^0.1.6",
     "mvdan-sh": "^0.10.1",
-    "size-limit": "^8.0.0",
-    "size-limit-preset-node-lib": "^0.1.0",
-    "synckit": "^0.8.1",
-    "type-coverage": "^2.22.0",
-    "typescript": "^4.7.4",
-    "vitest": "^0.20.2"
+    "size-limit": "^8.2.4",
+    "size-limit-preset-node-lib": "^0.2.0",
+    "synckit": "^0.8.5",
+    "type-coverage": "^2.25.0",
+    "typescript": "^5.0.4",
+    "vitest": "^0.30.1"
   },
   "sideEffects": [
     "lib/browser.js",
