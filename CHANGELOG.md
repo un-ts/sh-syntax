@@ -1,5 +1,13 @@
 # sh-syntax
 
+## 0.4.0
+
+### Minor Changes
+
+- [`e13b13a`](https://github.com/un-ts/sh-syntax/commit/e13b13a93701f97268cb2c53cac67ab3b7a9ef30) Thanks [@JounQin](https://github.com/JounQin)! - fix: add a trailing 0 for bytes, this should fix several known issues
+
+  feat: drop node 14 support
+
 ## 0.3.7
 
 ### Patch Changes
