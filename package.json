@@ -9,7 +9,7 @@
   "license": "MIT",
   "packageManager": "pnpm@8.2.0",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=v16.20.0"
   },
   "main": "./lib/index.cjs",
   "module": "./lib/index.js",
