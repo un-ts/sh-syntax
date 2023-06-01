@@ -48,7 +48,7 @@
     "wasm": "tinygo build -o main.wasm -target wasm --no-debug"
   },
   "dependencies": {
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.2"
   },
   "devDependencies": {
     "@1stg/lib-config": "^11.0.1",
