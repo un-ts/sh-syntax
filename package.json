@@ -64,7 +64,7 @@
     "size-limit": "^8.2.4",
     "size-limit-preset-node-lib": "^0.2.0",
     "synckit": "^0.8.5",
-    "type-coverage": "^2.25.0",
+    "type-coverage": "^2.26.0",
     "typescript": "^5.0.4",
     "vitest": "^0.30.1"
   },
