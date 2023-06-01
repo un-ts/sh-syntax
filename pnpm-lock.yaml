@@ -19,8 +19,8 @@ devDependencies:
     specifier: ^1.15.0
     version: 1.15.0
   '@types/mvdan-sh':
-    specifier: ^0.10.0
-    version: 0.10.0
+    specifier: ^0.10.1
+    version: 0.10.1
   '@types/node':
     specifier: ^18.15.11
     version: 18.15.11
@@ -3310,8 +3310,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/mvdan-sh@0.10.0:
-    resolution: {integrity: sha512-CJjmvfw82dE+Kt1eeCToWPJDbbj2jGDdg/x8/hQe9eGBhpPBstiXt71huYzIAnTApl8iP4bw4vUxc7C4jJGSWQ==}
+  /@types/mvdan-sh@0.10.1:
+    resolution: {integrity: sha512-IQAy2NjvUIu8MsvNPCccJl5n3dan67EHhKlKP0Vs0tIvXDLIXaE4gPukTtoEn9od2O0ZqOW9QKyX9Nz+dsg2dw==}
     dev: true
 
   /@types/node@12.20.55:
