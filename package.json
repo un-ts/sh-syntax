@@ -7,7 +7,7 @@
   "author": "JounQin (https://www.1stG.me) <admin@1stg.me>",
   "funding": "https://opencollective.com/unts",
   "license": "MIT",
-  "packageManager": "pnpm@8.2.0",
+  "packageManager": "pnpm@8.6.6",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -48,25 +48,25 @@
     "wasm": "tinygo build -o main.wasm -target wasm --no-debug"
   },
   "dependencies": {
-    "tslib": "^2.5.0"
+    "tslib": "^2.6.0"
   },
   "devDependencies": {
-    "@1stg/lib-config": "^11.0.1",
+    "@1stg/lib-config": "^12.0.0",
     "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.26.1",
+    "@changesets/cli": "^2.26.2",
     "@types/golang-wasm-exec": "^1.15.0",
-    "@types/mvdan-sh": "^0.10.0",
-    "@types/node": "^18.15.11",
-    "@types/web": "^0.0.99",
-    "@vitest/coverage-istanbul": "^0.30.1",
+    "@types/mvdan-sh": "^0.10.2",
+    "@types/node": "^20.4.0",
+    "@types/web": "^0.0.103",
+    "@vitest/coverage-istanbul": "^0.32.4",
     "mitata": "^0.1.6",
     "mvdan-sh": "^0.10.1",
-    "size-limit": "^8.2.4",
+    "size-limit": "^8.2.6",
     "size-limit-preset-node-lib": "^0.2.0",
     "synckit": "^0.8.5",
-    "type-coverage": "^2.25.0",
-    "typescript": "^5.0.4",
-    "vitest": "^0.30.1"
+    "type-coverage": "^2.26.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.32.4"
   },
   "sideEffects": [
     "lib/browser.js",

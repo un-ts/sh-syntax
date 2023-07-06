@@ -1,9 +1,13 @@
-export enum LangVariant {
-  LangBash = 0,
-  LangPOSIX = 1,
-  LangMirBSDKorn = 2,
-  LangBats = 3,
-}
+export type ValueOf<T> = T[keyof T]
+
+export const LangVariant = {
+  LangBash: 0,
+  LangPOSIX: 1,
+  LangMirBSDKorn: 2,
+  LangBats: 3,
+} as const
+
+export type LangVariant = ValueOf<typeof LangVariant>
 
 export interface ShParserOptions {
   keepComments?: boolean
