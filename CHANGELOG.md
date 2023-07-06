@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.4.1
+
+### Patch Changes
+
+- [`5760ee9`](https://github.com/un-ts/sh-syntax/commit/5760ee92111726ee2716000ca9e6a82e17d66e77) Thanks [@JounQin](https://github.com/JounQin)! - fix: better LangVariant typing for compatibility with mvdan-sh
+
 ## 0.4.0
 
 ### Minor Changes
