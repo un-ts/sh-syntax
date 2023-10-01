@@ -29,8 +29,8 @@ devDependencies:
     specifier: ^20.4.0
     version: 20.4.0
   '@types/web':
-    specifier: ^0.0.114
-    version: 0.0.114
+    specifier: ^0.0.115
+    version: 0.0.115
   '@vitest/coverage-istanbul':
     specifier: ^0.32.4
     version: 0.32.4(vitest@0.32.4)
@@ -3716,8 +3716,8 @@ packages:
     resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
     dev: true
 
-  /@types/web@0.0.114:
-    resolution: {integrity: sha512-nrkwsB8u0VNHwElFSl6ZCgu0BCbsQu5BPq7mJtBpW7rYBmiLZNWE5KqcHDw8GXQMqWsnFB3EnXsAx7UysQwcMg==}
+  /@types/web@0.0.115:
+    resolution: {integrity: sha512-IBtUgtxnITC7WTCg4tv6kCnSP0T+fM+3PzQPIzLzJY1DDlhBFKM/9+uMURw14YweWPDiFNIZ94Gc1bJtwow97g==}
     dev: true
 
   /@types/whatwg-mimetype@3.0.0:
