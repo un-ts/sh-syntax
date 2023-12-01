@@ -54,7 +54,7 @@
     "@1stg/lib-config": "^12.0.0",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
-    "@types/golang-wasm-exec": "^1.15.1",
+    "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.8",
     "@types/node": "^20.4.0",
     "@types/web": "^0.0.115",
