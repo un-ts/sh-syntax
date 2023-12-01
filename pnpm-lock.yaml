@@ -20,8 +20,8 @@ devDependencies:
     specifier: ^2.26.2
     version: 2.26.2
   '@types/golang-wasm-exec':
-    specifier: ^1.15.1
-    version: 1.15.1
+    specifier: ^1.15.2
+    version: 1.15.2
   '@types/mvdan-sh':
     specifier: ^0.10.8
     version: 0.10.8
@@ -3610,8 +3610,8 @@ packages:
       '@types/node': 20.4.0
     dev: true
 
-  /@types/golang-wasm-exec@1.15.1:
-    resolution: {integrity: sha512-9SiiKhbSkokU+0rye1WFzkdR8x+Vi/bTQ48zO7FzwbWgAlZvDJ+cDOKQVqM+bkgqFGtw1mKWXnaAPSsbYoVWxQ==}
+  /@types/golang-wasm-exec@1.15.2:
+    resolution: {integrity: sha512-NA77toY4yOiiV5foDVT/rfxmtoox7ASHqGs4Eek8xTMcKWwAhZLOD3SYfLQKq4P2jtOLQQkeISq3zSuQ1Y+apg==}
     dev: true
 
   /@types/has-yarn@1.0.1:
