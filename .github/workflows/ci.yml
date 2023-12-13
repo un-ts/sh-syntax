@@ -12,6 +12,7 @@ jobs:
         node:
           - 16
           - 18
+          - 20
         os:
           - macos-latest
           - windows-latest
@@ -19,15 +20,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        with:
-          version: latest
 
       - name: Setup Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
