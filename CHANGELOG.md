@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.4.2
+
+### Patch Changes
+
+- [#85](https://github.com/un-ts/sh-syntax/pull/85) [`e2d3165`](https://github.com/un-ts/sh-syntax/commit/e2d3165e90cf6728a1d986d8cbc38af8404fdb71) Thanks [@JounQin](https://github.com/JounQin)! - feat(deps): bump `mvdan/sh` and `tinygo`
+
 ## 0.4.1
 
 ### Patch Changes
