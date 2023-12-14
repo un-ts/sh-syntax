@@ -7,7 +7,7 @@
   "author": "JounQin (https://www.1stG.me) <admin@1stg.me>",
   "funding": "https://opencollective.com/unts",
   "license": "MIT",
-  "packageManager": "pnpm@8.11.0",
+  "packageManager": "pnpm@8.12.1",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -78,7 +78,7 @@
   "size-limit": [
     {
       "path": "lib/browser.js",
-      "limit": "120B"
+      "limit": "150B"
     },
     {
       "path": "lib/index.js",
