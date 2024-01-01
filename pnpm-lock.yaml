@@ -11,8 +11,8 @@ dependencies:
 
 devDependencies:
   '@1stg/lib-config':
-    specifier: ^12.0.0
-    version: 12.0.0(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(@vue/compiler-sfc@3.3.4)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
+    specifier: ^12.0.1
+    version: 12.0.1(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(@vue/compiler-sfc@3.3.4)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
   '@changesets/changelog-github':
     specifier: ^0.4.8
     version: 0.4.8
@@ -104,19 +104,19 @@ packages:
       - lerna
     dev: true
 
-  /@1stg/common-config@9.0.0(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
-    resolution: {integrity: sha512-4eObSMl7h7ZJZeat82SQykv4H38QVp38kB/nxZyIwRWhBptHpXvEIA62AQ5pear/+qJkQ6blq78X86lgbh90dg==}
+  /@1stg/common-config@9.0.1(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
+    resolution: {integrity: sha512-XEAcqqjQyRcDyqYXRLgPLs12Vi6sLqQMjkgewJo3awXVUuFgJD2ppHdSjS9AlBujsf9XwYeEBBWAk2CJUVmD2Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
       '@1stg/babel-preset': 3.2.3(@babel/core@7.22.6)(typescript@5.1.6)
       '@1stg/commitlint-config': 3.2.0
-      '@1stg/eslint-config': 7.0.0(@babel/core@7.22.6)(@types/node@20.4.0)(eslint@8.44.0)(prettier@2.8.8)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
+      '@1stg/eslint-config': 7.0.1(@babel/core@7.22.6)(@types/node@20.4.0)(eslint@8.44.0)(prettier@2.8.8)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
       '@1stg/lint-staged': 3.4.1(lint-staged@13.2.3)(svelte@4.0.4)(typescript@5.1.6)
       '@1stg/markuplint-config': 3.0.1(@markuplint/ml-core@3.11.0)(eslint@8.44.0)(markuplint@3.11.0)
       '@1stg/prettier-config': 3.9.2(prettier@2.8.8)(svelte@4.0.4)
       '@1stg/remark-preset': 2.0.0(prettier@2.8.8)
       '@1stg/simple-git-hooks': 0.2.3(@commitlint/cli@17.6.6)(lint-staged@13.2.3)(simple-git-hooks@2.8.1)
-      '@1stg/tsconfig': 2.3.2(typescript@5.1.6)
+      '@1stg/tsconfig': 2.3.3(typescript@5.1.6)
       '@babel/core': 7.22.6
       '@commitlint/cli': 17.6.6
       eslint: 8.44.0
@@ -149,8 +149,8 @@ packages:
     resolution: {integrity: sha512-fStBgzyQnL0/bdIcHCplmrjFN9SBfnkldQ+TnpKnBFmp7jIxoggSRL3kaEFbGlq2lbV/H7Udy3bmJWTtdDH5Iw==}
     dev: true
 
-  /@1stg/eslint-config@7.0.0(@babel/core@7.22.6)(@types/node@20.4.0)(eslint@8.44.0)(prettier@2.8.8)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
-    resolution: {integrity: sha512-J1+0FbTvZK2CB/JokzP/D37GhAtJi42yAJep1wBw213QdDhktI2iV7VmwKvoPlLL8CB8JwF955UFKusG9lC7tA==}
+  /@1stg/eslint-config@7.0.1(@babel/core@7.22.6)(@types/node@20.4.0)(eslint@8.44.0)(prettier@2.8.8)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
+    resolution: {integrity: sha512-qdGayfrv/LPanOs4N/yjt1yfMyeqYHGen/33wbBDVs9mmAJ+W9LCeueYaSfEzm0GOWeIJ6qIiLSHYiTcpGCDnw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       eslint: '>=8.0.0'
@@ -211,11 +211,11 @@ packages:
       - typescript
     dev: true
 
-  /@1stg/lib-config@12.0.0(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(@vue/compiler-sfc@3.3.4)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
-    resolution: {integrity: sha512-Dkz0ouc5M9DvkY0EG/RXNjTkcE544e5gScU2mKBInc8W7QOidBjji9OCsw29jxjS0o6cPRSELXZJbSJC2xfkrg==}
+  /@1stg/lib-config@12.0.1(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(@vue/compiler-sfc@3.3.4)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6):
+    resolution: {integrity: sha512-IovDXaUtwI4+mb0Ker81Hb618jDsaz1qXaQ+gMFX52l6G93DTFdULqfwCsqu0Mie4787bxL8l3r6ORHwuVq2Ww==}
     engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
-      '@1stg/common-config': 9.0.0(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
+      '@1stg/common-config': 9.0.1(@markuplint/ml-core@3.11.0)(@types/node@20.4.0)(markuplint@3.11.0)(svelte@4.0.4)(ts-node@10.9.1)(typescript@5.1.6)
       '@pkgr/rollup': 4.1.1(@vue/compiler-sfc@3.3.4)
     transitivePeerDependencies:
       - '@babel/traverse'
@@ -246,7 +246,7 @@ packages:
     dependencies:
       '@1stg/config': 0.2.1
       '@1stg/prettier-config': 3.9.2(prettier@2.8.8)(svelte@4.0.4)
-      '@1stg/tsconfig': 2.3.2(typescript@5.1.6)
+      '@1stg/tsconfig': 2.3.3(typescript@5.1.6)
       '@pkgr/utils': 2.4.1
       lint-staged: 13.2.3
       prettier: 2.8.8
@@ -327,8 +327,8 @@ packages:
       simple-git-hooks: 2.8.1
     dev: true
 
-  /@1stg/tsconfig@2.3.2(typescript@5.1.6):
-    resolution: {integrity: sha512-vNYoC1cvdGHCA3tJMUskaVsNVTt6QIOFO+eDtdO4JvqHllvi+o2QSqy5vTpAGMODSqbyFcLdPW7sD5kj9VQmNA==}
+  /@1stg/tsconfig@2.3.3(typescript@5.1.6):
+    resolution: {integrity: sha512-JHXiryRSs4w/ho/Uf3lDMlrYIf2p8+2gMgp23/j/HJfGF2+XwgRCnPgLA2VZ+LtGdqYX8ZJ4EmMgjFDdEdTMbg==}
     peerDependencies:
       typescript: '>=3.0.0'
     dependencies:
@@ -766,6 +766,7 @@ packages:
   /@babel/plugin-proposal-class-properties@7.18.6(@babel/core@7.22.6):
     resolution: {integrity: sha512-cumfXOF0+nzZrrN8Rf0t7M+tF6sZc7vhQwYQck9q1/5w2OExlD+b4v4RpMJFaV1Z7WcDRgO6FqvxqxGlwo+RHQ==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -831,6 +832,7 @@ packages:
   /@babel/plugin-proposal-json-strings@7.18.6(@babel/core@7.22.6):
     resolution: {integrity: sha512-lr1peyn9kOdbYc0xr0OdHTZ5FMqS6Di+H0Fz2I/JwMzGmzJETNeOFq2pBySw6X/KFL5EWDjlJuMsUGRFb8fQgQ==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-json-strings instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -842,6 +844,7 @@ packages:
   /@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.22.6):
     resolution: {integrity: sha512-p4zeefM72gpmEe2fkUr/OnOXpWEf8nAgk7ZYVqqfFiyIG7oFfVZcCrU64hWn5xp4tQ9LkV4bTIa5rD0KANpKNA==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -885,6 +888,7 @@ packages:
   /@babel/plugin-proposal-private-property-in-object@7.21.11(@babel/core@7.22.6):
     resolution: {integrity: sha512-0QZ8qP/3RLDVBwBFoWAwCtgcDZJVwA5LUJRZU8x2YFfKNuFq161wK3cuGrALu5yiPu+vzwTAg/sMWVNeWeNyaw==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-private-property-in-object instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -924,6 +928,7 @@ packages:
   /@babel/plugin-proposal-unicode-property-regex@7.18.6(@babel/core@7.22.6):
     resolution: {integrity: sha512-2BShG/d5yoZyXZfVePH91urL5wTG6ASZU9M4o03lKK8u8UW1y08OMttBSOADTcJrnPMpvDXRG3G8fyLh4ovs8w==}
     engines: {node: '>=4'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-unicode-property-regex instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -2969,6 +2974,7 @@ packages:
   /@lerna/package@6.4.1:
     resolution: {integrity: sha512-TrOah58RnwS9R8d3+WgFFTu5lqgZs7M+e1dvcRga7oSJeKscqpEK57G0xspvF3ycjfXQwRMmEtwPmpkeEVLMzA==}
     engines: {node: ^14.15.0 || >=16.0.0}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dependencies:
       load-json-file: 6.2.0
       npm-package-arg: 8.1.1
@@ -2978,6 +2984,7 @@ packages:
   /@lerna/project@6.4.1:
     resolution: {integrity: sha512-BPFYr4A0mNZ2jZymlcwwh7PfIC+I6r52xgGtJ4KIrIOB6mVKo9u30dgYJbUQxmSuMRTOnX7PJZttQQzSda4gEg==}
     engines: {node: ^14.15.0 || >=16.0.0}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dependencies:
       '@lerna/package': 6.4.1
       '@lerna/validation-error': 6.4.1
@@ -2997,6 +3004,7 @@ packages:
   /@lerna/validation-error@6.4.1:
     resolution: {integrity: sha512-fxfJvl3VgFd7eBfVMRX6Yal9omDLs2mcGKkNYeCEyt4Uwlz1B5tPAXyk/sNMfkKV2Aat/mlK5tnY13vUrMKkyA==}
     engines: {node: ^14.15.0 || >=16.0.0}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dependencies:
       npmlog: 6.0.2
     dev: true
@@ -9486,7 +9494,7 @@ packages:
     dev: true
 
   /propose@0.0.5:
-    resolution: {integrity: sha1-SKBl2ex9TIZn9AULFcSi2F28pWs=}
+    resolution: {integrity: sha512-Jary1vb+ap2DIwOGfyiadcK4x1Iu3pzpkDBy8tljFPmQvnc9ES3m1PMZOMiWOG50cfoAyYNtGeBzrp+Rlh4G9A==}
     dependencies:
       levenshtein-edit-distance: 1.0.0
     dev: true
