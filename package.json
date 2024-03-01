@@ -62,7 +62,7 @@
     "mitata": "^0.1.6",
     "mvdan-sh": "^0.10.1",
     "size-limit": "^8.2.6",
-    "size-limit-preset-node-lib": "^0.2.0",
+    "size-limit-preset-node-lib": "^0.3.0",
     "synckit": "^0.8.5",
     "type-coverage": "^2.26.2",
     "typescript": "^5.1.6",
