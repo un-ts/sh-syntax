@@ -59,7 +59,7 @@
     "@types/node": "^20.4.0",
     "@types/web": "^0.0.115",
     "@vitest/coverage-istanbul": "^0.32.4",
-    "mitata": "^0.1.6",
+    "mitata": "^0.1.14",
     "mvdan-sh": "^0.10.1",
     "size-limit": "^8.2.6",
     "size-limit-preset-node-lib": "^0.2.0",

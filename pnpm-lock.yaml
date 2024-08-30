@@ -35,8 +35,8 @@ devDependencies:
     specifier: ^0.32.4
     version: 0.32.4(vitest@0.32.4)
   mitata:
-    specifier: ^0.1.6
-    version: 0.1.6
+    specifier: ^0.1.14
+    version: 0.1.14
   mvdan-sh:
     specifier: ^0.10.1
     version: 0.10.1
@@ -8715,8 +8715,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     dev: true
 
-  /mitata@0.1.6:
-    resolution: {integrity: sha512-VKQ0r3jriTOU9E2Z+mwbZrUmbg4Li4QyFfi7kfHKl6reZhGzL0AYlu3wE0VPXzIwA5xnFzmEQoBwCcNT8stUkA==}
+  /mitata@0.1.14:
+    resolution: {integrity: sha512-8kRs0l636eT4jj68PFXOR2D5xl4m56T478g16SzUPOYgkzQU+xaw62guAQxzBPm+SXb15GQi1cCpDxJfkr4CSA==}
     dev: true
 
   /mixme@0.5.9:
