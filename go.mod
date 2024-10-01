@@ -1,6 +1,6 @@
 module github.com/un-ts/sh-syntax
 
-go 1.20
+go 1.23.2
 
 require (
 	github.com/mailru/easyjson v0.7.7
