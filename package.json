@@ -57,7 +57,7 @@
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
     "@types/node": "^20.4.0",
-    "@types/web": "^0.0.115",
+    "@types/web": "^0.0.213",
     "@vitest/coverage-istanbul": "^0.32.4",
     "mitata": "^0.1.6",
     "mvdan-sh": "^0.10.1",
