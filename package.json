@@ -7,7 +7,7 @@
   "author": "JounQin (https://www.1stG.me) <admin@1stg.me>",
   "funding": "https://opencollective.com/unts",
   "license": "MIT",
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "pnpm@10.6.5",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -51,22 +51,22 @@
     "tslib": "^2.6.2"
   },
   "devDependencies": {
-    "@1stg/lib-config": "^12.0.0",
-    "@changesets/changelog-github": "^0.4.8",
+    "@1stg/lib-config": "^13.0.0",
+    "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.26.2",
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
-    "@types/node": "^20.4.0",
-    "@types/web": "^0.0.115",
-    "@vitest/coverage-istanbul": "^0.32.4",
-    "mitata": "^0.1.6",
+    "@types/node": "^22.0.0",
+    "@types/web": "^0.0.213",
+    "@vitest/coverage-istanbul": "^3.0.0",
+    "mitata": "^1.0.0",
     "mvdan-sh": "^0.10.1",
-    "size-limit": "^8.2.6",
-    "size-limit-preset-node-lib": "^0.2.0",
-    "synckit": "^0.8.5",
+    "size-limit": "^11.0.0",
+    "size-limit-preset-node-lib": "^0.3.0",
+    "synckit": "^0.10.0",
     "type-coverage": "^2.26.2",
     "typescript": "^5.1.6",
-    "vitest": "^0.32.4"
+    "vitest": "^3.0.0"
   },
   "sideEffects": [
     "lib/browser.js",
