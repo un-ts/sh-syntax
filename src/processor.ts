@@ -45,6 +45,34 @@ export const getProcessor = (
     },
   ): Promise<string>
 
+  /**
+   * Processes a shell script input using a WebAssembly module.
+   *
+   * This asynchronous function accepts shell script input either as a string or as an AST File, along with a set of options
+   * that control formatting, error recovery, and output. It ensures that the WebAssembly module is loaded and instantiated,
+   * allocates memory for the file path and text content, and then calls the module's processing function with the provided options.
+   * Depending on the `print` flag, it returns either the processed text or a File representing the parsed AST.
+   *
+   * @param textOrAst - The shell script input as a string or as an AST File. When providing a non-string input and `print` is false,
+   *                    the `originalText` option must be supplied.
+   * @param options - An object containing processing options:
+   *   - filepath: The file path associated with the input, used primarily for error reporting.
+   *   - print: If true, the function returns the processed text; otherwise, it returns the processed AST as a File.
+   *   - originalText: The original text of the shell script, required when `textOrAst` is not a string.
+   *   - keepComments: Determines whether comments should be preserved in the output.
+   *   - variant: Specifies the shell scripting variant (e.g., {@link LangVariant.LangBash}).
+   *   - stopAt: A token indicating where to halt further processing.
+   *   - recoverErrors: Sets the level of error recovery during processing (default is 0).
+   *   - useTabs, tabWidth, indent: Options to control indentation formatting.
+   *   - binaryNextLine, switchCaseIndent, spaceRedirects, keepPadding, minify, singleLine, functionNextLine:
+   *     Additional flags that influence formatting details and output structure.
+   *
+   * @returns A promise that resolves to either the processed text (if `print` is true) or a File (if `print` is false).
+   *
+   * @throws {TypeError} If the original text is required but not provided.
+   * @throws {ParseError} If the processed output is not valid JSON or indicates a parsing error.
+   * @throws {SyntaxError} If a syntax error is detected without an associated parse error object.
+   */
   async function processor(
     textOrAst: File | string,
     {
