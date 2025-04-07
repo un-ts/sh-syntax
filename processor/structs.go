@@ -115,7 +115,7 @@ func mapNode(node syntax.Node) *Node {
 	}
 }
 
-// mapComments transforms a slice of syntax.Comment into a slice of Comment by converting each comment's hash, text, start, and end positions using mapPos. It preserves the order of the comments and returns an empty slice if the input is nil or empty.
+// `mapComments` transforms a slice of syntax.Comment into a slice of Comment by converting each comment's hash, text, start, and end positions using mapPos. It preserves the order of the comments and returns an empty slice if the input is nil or empty.
 func mapComments(comments []syntax.Comment) []Comment {
 	commentsSize := len(comments)
 	commentList := make([]Comment, commentsSize)
@@ -131,7 +131,7 @@ func mapComments(comments []syntax.Comment) []Comment {
 	return commentList
 }
 
-// mapWord converts a *syntax.Word into a custom *Word structure. It maps each part of the syntax.Word using mapNode,
+// `mapWord` converts a *syntax.Word into a custom *Word structure. It maps each part of the syntax.Word using mapNode,
 // extracts the literal via Lit(), and maps the start and end positions using mapPos. If the input word is nil, it returns nil.
 func mapWord(word *syntax.Word) *Word {
 	if word == nil {
@@ -153,7 +153,7 @@ func mapWord(word *syntax.Word) *Word {
 	}
 }
 
-// mapRedirects converts a slice of syntax.Redirect pointers into a slice of custom Redirect structures.
+// `mapRedirects` converts a slice of syntax.Redirect pointers into a slice of custom Redirect structures.
 // It maps each redirect’s operator position, associated literal (if present), word, heredoc, and overall positional data using helper functions.
 // If the literal component (N) is non-nil, it is transformed into a Lit structure that encapsulates both its value and positional information.
 func mapRedirects(redirects []*syntax.Redirect) []Redirect {
@@ -186,7 +186,7 @@ func mapRedirects(redirects []*syntax.Redirect) []Redirect {
 	return redirs
 }
 
-// mapStmts converts a slice of *syntax.Stmt into a slice of Stmt by mapping each statement's components—including comments, command node, positional information, semicolon, redirections, and execution flags (negated, background, coprocess).
+// `mapStmts` converts a slice of *syntax.Stmt into a slice of Stmt by mapping each statement's components—including comments, command node, positional information, semicolon, redirections, and execution flags (negated, background, coprocess).
 func mapStmts(stmts []*syntax.Stmt) []Stmt {
 	stmtsSize := len(stmts)
 	stmtList := make([]Stmt, stmtsSize)
