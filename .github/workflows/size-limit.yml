@@ -9,8 +9,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: null
-
 jobs:
   size-limit:
     runs-on: ubuntu-latest

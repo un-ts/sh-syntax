@@ -11,8 +11,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: null
-
 jobs:
   autofix:
     runs-on: ubuntu-latest

@@ -7,8 +7,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: null
-
 jobs:
   publish:
     runs-on: ubuntu-latest
