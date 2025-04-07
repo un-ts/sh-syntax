@@ -59,8 +59,9 @@ func process(
 
 	// parser
 	keepComments bool,
-	stopAt []byte,
 	variant int,
+	stopAt []byte,
+	recoverErrors int,
 
 	// printer
 	indent int,
@@ -69,15 +70,17 @@ func process(
 	spaceRedirects,
 	keepPadding,
 	minify,
+	singleLine bool,
 	functionNextLine bool,
 ) *byte {
 	filepath := string(filepathBytes)
 	text := string(textBytes)
 
 	parserOptions := processor.ParserOptions{
-		KeepComments: keepComments,
-		StopAt:       string(stopAt),
-		Variant:      syntax.LangVariant(variant),
+		KeepComments:  keepComments,
+		Variant:       syntax.LangVariant(variant),
+		StopAt:        string(stopAt),
+		RecoverErrors: recoverErrors,
 	}
 
 	var file processor.File
@@ -91,6 +94,7 @@ func process(
 			SpaceRedirects:   spaceRedirects,
 			KeepPadding:      keepPadding,
 			Minify:           minify,
+			SingleLine:       singleLine,
 			FunctionNextLine: functionNextLine,
 		}
 

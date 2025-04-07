@@ -11,8 +11,9 @@ export type LangVariant = ValueOf<typeof LangVariant>
 
 export interface ShParserOptions {
   keepComments?: boolean
-  stopAt?: string
   variant?: LangVariant
+  stopAt?: string
+  recoverErrors?: number
 }
 
 export interface ShPrinterOptions {
@@ -22,6 +23,7 @@ export interface ShPrinterOptions {
   spaceRedirects?: boolean
   keepPadding?: boolean
   minify?: boolean
+  singleLine?: boolean
   functionNextLine?: boolean
 }
 

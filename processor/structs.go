@@ -118,7 +118,7 @@ func mapNode(node syntax.Node) *Node {
 func mapComments(comments []syntax.Comment) []Comment {
 	commentsSize := len(comments)
 	commentList := make([]Comment, commentsSize)
-	for i := 0; i < commentsSize; i++ {
+	for i := range commentsSize {
 		curr := comments[i]
 		commentList[i] = Comment{
 			Hash: mapPos(curr.Hash),
@@ -138,7 +138,7 @@ func mapWord(word *syntax.Word) *Word {
 	size := len(word.Parts)
 	parts := make([]Node, size)
 
-	for i := 0; i < size; i++ {
+	for i := range size {
 		parts[i] = *mapNode(word.Parts[i])
 	}
 
@@ -153,7 +153,7 @@ func mapWord(word *syntax.Word) *Word {
 func mapRedirects(redirects []*syntax.Redirect) []Redirect {
 	redirsSize := len(redirects)
 	redirs := make([]Redirect, redirsSize)
-	for i := 0; i < redirsSize; i++ {
+	for i := range redirsSize {
 		curr := redirects[i]
 		var N *Lit
 		if curr.N != nil {
@@ -183,7 +183,7 @@ func mapRedirects(redirects []*syntax.Redirect) []Redirect {
 func mapStmts(stmts []*syntax.Stmt) []Stmt {
 	stmtsSize := len(stmts)
 	stmtList := make([]Stmt, stmtsSize)
-	for i := 0; i < stmtsSize; i++ {
+	for i := range stmtsSize {
 		curr := stmts[i]
 		stmtList[i] = Stmt{
 			Comments:   mapComments(curr.Comments),

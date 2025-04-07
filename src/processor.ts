@@ -53,8 +53,9 @@ export const getProcessor = (
       originalText,
 
       keepComments = true,
-      stopAt = '',
       variant = LangVariant.LangBash,
+      stopAt = '',
+      recoverErrors = 0,
 
       useTabs = false,
       tabWidth = 2,
@@ -64,6 +65,7 @@ export const getProcessor = (
       spaceRedirects = true,
       keepPadding = false,
       minify = false,
+      singleLine = false,
       functionNextLine = false,
     }: ShOptions & { print?: boolean; originalText?: string } = {},
   ) {
@@ -110,10 +112,11 @@ export const getProcessor = (
         isAst: boolean,
 
         keepComments: boolean,
+        variant: LangVariant,
         stopAtPointer: number,
         stopAt0: number,
         stopAt1: number,
-        variant: LangVariant,
+        recoverErrors: number,
 
         indent: number,
         binaryNextLine: boolean,
@@ -121,6 +124,7 @@ export const getProcessor = (
         spaceRedirects: boolean,
         keepPadding: boolean,
         minify: boolean,
+        singleLine: boolean,
         functionNextLine: boolean,
       ) => number
     }
@@ -150,10 +154,11 @@ export const getProcessor = (
       print,
 
       keepComments,
+      variant,
       stopAtPointer,
       uStopAt.byteLength,
       uStopAt.byteLength,
-      variant,
+      recoverErrors,
 
       indent,
       binaryNextLine,
@@ -161,6 +166,7 @@ export const getProcessor = (
       spaceRedirects,
       keepPadding,
       minify,
+      singleLine,
       functionNextLine,
     )
 

@@ -13,9 +13,10 @@ var (
 )
 
 type ParserOptions struct {
-	KeepComments bool
-	StopAt       string
-	Variant      syntax.LangVariant
+	KeepComments  bool
+	Variant       syntax.LangVariant
+	StopAt        string
+	RecoverErrors int
 }
 
 type PrinterOptions struct {
@@ -25,6 +26,7 @@ type PrinterOptions struct {
 	SpaceRedirects   bool
 	KeepPadding      bool
 	Minify           bool
+	SingleLine       bool
 	FunctionNextLine bool
 }
 
@@ -40,6 +42,10 @@ func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.F
 
 	if parserOptions.StopAt != "" {
 		options = append(options, syntax.StopAt(parserOptions.StopAt))
+	}
+
+	if parserOptions.RecoverErrors != 0 {
+		options = append(options, syntax.RecoverErrors(parserOptions.RecoverErrors))
 	}
 
 	parser = syntax.NewParser(options...)
@@ -61,6 +67,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		syntax.SpaceRedirects(syntaxOptions.SpaceRedirects),
 		syntax.KeepPadding(syntaxOptions.KeepPadding),
 		syntax.Minify(syntaxOptions.Minify),
+		syntax.SingleLine(syntaxOptions.SingleLine),
 		syntax.FunctionNextLine(syntaxOptions.FunctionNextLine),
 	)
 
