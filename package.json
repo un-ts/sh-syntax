@@ -56,7 +56,7 @@
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
     "prepare": "simple-git-hooks && yarn-berry-deduplicate || exit 0",
-    "release": "yarn build && clean-pkg-json && changeset publish",
+    "release": "clean-pkg-json && changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
     "wasm": "tinygo build -o main.wasm -target wasm --no-debug"

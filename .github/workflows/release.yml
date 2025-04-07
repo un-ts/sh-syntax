@@ -25,9 +25,6 @@ jobs:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
-      - name: Setup yarn
-        uses: yarn/action-setup@v2
-
       - name: Setup Node.js LTS
         uses: actions/setup-node@v4
         with:
@@ -36,6 +33,10 @@ jobs:
 
       - name: Install Dependencies
         run: yarn --immutable
+
+      # required for `pre-commit` hook
+      - name: Build
+        run: yarn build
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
