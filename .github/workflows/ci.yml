@@ -39,7 +39,6 @@ jobs:
       - name: Build, Lint and Test
         run: yarn run-s build lint test typecov
         env:
-          NODE_OPTIONS: --max-old-space-size=8192
           PARSER_NO_WATCH: true
 
       - name: Benchmark
