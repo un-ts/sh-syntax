@@ -1,5 +1,15 @@
 # sh-syntax
 
+## 0.5.0
+
+### Minor Changes
+
+- [#97](https://github.com/un-ts/sh-syntax/pull/97) [`28d68ba`](https://github.com/un-ts/sh-syntax/commit/28d68ba10e72fa2e87afbae43949f39a03562e18) Thanks [@JounQin](https://github.com/JounQin)! - chore: housekeeping, bump `mvdan/sh` and `easyjson` deps, upgrade `go` to `v1.23`
+
+### Patch Changes
+
+- [#97](https://github.com/un-ts/sh-syntax/pull/97) [`28d68ba`](https://github.com/un-ts/sh-syntax/commit/28d68ba10e72fa2e87afbae43949f39a03562e18) Thanks [@JounQin](https://github.com/JounQin)! - fix: incorrect typing for `cjs` entry
+
 ## 0.4.2
 
 ### Patch Changes

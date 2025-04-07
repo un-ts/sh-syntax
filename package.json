@@ -1,6 +1,6 @@
 {
   "name": "sh-syntax",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "type": "module",
   "description": "A WASM shell parser and formatter with bash support, based on mvdan/sh",
   "repository": "git+https://github.com/un-ts/sh-syntax.git",
