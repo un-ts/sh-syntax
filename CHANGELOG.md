@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.3
+
+### Patch Changes
+
+- [#109](https://github.com/un-ts/sh-syntax/pull/109) [`e55d939`](https://github.com/un-ts/sh-syntax/commit/e55d939ab5ccf7d33ba13682a7ea553a994f8ae4) Thanks [@JounQin](https://github.com/JounQin)! - fix: block style comments are required for jsdoc
+
 ## 0.5.2
 
 ### Patch Changes
