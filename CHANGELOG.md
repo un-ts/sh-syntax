@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.4
+
+### Patch Changes
+
+- [#111](https://github.com/un-ts/sh-syntax/pull/111) [`8b93f9a`](https://github.com/un-ts/sh-syntax/commit/8b93f9a3ed8297ec32256b9dfcec8ecf651d3ac7) Thanks [@JounQin](https://github.com/JounQin)! - fix: increase memory usage
+
 ## 0.5.3
 
 ### Patch Changes
