@@ -50,6 +50,12 @@ func Print(originalText string, filepath string, syntaxOptions processor.SyntaxO
 	return processor.Print(originalText, filepath, syntaxOptions)
 }
 
+// `process` processes the input file path and text by performing either formatting (printing) or parsing based on the print flag.
+//
+// It converts the input byte slices to strings and configures parser options—including comment retention, language variant, stop marker, and error recovery settings. When printing is enabled, it applies printer options (indentation, binary next line, switch case indentation, space redirects, padding, minification, single-line formatting, and function next line) to format the text via the Print function. Otherwise, it parses the text with Parse and maps the resulting AST into a file representation.
+//
+// The function then encapsulates the file, the processed text, and any parsing error information into a result structure, marshals it to JSON, appends a null terminator, and returns a pointer to the first byte of the JSON output.
+//
 //export process
 func process(
 	filepathBytes []byte,
@@ -59,8 +65,9 @@ func process(
 
 	// parser
 	keepComments bool,
-	stopAt []byte,
 	variant int,
+	stopAt []byte,
+	recoverErrors int,
 
 	// printer
 	indent int,
@@ -69,15 +76,17 @@ func process(
 	spaceRedirects,
 	keepPadding,
 	minify,
+	singleLine bool,
 	functionNextLine bool,
 ) *byte {
 	filepath := string(filepathBytes)
 	text := string(textBytes)
 
 	parserOptions := processor.ParserOptions{
-		KeepComments: keepComments,
-		StopAt:       string(stopAt),
-		Variant:      syntax.LangVariant(variant),
+		KeepComments:  keepComments,
+		Variant:       syntax.LangVariant(variant),
+		StopAt:        string(stopAt),
+		RecoverErrors: recoverErrors,
 	}
 
 	var file processor.File
@@ -91,6 +100,7 @@ func process(
 			SpaceRedirects:   spaceRedirects,
 			KeepPadding:      keepPadding,
 			Minify:           minify,
+			SingleLine:       singleLine,
 			FunctionNextLine: functionNextLine,
 		}
 
