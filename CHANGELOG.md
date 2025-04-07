@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.2
+
+### Patch Changes
+
+- [#107](https://github.com/un-ts/sh-syntax/pull/107) [`3152cd3`](https://github.com/un-ts/sh-syntax/commit/3152cd3debf4bc01eae1bd914aaaa905a4c8f975) Thanks [@JounQin](https://github.com/JounQin)! - feat: add new `LangVariant` option `LangAuto` although it's unsupported
+
 ## 0.5.1
 
 ### Patch Changes
