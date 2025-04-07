@@ -50,6 +50,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run codacy-coverage-reporter
+        # bad Windows -- https://github.com/codacy/codacy-coverage-reporter-action/issues/91
+        if: ${{ matrix.os != 'windows-latest' }}
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           api-token: ${{ secrets.CODACY_API_TOKEN }}
