@@ -1,10 +1,9 @@
 {
-  "extends": "@1stg/tsconfig/lib.json",
+  "extends": "@1stg/tsconfig/node16",
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
-      "sh-syntax": ["src"]
+      "sh-syntax": ["./src"]
     }
-  },
-  "exclude": ["lib"]
+  }
 }

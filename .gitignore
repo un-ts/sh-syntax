@@ -3,3 +3,6 @@
 coverage
 lib
 node_modules
+.yarn/*
+!.yarn/plugins
+!.yarn/releases

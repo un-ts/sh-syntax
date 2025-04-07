@@ -9,7 +9,9 @@ export default defineConfig({
     },
   },
   test: {
+    globals: true,
     coverage: {
+      enabled: true,
       exclude: ['test', 'vendors'],
       provider: 'istanbul',
       reporter: ['json'],

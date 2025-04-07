@@ -10,12 +10,12 @@ if (!globalThis.fs) {
 
 if (!globalThis.crypto) {
   globalThis.crypto = {
-    // @ts-expect-error
+    // @ts-expect-error -- incompatible types
     getRandomValues: randomFillSync,
   }
 }
 
 if (!globalThis.performance) {
-  // @ts-expect-error
+  // @ts-expect-error -- incompatible types
   globalThis.performance = performance
 }
