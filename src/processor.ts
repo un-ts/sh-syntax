@@ -91,6 +91,7 @@ export const getProcessor = (
       binaryNextLine = true,
       switchCaseIndent = true,
       spaceRedirects = true,
+      // eslint-disable-next-line sonarjs/deprecation
       keepPadding = false,
       minify = false,
       singleLine = false,
@@ -118,10 +119,11 @@ export const getProcessor = (
 
     const wasm = await WebAssembly.instantiate(wasmFile, go.importObject)
 
-    // Do not await this promise, because it only resolves once the go main()
-    // function has exited. But we need the main function to stay alive to be
-    // able to call the `parse` and `print` function.
-
+    /**
+     * Do not await this promise, because it only resolves once the go main()
+     * function has exited. But we need the main function to stay alive to be
+     * able to call the `parse` and `print` function.
+     */
     void go.run(wasm.instance)
 
     const { memory, wasmAlloc, wasmFree, process } = wasm.instance.exports as {

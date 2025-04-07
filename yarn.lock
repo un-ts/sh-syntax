@@ -3690,6 +3690,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stylistic/eslint-plugin-js@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@stylistic/eslint-plugin-js@npm:4.2.0"
+  dependencies:
+    eslint-visitor-keys: "npm:^4.2.0"
+    espree: "npm:^10.3.0"
+  peerDependencies:
+    eslint: ">=9.0.0"
+  checksum: 10c0/5e5a21a60c818fc9f745b12fab252a1188e4d98d7008a81dbaf5a8e106558ac757c4c56e2a4b982bd97249132a31f577a991383f77b4912b8b26723d57654256
+  languageName: node
+  linkType: hard
+
 "@szmarczak/http-timer@npm:^4.0.5":
   version: 4.0.6
   resolution: "@szmarczak/http-timer@npm:4.0.6"
@@ -13156,6 +13168,7 @@ __metadata:
     "@commitlint/cli": "npm:^19.8.0"
     "@mitata/counters": "npm:^0.0.8"
     "@pkgr/rollup": "npm:^6.0.2"
+    "@stylistic/eslint-plugin-js": "npm:^4.2.0"
     "@types/golang-wasm-exec": "npm:^1.15.2"
     "@types/mvdan-sh": "npm:^0.10.9"
     "@types/node": "npm:^22.14.0"
