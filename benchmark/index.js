@@ -3,10 +3,9 @@
 /* eslint-disable @babel/new-cap */
 
 import fs from 'node:fs'
-import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { baseline, bench, run } from 'mitata'
+import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
 import { createSyncFn } from 'synckit'
 
@@ -57,31 +56,31 @@ const shOptions = {
 /**
  * @type {(text: string, options?: ShOptions) => string})}
  */
-const printSync = createSyncFn(
-  path.resolve(fileURLToPath(import.meta.url), '../worker.mjs'),
-)
+const printSync = createSyncFn(new URL('worker.mjs', import.meta.url))
 
-baseline('sh-syntax', () => print(text, shOptions))
+summary(() => {
+  bench('sh-syntax', () => print(text, shOptions)).baseline()
 
-bench('sh-syntax (synckit)', () => printSync(text, shOptions))
+  bench('sh-syntax (synckit)', () => printSync(text, shOptions))
 
-bench('mvdan-sh', () => {
-  const { syntax } = sh
-  return syntax
-    .NewPrinter(
-      syntax.Indent(indent),
-      syntax.BinaryNextLine(binaryNextLine),
-      syntax.SwitchCaseIndent(switchCaseIndent),
-      syntax.SpaceRedirects(spaceRedirects),
-      syntax.KeepPadding(keepPadding),
-      syntax.Minify(minify),
-      syntax.FunctionNextLine(functionNextLine),
-    )
-    .Print(
-      syntax
-        .NewParser(syntax.KeepComments(keepComments), syntax.Variant(variant))
-        .Parse(text, filePath),
-    )
+  bench('mvdan-sh', () => {
+    const { syntax } = sh
+    return syntax
+      .NewPrinter(
+        syntax.Indent(indent),
+        syntax.BinaryNextLine(binaryNextLine),
+        syntax.SwitchCaseIndent(switchCaseIndent),
+        syntax.SpaceRedirects(spaceRedirects),
+        syntax.KeepPadding(keepPadding),
+        syntax.Minify(minify),
+        syntax.FunctionNextLine(functionNextLine),
+      )
+      .Print(
+        syntax
+          .NewParser(syntax.KeepComments(keepComments), syntax.Variant(variant))
+          .Parse(text, filePath),
+      )
+  })
 })
 
 await run({

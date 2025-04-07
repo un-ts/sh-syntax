@@ -1,4 +1,4 @@
-// modified based on https://github.com/tinygo-org/tinygo/blob/731532cd2b6353b60b443343b51296ec0fafae09/targets/wasm_exec.js
+// modified based on https://github.com/tinygo-org/tinygo/blob/3e60eeb368f25f237a512e7553fd6d70f36dc74c/targets/wasm_exec.js
 
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -134,6 +134,7 @@
 	const decoder = new TextDecoder("utf-8");
 	let reinterpretBuf = new DataView(new ArrayBuffer(8));
 	var logLine = [];
+	const wasmExit = {}; // thrown to exit via proc_exit (not an error)
 
 	global.Go = class {
 		constructor() {
@@ -272,14 +273,11 @@
 					fd_close: () => 0,      // dummy
 					fd_fdstat_get: () => 0, // dummy
 					fd_seek: () => 0,       // dummy
-					"proc_exit": (code) => {
-						if (global.process) {
-							// Node.js
-							process.exit(code);
-						} else {
-							// Can't exit in a browser.
-							throw 'trying to exit with code ' + code;
-						}
+					proc_exit: (code) => {
+						this.exited = true;
+						this.exitCode = code;
+						this._resolveExitPromise();
+						throw wasmExit;
 					},
 					random_get: (bufPtr, bufLen) => {
 						crypto.getRandomValues(loadSlice(bufPtr, bufLen));
@@ -295,24 +293,37 @@
 					// func sleepTicks(timeout float64)
 					"runtime.sleepTicks": (timeout) => {
 						// Do not sleep, only reactivate scheduler after the given timeout.
-						setTimeout(this._inst.exports.go_scheduler, timeout);
+						setTimeout(() => {
+							if (this.exited) return;
+							try {
+								this._inst.exports.go_scheduler();
+							} catch (e) {
+								if (e !== wasmExit) throw e;
+							}
+						}, timeout);
 					},
 
 					// func finalizeRef(v ref)
 					"syscall/js.finalizeRef": (v_ref) => {
-            // https://github.com/tinygo-org/tinygo/issues/1140#issuecomment-1697415864
-            const id = mem().getUint32(unboxValue(v_ref), true);
-            this._goRefCounts[id]--;
-            if (this._goRefCounts[id] === 0) {
-              const v = this._values[id];
-              this._values[id] = null;
-              this._ids.delete(v);
-              this._idPool.push(id);
-            }
+						// Note: TinyGo does not support finalizers so this is only called
+						// for one specific case, by js.go:jsString. and can/might leak memory.
+						const id = v_ref & 0xffffffffn;
+						if (this._goRefCounts?.[id] !== undefined) {
+							this._goRefCounts[id]--;
+							if (this._goRefCounts[id] === 0) {
+								const v = this._values[id];
+								this._values[id] = null;
+								this._ids.delete(v);
+								this._idPool.push(id);
+							}
+						} else {
+							console.error("syscall/js.finalizeRef: unknown id", id);
+						}
 					},
 
 					// func stringVal(value string) ref
 					"syscall/js.stringVal": (value_ptr, value_len) => {
+						value_ptr >>>= 0;
 						const s = loadString(value_ptr, value_len);
 						return boxValue(s);
 					},
@@ -473,23 +484,25 @@
 			this._ids = new Map();  // mapping from JS values to reference ids
 			this._idPool = [];      // unused ids that have been garbage collected
 			this.exited = false;    // whether the Go program has exited
+			this.exitCode = 0;
 
-			const mem = new DataView(this._inst.exports.memory.buffer)
-
-			while (true) {
-				const callbackPromise = new Promise((resolve) => {
-					this._resolveCallbackPromise = () => {
-						if (this.exited) {
-							throw new Error("bad callback: Go program has already exited");
-						}
-						setTimeout(resolve, 0); // make sure it is asynchronous
-					};
+			if (this._inst.exports._start) {
+				let exitPromise = new Promise((resolve, reject) => {
+					this._resolveExitPromise = resolve;
 				});
-				this._inst.exports._start();
-				if (this.exited) {
-					break;
+
+				// Run program, but catch the wasmExit exception that's thrown
+				// to return back here.
+				try {
+					this._inst.exports._start();
+				} catch (e) {
+					if (e !== wasmExit) throw e;
 				}
-				await callbackPromise;
+
+				await exitPromise;
+				return this.exitCode;
+			} else {
+				this._inst.exports._initialize();
 			}
 		}
 
@@ -497,7 +510,11 @@
 			if (this.exited) {
 				throw new Error("Go program has already exited");
 			}
-			this._inst.exports.resume();
+			try {
+				this._inst.exports.resume();
+			} catch (e) {
+				if (e !== wasmExit) throw e;
+			}
 			if (this.exited) {
 				this._resolveExitPromise();
 			}

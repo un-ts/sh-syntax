@@ -1,3 +1,4 @@
+.yarn
 test/fixtures
 vendors/*.cjs
-/pnpm-lock.yaml
+*.mod

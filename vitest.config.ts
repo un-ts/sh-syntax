@@ -1,18 +1,18 @@
-import path from 'node:path'
-
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
     alias: {
-      'sh-syntax': path.resolve('src'),
+      'sh-syntax': new URL('src', import.meta.url).pathname,
     },
   },
   test: {
+    globals: true,
     coverage: {
-      exclude: ['test', 'vendors'],
+      enabled: true,
+      include: ['src'],
       provider: 'istanbul',
-      reporter: ['json'],
+      reporter: ['lcov', 'json', 'text'],
     },
   },
 })

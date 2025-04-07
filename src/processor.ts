@@ -1,4 +1,9 @@
-import { IParseError, File, ShOptions, LangVariant } from './types.js'
+import {
+  type IParseError,
+  type File,
+  type ShOptions,
+  LangVariant,
+} from './types.js'
 
 export class ParseError extends Error implements IParseError {
   Filename?: string
@@ -39,7 +44,7 @@ export const getProcessor = (
       originalText: string
     },
   ): Promise<string>
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+
   async function processor(
     textOrAst: File | string,
     {
@@ -86,7 +91,7 @@ export const getProcessor = (
     // Do not await this promise, because it only resolves once the go main()
     // function has exited. But we need the main function to stay alive to be
     // able to call the `parse` and `print` function.
-    // eslint-disable-next-line no-void
+
     void go.run(wasm.instance)
 
     const { memory, wasmAlloc, wasmFree, process } = wasm.instance.exports as {

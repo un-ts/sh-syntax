@@ -1,13 +1,28 @@
+clk: ~3.10 GHz
 cpu: Apple M1 Max
-runtime: node v16.15.1 (arm64-darwin)
+runtime: node 18.20.8 (arm64-darwin)
 
-benchmark                time (avg)             (min … max)       p75       p99      p995
------------------------------------------------------------ -----------------------------
-sh-syntax             43.84 ms/iter    (42.86 ms … 46.5 ms)  44.57 ms   46.5 ms   46.5 ms
-sh-syntax (synckit)   43.87 ms/iter   (43.11 ms … 45.34 ms)  44.08 ms  45.34 ms  45.34 ms
-mvdan-sh              72.97 ms/iter   (70.32 ms … 82.45 ms)  73.97 ms  82.45 ms  82.45 ms
+benchmark                   avg (min … max) p75 / p99    (min … top 1%)
+------------------------------------------- -------------------------------
+sh-syntax                     36.97 ms/iter  37.32 ms     █
+                      (36.50 ms … 37.53 ms)  37.38 ms █   █              ██
+                    (601.05 kb … 711.16 kb) 641.13 kb █▁▁██▁▁▁█▁▁██▁█▁▁▁▁██
+                  4.88 ipc (  0.63% stalls)  99.64% L1 data cache
+        118.27M cycles 577.63M instructions  38.24% retired LD/ST (220.90M)
+
+sh-syntax (synckit)           37.13 ms/iter  37.04 ms      █
+                      (36.69 ms … 38.15 ms)  38.05 ms ▅ ▅  █
+                    (291.31 kb …   4.70 mb) 553.03 kb █▇█▇▇█▁▇▁▁▁▁▁▁▁▁▇▁▁▁▇
+                  1.04 ipc ( 11.15% stalls)  38.89% L1 data cache
+        406.85k cycles 423.12k instructions  20.01% retired LD/ST ( 84.65k)
+
+mvdan-sh                      78.00 ms/iter  74.63 ms     █
+                     (70.44 ms … 127.50 ms)  78.25 ms     █  █
+                    (  1.11 mb …   9.87 mb)   7.88 mb █▁▁▁█▁▁██▁███▁▁▁▁▁▁▁█
+                  5.18 ipc (  1.02% stalls)  99.05% L1 data cache
+        244.60M cycles   1.27G instructions  34.47% retired LD/ST (436.51M)
 
 summary
   sh-syntax
    1x faster than sh-syntax (synckit)
-   1.66x faster than mvdan-sh
+   2.11x faster than mvdan-sh

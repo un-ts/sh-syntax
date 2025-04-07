@@ -3,30 +3,43 @@
   "version": "0.4.2",
   "type": "module",
   "description": "A WASM shell parser and formatter with bash support, based on mvdan/sh",
-  "repository": "git+https://github.com/rx-ts/sh-syntax.git",
-  "author": "JounQin (https://www.1stG.me) <admin@1stg.me>",
-  "funding": "https://opencollective.com/unts",
+  "repository": "git+https://github.com/un-ts/sh-syntax.git",
+  "author": "JounQin <admin@1stg.me> (https://www.1stG.me)",
+  "funding": "https://opencollective.com/sh-syntax",
   "license": "MIT",
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "yarn@4.8.1",
   "engines": {
     "node": ">=16.0.0"
   },
   "main": "./lib/index.cjs",
+  "types": "./index.d.cts",
   "module": "./lib/index.js",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.js",
-      "require": "./lib/index.cjs",
-      "browser": "./lib/browser.js"
+      "browser": {
+        "types": "./lib/browser.d.ts",
+        "default": "./lib/browser.js"
+      },
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "module-sync": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "require": {
+        "types": "./index.d.cts",
+        "default": "./lib/index.cjs"
+      }
     },
     "./main.wasm": "./main.wasm",
     "./package.json": "./package.json",
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
     "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs"
   },
-  "types": "./lib/index.d.ts",
   "files": [
+    "index.d.cts",
     "lib",
     "main.wasm",
     "vendors",
@@ -34,39 +47,56 @@
   ],
   "scripts": {
     "benchmark": "NO_COLOR=1 node benchmark > benchmark/benchmark.txt",
-    "build": "run-p build:*",
-    "build:r": "r -f cjs -x **/vendors/wasm_exec.cjs",
-    "build:ts": "tsc -p src",
-    "lint": "run-p lint:*",
-    "lint:es": "eslint . --cache -f friendly --max-warnings 10",
+    "build": "run-p 'build:*'",
+    "build:r": "r -f cjs -x '**/vendors/wasm_exec.cjs'",
+    "build:tsc": "tsc -b src",
+    "easyjson": "easyjson --all processor/structs.go",
+    "format": "prettier --write .",
+    "lint": "run-p 'lint:*'",
+    "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
-    "prepare": "simple-git-hooks || exit 0",
-    "prerelease": "pnpm build",
-    "release": "changeset publish",
-    "test": "vitest run --coverage",
+    "prepare": "simple-git-hooks && yarn-berry-deduplicate || exit 0",
+    "release": "yarn build && clean-pkg-json && changeset publish",
+    "test": "vitest run",
     "typecov": "type-coverage",
     "wasm": "tinygo build -o main.wasm -target wasm --no-debug"
   },
   "dependencies": {
-    "tslib": "^2.6.2"
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@1stg/lib-config": "^12.0.0",
-    "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.26.2",
+    "@1stg/common-config": "^12.0.0",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.28.1",
+    "@commitlint/cli": "^19.8.0",
+    "@mitata/counters": "^0.0.8",
+    "@pkgr/rollup": "^6.0.2",
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
-    "@types/node": "^20.4.0",
-    "@types/web": "^0.0.115",
-    "@vitest/coverage-istanbul": "^0.32.4",
-    "mitata": "^0.1.6",
+    "@types/node": "^22.14.0",
+    "@types/web": "^0.0.216",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "clean-pkg-json": "^1.2.1",
+    "eslint": "^9.24.0",
+    "lint-staged": "^15.5.0",
+    "mitata": "^1.0.34",
     "mvdan-sh": "^0.10.1",
-    "size-limit": "^8.2.6",
-    "size-limit-preset-node-lib": "^0.2.0",
-    "synckit": "^0.8.5",
-    "type-coverage": "^2.26.2",
-    "typescript": "^5.1.6",
-    "vitest": "^0.32.4"
+    "npm-run-all2": "^7.0.2",
+    "prettier": "^3.5.3",
+    "sh-syntax": "link:.",
+    "simple-git-hooks": "^2.12.1",
+    "size-limit": "^11.2.0",
+    "size-limit-preset-node-lib": "^0.3.0",
+    "synckit": "^0.11.2",
+    "type-coverage": "^2.29.7",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1",
+    "yarn-berry-deduplicate": "^6.1.1"
+  },
+  "resolutions": {
+    "es5-ext": "npm:@unes/es5-ext@latest",
+    "prettier": "^3.5.3",
+    "sh-syntax": "link:."
   },
   "sideEffects": [
     "lib/browser.js",

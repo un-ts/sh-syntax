@@ -3,7 +3,7 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "rx-ts/sh-syntax"
+      "repo": "un-ts/sh-syntax"
     }
   ],
   "commit": false,
