@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.1
+
+### Patch Changes
+
+- [#104](https://github.com/un-ts/sh-syntax/pull/104) [`ece2ff4`](https://github.com/un-ts/sh-syntax/commit/ece2ff4e852a34c38a2f1eef1222a63b7b5c11a0) Thanks [@JounQin](https://github.com/JounQin)! - feat: add new options `recoverErrors` and `singleLine` support
+
 ## 0.5.0
 
 ### Minor Changes
