@@ -149,7 +149,9 @@ export interface ShPrinterOptions {
    * Print's trailing newline when given a [*File] is not affected by this option.
    */
   singleLine?: boolean
-  // FunctionNextLine will place a function's opening braces on the next line.
+  /**
+   * FunctionNextLine will place a function's opening braces on the next line.
+   */
   functionNextLine?: boolean
 }
 
