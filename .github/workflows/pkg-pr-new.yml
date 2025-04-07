@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
+      - name: Build
+        run: yarn build
+
       - name: Publish
         run: yarn dlx pkg-pr-new publish --compact
