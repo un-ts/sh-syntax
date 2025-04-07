@@ -59,7 +59,7 @@
     "release": "clean-pkg-json && changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "tinygo build -o main.wasm -target wasm --no-debug"
+    "wasm": "tinygo build -o main.wasm -target ./target.json --no-debug"
   },
   "dependencies": {
     "tslib": "^2.8.1"
