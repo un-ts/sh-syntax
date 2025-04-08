@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.6
+
+### Patch Changes
+
+- [`5636672`](https://github.com/un-ts/sh-syntax/commit/5636672233a01ae51eeef4cebf156237971a1da1) Thanks [@JounQin](https://github.com/JounQin)! - chore: remove `browser` entry
+
 ## 0.5.5
 
 ### Patch Changes
