@@ -24,14 +24,26 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-export const getProcessor = (
-  getWasmFile: () => BufferSource | Promise<BufferSource>,
-) => {
-  let wasmFile: BufferSource | undefined
-  let wasmFilePromise: Promise<BufferSource> | undefined
+export type GetWebAssemblySource = () =>
+  | BufferSource
+  | Promise<BufferSource | Response>
+  | Response
 
-  const encoder = new TextEncoder()
-  const decoder = new TextDecoder()
+export type GetWebAssemblyInstance = (
+  imports: WebAssembly.Imports,
+) => Promise<WebAssembly.Instance> | WebAssembly.Instance
+
+let encoder: TextEncoder | undefined
+let decoder: TextDecoder | undefined
+
+export const getProcessor = (
+  getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
+) => {
+  let wasmBufferSource: BufferSource | undefined
+  let wasmBufferSourcePromise: Promise<BufferSource> | undefined
+
+  encoder ??= new TextEncoder()
+  decoder ??= new TextDecoder()
 
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(
@@ -98,11 +110,16 @@ export const getProcessor = (
       functionNextLine = false,
     }: ShOptions & { print?: boolean; originalText?: string } = {},
   ) {
-    if (!wasmFile) {
-      if (!wasmFilePromise) {
-        wasmFilePromise = Promise.resolve(getWasmFile())
-      }
-      wasmFile = await wasmFilePromise
+    if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
+      wasmBufferSourcePromise = Promise.resolve(
+        (getWasm as GetWebAssemblySource)(),
+      ).then(source =>
+        'arrayBuffer' in source ? source.arrayBuffer() : source,
+      )
+    }
+
+    if (wasmBufferSourcePromise) {
+      wasmBufferSource = await wasmBufferSourcePromise
     }
 
     if (typeof textOrAst !== 'string' && !print) {
@@ -117,7 +134,14 @@ export const getProcessor = (
 
     const go = new Go()
 
-    const wasm = await WebAssembly.instantiate(wasmFile, go.importObject)
+    const wasm =
+      getWasm.length === 0
+        ? await WebAssembly.instantiate(wasmBufferSource!, go.importObject)
+        : {
+            instance: await (getWasm as GetWebAssemblyInstance)(
+              go.importObject,
+            ),
+          }
 
     /**
      * Do not await this promise, because it only resolves once the go main()
@@ -159,9 +183,9 @@ export const getProcessor = (
       ) => number
     }
 
-    const filePath = encoder.encode(filepath)
-    const text = encoder.encode(originalText || (textOrAst as string))
-    const uStopAt = encoder.encode(stopAt)
+    const filePath = encoder!.encode(filepath)
+    const text = encoder!.encode(originalText || (textOrAst as string))
+    const uStopAt = encoder!.encode(stopAt)
 
     const filePathPointer = wasmAlloc(filePath.byteLength)
     new Uint8Array(memory.buffer).set(filePath, filePathPointer)
@@ -207,7 +231,7 @@ export const getProcessor = (
     const result = new Uint8Array(memory.buffer).subarray(resultPointer)
     const end = result.indexOf(0)
 
-    const string = decoder.decode(result.subarray(0, end))
+    const string = decoder!.decode(result.subarray(0, end))
 
     // naive check whether the string is a json
     if (!string.startsWith('{"') || !string.endsWith('}')) {

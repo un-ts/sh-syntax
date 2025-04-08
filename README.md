@@ -20,6 +20,8 @@ A WASM shell parser and formatter with bash support, based on [mvdan/sh](https:/
 - [Usage](#usage)
   - [Install](#install)
   - [API](#api)
+    - [node](#node)
+    - [browser](#browser)
 - [Benchmark](#benchmark)
 - [Sponsors](#sponsors)
 - [Backers](#backers)
@@ -40,8 +42,9 @@ npm i sh-syntax
 
 ### API
 
+#### node
+
 ```js
-// node
 import { parse, print } from 'sh-syntax'
 
 const text = "echo 'Hello World!'"
@@ -52,13 +55,21 @@ const newText = await print(ast, {
 })
 ```
 
+#### browser
+
 ```js
-// browser
 import { getProcessor } from 'sh-syntax'
 
+// choose your own way to load the WASM file
+
+// with `fetch`
 const processor = getProcessor(() =>
-  fetch('sh-syntax/main.wasm').then(res => res.arrayBuffer()),
+  fetch('http://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
 )
+
+// with `wasm?init` via `vite`
+import initWasm from 'sh-syntax/wasm?init'
+const processor = getProcessor(initWasm)
 
 const parse = (text, options) => processor(text, options)
 
@@ -81,34 +92,34 @@ const newText = await print(ast, { originalText: text })
 ## Benchmark
 
 ```console
-clk: ~3.10 GHz
+clk: ~2.81 GHz
 cpu: Apple M1 Max
 runtime: node 18.20.8 (arm64-darwin)
 
 benchmark                   avg (min … max) p75 / p99    (min … top 1%)
 ------------------------------------------- -------------------------------
-sh-syntax                     36.97 ms/iter  37.32 ms     █
-                      (36.50 ms … 37.53 ms)  37.38 ms █   █              ██
-                    (601.05 kb … 711.16 kb) 641.13 kb █▁▁██▁▁▁█▁▁██▁█▁▁▁▁██
-                  4.88 ipc (  0.63% stalls)  99.64% L1 data cache
-        118.27M cycles 577.63M instructions  38.24% retired LD/ST (220.90M)
+sh-syntax                     18.33 ms/iter  18.56 ms   ▃        ▃█
+                      (17.48 ms … 20.83 ms)  19.09 ms ▂▂█    ▂   ██▂  ▂ ▂
+                    ( 28.52 kb …   9.82 mb) 890.46 kb ███▆▆▁▁█▁▁▆███▁▆█▁█▆▆
+                  5.07 ipc (  1.22% stalls)  99.36% L1 data cache
+         56.96M cycles 288.57M instructions  39.27% retired LD/ST (113.32M)
 
-sh-syntax (synckit)           37.13 ms/iter  37.04 ms      █
-                      (36.69 ms … 38.15 ms)  38.05 ms ▅ ▅  █
-                    (291.31 kb …   4.70 mb) 553.03 kb █▇█▇▇█▁▇▁▁▁▁▁▁▁▁▇▁▁▁▇
-                  1.04 ipc ( 11.15% stalls)  38.89% L1 data cache
-        406.85k cycles 423.12k instructions  20.01% retired LD/ST ( 84.65k)
+sh-syntax (synckit)           18.38 ms/iter  18.82 ms ▂▂▂           ▂▂ █▂
+                      (17.63 ms … 19.06 ms)  19.04 ms ███▅          ██ ██▅▅
+                    (291.31 kb … 312.45 kb) 292.09 kb ████▇▇▇▇▁▁▁▁▇▁██▇████
+                  1.11 ipc ( 11.51% stalls)  40.34% L1 data cache
+        434.86k cycles 484.78k instructions  19.58% retired LD/ST ( 94.92k)
 
-mvdan-sh                      78.00 ms/iter  74.63 ms     █
-                     (70.44 ms … 127.50 ms)  78.25 ms     █  █
-                    (  1.11 mb …   9.87 mb)   7.88 mb █▁▁▁█▁▁██▁███▁▁▁▁▁▁▁█
-                  5.18 ipc (  1.02% stalls)  99.05% L1 data cache
-        244.60M cycles   1.27G instructions  34.47% retired LD/ST (436.51M)
+mvdan-sh                      79.47 ms/iter  78.95 ms  █
+                     (71.22 ms … 126.09 ms)  80.84 ms ▅█ ▅▅▅    ▅    ▅▅▅  ▅
+                    (  8.18 mb …   9.70 mb)   8.83 mb ██▁███▁▁▁▁█▁▁▁▁███▁▁█
+                  5.18 ipc (  1.05% stalls)  99.04% L1 data cache
+        249.41M cycles   1.29G instructions  34.41% retired LD/ST (444.42M)
 
 summary
   sh-syntax
    1x faster than sh-syntax (synckit)
-   2.11x faster than mvdan-sh
+   4.34x faster than mvdan-sh
 ```
 
 See [benchmark](./benchmark/benchmark.txt) for more details.
