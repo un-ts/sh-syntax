@@ -33,6 +33,10 @@
         "default": "./lib/index.cjs"
       }
     },
+    "./browser": {
+      "types": "./lib/browser.d.ts",
+      "default": "./lib/browser.js"
+    },
     "./main.wasm": "./main.wasm",
     "./package.json": "./package.json",
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",

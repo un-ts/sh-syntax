@@ -3,7 +3,7 @@
     "wasm"
   ],
   "ldflags": [
-    "--initial-memory=52428800",
+    "--initial-memory=10485760",
     "--max-memory=1073741824",
     "-zstack-size=1048576"
   ]

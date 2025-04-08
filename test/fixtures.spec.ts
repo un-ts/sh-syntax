@@ -1,4 +1,4 @@
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { parse, print } from 'sh-syntax'
@@ -6,11 +6,8 @@ import { parse, print } from 'sh-syntax'
 describe('parser and printer', () => {
   it('should format all fixtures', async () => {
     const fixtures = path.resolve(import.meta.dirname, 'fixtures')
-    for (const filepath of await fs.promises.readdir(fixtures)) {
-      const input = await fs.promises.readFile(
-        path.resolve(fixtures, filepath),
-        'utf8',
-      )
+    for (const filepath of await fs.readdir(fixtures)) {
+      const input = await fs.readFile(path.resolve(fixtures, filepath), 'utf8')
 
       try {
         const ast = await parse(input, { filepath })
