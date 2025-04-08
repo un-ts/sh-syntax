@@ -1,12 +1,14 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
+import { testFixtures } from './fixtures.ts'
+
 import {
-  type File,
   type GetWebAssemblyInstance,
   type ShOptions,
   type ShPrintOptions,
   getProcessor,
+  print as print_,
 } from 'sh-syntax'
 
 describe('processor', () => {
@@ -26,30 +28,15 @@ describe('processor', () => {
 
   const parse = (text: string, options?: ShOptions) => processor(text, options)
 
-  const print = (textOrAst: File | string, options: ShPrintOptions) => {
+  const print: typeof print_ = (textOrAst, options) => {
     if (typeof textOrAst === 'string') {
       return processor(textOrAst, {
         ...options,
         print: true,
       })
     }
-    return processor(textOrAst, options)
+    return processor(textOrAst, options as ShPrintOptions)
   }
 
-  it('should format all fixtures', async () => {
-    const fixtures = path.resolve(import.meta.dirname, 'fixtures')
-    for (const filepath of await fs.readdir(fixtures)) {
-      const input = await fs.readFile(path.resolve(fixtures, filepath), 'utf8')
-
-      try {
-        const ast = await parse(input, { filepath })
-        expect(ast).toMatchSnapshot(filepath)
-        expect(
-          await print(ast, { filepath, originalText: input }),
-        ).toMatchSnapshot(filepath)
-      } catch (err: unknown) {
-        expect(err).toMatchSnapshot(filepath)
-      }
-    }
-  })
+  testFixtures(parse, print)
 })

@@ -14,4 +14,10 @@ export default [
       '@stylistic/js/multiline-comment-style': ['error', 'starred-block'],
     },
   },
+  {
+    files: ['test/{fixtures,processor}.spec.ts'],
+    rules: {
+      'sonarjs/no-empty-test-file': 'off',
+    },
+  },
 ]
