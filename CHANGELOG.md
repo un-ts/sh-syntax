@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.5
+
+### Patch Changes
+
+- [#114](https://github.com/un-ts/sh-syntax/pull/114) [`c500f6d`](https://github.com/un-ts/sh-syntax/commit/c500f6dfd9e12370904dcf00917a53363491d77f) Thanks [@JounQin](https://github.com/JounQin)! - feat: support more ways to load `wasm` on browser
+
 ## 0.5.4
 
 ### Patch Changes
