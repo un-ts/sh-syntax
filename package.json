@@ -7,7 +7,7 @@
   "author": "JounQin <admin@1stg.me> (https://www.1stG.me)",
   "funding": "https://opencollective.com/sh-syntax",
   "license": "MIT",
-  "packageManager": "yarn@4.8.1",
+  "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -46,7 +46,7 @@
     "!**/*.tsbuildinfo"
   ],
   "scripts": {
-    "benchmark": "NO_COLOR=1 node benchmark > benchmark/benchmark.txt",
+    "benchmark": "sudo env NO_COLOR=1 node benchmark > benchmark/benchmark.txt",
     "build": "run-p 'build:*'",
     "build:r": "r -f cjs -x '**/vendors/wasm_exec.cjs'",
     "build:tsc": "tsc -p src --declaration false && tsc -p src --removeComments false --emitDeclarationOnly",
@@ -65,37 +65,37 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@1stg/common-config": "^12.0.0",
+    "@1stg/common-config": "^13.0.1",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.28.1",
+    "@changesets/cli": "^2.29.2",
     "@commitlint/cli": "^19.8.0",
     "@mitata/counters": "^0.0.8",
-    "@pkgr/rollup": "^6.0.2",
+    "@pkgr/rollup": "^6.0.3",
     "@stylistic/eslint-plugin-js": "^4.2.0",
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
-    "@types/node": "^22.14.0",
-    "@types/web": "^0.0.216",
+    "@types/node": "^22.14.1",
+    "@types/web": "^0.0.222",
     "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/eslint-plugin": "^1.1.43",
     "clean-pkg-json": "^1.2.1",
-    "eslint": "^9.24.0",
-    "lint-staged": "^15.5.0",
+    "eslint": "^9.25.0",
     "mitata": "^1.0.34",
     "mvdan-sh": "^0.10.1",
+    "nano-staged": "^0.8.0",
     "npm-run-all2": "^7.0.2",
     "prettier": "^3.5.3",
     "sh-syntax": "link:.",
     "simple-git-hooks": "^2.12.1",
     "size-limit": "^11.2.0",
     "size-limit-preset-node-lib": "^0.3.0",
-    "synckit": "^0.11.2",
+    "synckit": "^0.11.4",
     "type-coverage": "^2.29.7",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1",
-    "yarn-berry-deduplicate": "^6.1.1"
+    "yarn-berry-deduplicate": "^6.1.3"
   },
   "resolutions": {
-    "es5-ext": "npm:@unes/es5-ext@latest",
     "prettier": "^3.5.3",
     "sh-syntax": "link:."
   },

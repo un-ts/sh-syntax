@@ -13,14 +13,17 @@ import {
 
 describe('processor', () => {
   /**
-   * `sh-syntax/wasm?init` does not work in vitest
-   * See also {@link https://github.com/vitest-dev/vitest/issues/6723}
+   * `sh-syntax/wasm?init` does not work in vitest. See also
+   * {@link https://github.com/vitest-dev/vitest/issues/6723}
    */
   const initWasm: GetWebAssemblyInstance = async imports => {
     const buffer = await fs.readFile(
       path.resolve(import.meta.dirname, '../main.wasm'),
     )
-    const { instance } = await WebAssembly.instantiate(buffer, imports)
+    const { instance } = await WebAssembly.instantiate(
+      buffer as BufferSource,
+      imports,
+    )
     return instance
   }
 
