@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.7
+
+### Patch Changes
+
+- [#119](https://github.com/un-ts/sh-syntax/pull/119) [`7c19ba8`](https://github.com/un-ts/sh-syntax/commit/7c19ba840f160428cbb163b28cfb46aa09d12170) Thanks [@JounQin](https://github.com/JounQin)! - fix(types): node `Buffer` should be supported
+
 ## 0.5.6
 
 ### Patch Changes
