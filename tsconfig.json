@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "sh-syntax": ["./src"]
+      "sh-syntax": ["./src/index.ts"]
     }
   }
 }

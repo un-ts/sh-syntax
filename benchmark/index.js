@@ -1,7 +1,5 @@
 // @ts-check
 
-/* eslint-disable @babel/new-cap */
-
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
@@ -11,16 +9,10 @@ import { createSyncFn } from 'synckit'
 
 import { print } from '../lib/index.js'
 
-/**
- * @typedef {import('../lib').ShOptions} ShOptions
- * @typedef {import('mvdan-sh').LangVariant} LangVariant
- */
+/** @import { ShOptions } from 'sh-syntax' */
 
 const keepComments = true
 
-/**
- * @type {LangVariant}
- */
 const variant = 0 // LangVariant.LangBash
 
 const indent = 2
@@ -37,9 +29,7 @@ const filePath = fileURLToPath(
 
 const text = fs.readFileSync(filePath, 'utf8')
 
-/**
- * @type {ShOptions}
- */
+/** @type {ShOptions} */
 const shOptions = {
   keepComments,
   variant,
@@ -53,9 +43,7 @@ const shOptions = {
   functionNextLine,
 }
 
-/**
- * @type {(text: string, options?: ShOptions) => string})}
- */
+/** @type {(text: string, options?: ShOptions) => string} */
 const printSync = createSyncFn(new URL('worker.mjs', import.meta.url))
 
 summary(() => {
