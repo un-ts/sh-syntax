@@ -3731,10 +3731,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/web@npm:^0.0.222":
-  version: 0.0.222
-  resolution: "@types/web@npm:0.0.222"
-  checksum: 10c0/a4296cd92f168d665ee0f8cb265547490cf5a2ab2ca952527c2f4fe454765b6813e565e750dbcb59b3d55612374b1c375b0e9562e845499aa906af78b30f731a
+"@types/web@npm:^0.0.228":
+  version: 0.0.228
+  resolution: "@types/web@npm:0.0.228"
+  checksum: 10c0/6597914cfa0ed85d76253618dd115b3766bff7c38c3056aebf5fc36694ef015bb1cbca2fae84f5e4bbcb92c420a624105f99ecf8f52889b4e0a054ece6a1ae4e
   languageName: node
   linkType: hard
 
@@ -12169,7 +12169,7 @@ __metadata:
     "@types/golang-wasm-exec": "npm:^1.15.2"
     "@types/mvdan-sh": "npm:^0.10.9"
     "@types/node": "npm:^22.14.1"
-    "@types/web": "npm:^0.0.222"
+    "@types/web": "npm:^0.0.228"
     "@vitest/coverage-istanbul": "npm:^3.1.1"
     "@vitest/eslint-plugin": "npm:^1.1.43"
     clean-pkg-json: "npm:^1.2.1"
