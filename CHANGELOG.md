@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.5.8
+
+### Patch Changes
+
+- [#124](https://github.com/un-ts/sh-syntax/pull/124) [`a000d0a`](https://github.com/un-ts/sh-syntax/commit/a000d0a4aa3642d3cd29b1f1c27c7fd05427dcde) Thanks [@JounQin](https://github.com/JounQin)! - fix: remove buggy `module-sync` exports field
+
 ## 0.5.7
 
 ### Patch Changes
