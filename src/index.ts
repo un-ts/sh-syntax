@@ -8,9 +8,11 @@ import '../vendors/wasm_exec.cjs'
 import { getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
+const importMetaUrl = import.meta.url
+
 /* istanbul ignore next -- @preserve */
-const _dirname = import.meta.url
-  ? path.dirname(fileURLToPath(import.meta.url))
+const _dirname = importMetaUrl
+  ? path.dirname(fileURLToPath(importMetaUrl))
   : __dirname
 
 export const processor = getProcessor(() =>
