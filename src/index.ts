@@ -11,12 +11,13 @@ import type { File, ShOptions, ShPrintOptions } from './types.js'
 const importMetaUrl = import.meta.url
 
 /* istanbul ignore next -- @preserve */
+const wasmfile = process.env.SH_SYNTAX_WASM_PATH
 const _dirname = importMetaUrl
   ? path.dirname(fileURLToPath(importMetaUrl))
   : __dirname
 
 export const processor = getProcessor(() =>
-  fs.readFile(path.resolve(_dirname, '../main.wasm')),
+  fs.readFile(wasmfile === undefined ? path.resolve(_dirname, '../main.wasm') : path.resolve(wasmfile)),
 )
 
 export const parse = (text: string, options?: ShOptions) =>
