@@ -213,7 +213,7 @@ export interface Stmt extends Node {
 
 export interface File extends Node {
   Name: string
-  Stmts: Stmt[]
+  Stmt: Stmt[]
 }
 
 export interface IParseError {
