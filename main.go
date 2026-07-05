@@ -7,7 +7,7 @@ import (
 	"container/list"
 	"fmt"
 
-	"github.com/mailru/easyjson"
+	"github.com/mailru/easyjson/jwriter"
 	"github.com/un-ts/sh-syntax/processor"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -124,7 +124,12 @@ func process(
 		Message:    message,
 	}
 
-	bytes, err := easyjson.Marshal(&result)
+	// Marshal via jwriter directly rather than easyjson.Marshal, whose package
+	// pulls in net/http (through the unused MarshalToHTTPResponseWriter helper),
+	// which TinyGo cannot compile for the js/wasm target.
+	w := jwriter.Writer{}
+	result.MarshalEasyJSON(&w)
+	bytes, err := w.BuildBytes()
 
 	if err != nil {
 		fmt.Println(err)

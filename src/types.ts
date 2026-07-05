@@ -8,15 +8,19 @@ export const LangVariant = {
    * We currently follow Bash version 5.2.
    *
    * Its string representation is "bash".
+   *
+   * Note: as of mvdan/sh v3.13, {@link LangVariant} values are bit flags
+   * (`1 << iota`) rather than a sequential enum. The legacy zero value is still
+   * accepted and resolves to `LangBash` for backwards compatibility.
    */
-  LangBash: 0,
+  LangBash: 1,
   /**
    * LangPOSIX corresponds to the POSIX Shell language, as described at
    * https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html.
    *
    * Its string representation is "posix" or "sh".
    */
-  LangPOSIX: 1,
+  LangPOSIX: 1 << 1,
   /**
    * LangMirBSDKorn corresponds to the MirBSD Korn Shell, also known as mksh, as
    * described at http://www.mirbsd.org/htman/i386/man1/mksh.htm. Note that it
@@ -26,7 +30,7 @@ export const LangVariant = {
    *
    * Its string representation is "mksh".
    */
-  LangMirBSDKorn: 2,
+  LangMirBSDKorn: 1 << 2,
   /**
    * LangBats corresponds to the Bash Automated Testing System language, as
    * described at https://github.com/bats-core/bats-core. Note that it's just a
@@ -34,7 +38,17 @@ export const LangVariant = {
    *
    * Its string representation is "bats".
    */
-  LangBats: 3,
+  LangBats: 1 << 3,
+  /**
+   * LangZsh corresponds to the Z shell, as described at https://www.zsh.org/.
+   *
+   * Note that its support in mvdan/sh is experimental and incomplete for now;
+   * see https://github.com/mvdan/sh/issues/120. We currently follow Zsh version
+   * 5.9. Added in mvdan/sh v3.13.0.
+   *
+   * Its string representation is "zsh".
+   */
+  LangZsh: 1 << 4,
   /**
    * LangAuto corresponds to automatic language detection, commonly used by
    * end-user applications like shfmt, which can guess a file's language variant
@@ -42,7 +56,7 @@ export const LangVariant = {
    *
    * At this time, [Variant] does not support LangAuto.
    */
-  LangAuto: 4,
+  LangAuto: 1 << 5,
 } as const
 
 export type LangVariant = ValueOf<typeof LangVariant>

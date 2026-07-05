@@ -4,7 +4,6 @@ package processor
 
 import (
 	json "encoding/json"
-	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
 )
@@ -14,7 +13,6 @@ var (
 	_ *json.RawMessage
 	_ *jlexer.Lexer
 	_ *jwriter.Writer
-	_ easyjson.Marshaler
 )
 
 func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor(in *jlexer.Lexer, out *Word) {

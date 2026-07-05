@@ -1,5 +1,3 @@
-// modified based on https://github.com/tinygo-org/tinygo/blob/3e60eeb368f25f237a512e7553fd6d70f36dc74c/targets/wasm_exec.js
-
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -31,7 +29,7 @@
 	}
 
 	if (!global.fs && global.require) {
-		global.fs = require("fs");
+		global.fs = require("node:fs");
 	}
 
 	const enosys = () => {
@@ -103,7 +101,7 @@
 	}
 
 	if (!global.crypto) {
-		const nodeCrypto = require("crypto");
+		const nodeCrypto = require("node:crypto");
 		global.crypto = {
 			getRandomValues(b) {
 				nodeCrypto.randomFillSync(b);
@@ -121,11 +119,11 @@
 	}
 
 	if (!global.TextEncoder) {
-		global.TextEncoder = require("util").TextEncoder;
+		global.TextEncoder = require("node:util").TextEncoder;
 	}
 
 	if (!global.TextDecoder) {
-		global.TextDecoder = require("util").TextDecoder;
+		global.TextDecoder = require("node:util").TextDecoder;
 	}
 
 	// End of polyfills for common API.
@@ -239,9 +237,11 @@
 			}
 
 			const timeOrigin = Date.now() - performance.now();
+			const wasi_EBADF = 8;
+			const wasi_ENOSYS = 52;
 			this.importObject = {
 				wasi_snapshot_preview1: {
-					// https://github.com/WebAssembly/WASI/blob/main/phases/snapshot/docs.md#fd_write
+					// https://github.com/WebAssembly/WASI/blob/snapshot-01/phases/snapshot/docs.md
 					fd_write: function(fd, iovs_ptr, iovs_len, nwritten_ptr) {
 						let nwritten = 0;
 						if (fd == 1) {
@@ -270,9 +270,13 @@
 						mem().setUint32(nwritten_ptr, nwritten, true);
 						return 0;
 					},
-					fd_close: () => 0,      // dummy
-					fd_fdstat_get: () => 0, // dummy
-					fd_seek: () => 0,       // dummy
+					fd_read: () => wasi_ENOSYS,
+					fd_close: () => wasi_ENOSYS,
+					fd_fdstat_get: () => wasi_ENOSYS,
+					fd_prestat_get: () => wasi_EBADF, // wasi-libc relies on this errno value
+					fd_prestat_dir_name: () => wasi_ENOSYS,
+					fd_seek: () => wasi_ENOSYS,
+					path_open: () => wasi_ENOSYS,
 					proc_exit: (code) => {
 						this.exited = true;
 						this.exitCode = code;
@@ -285,12 +289,12 @@
 					},
 				},
 				gojs: {
-					// func ticks() float64
+					// func ticks() int64
 					"runtime.ticks": () => {
-						return timeOrigin + performance.now();
+						return BigInt((timeOrigin + performance.now()) * 1e6);
 					},
 
-					// func sleepTicks(timeout float64)
+					// func sleepTicks(timeout int64)
 					"runtime.sleepTicks": (timeout) => {
 						// Do not sleep, only reactivate scheduler after the given timeout.
 						setTimeout(() => {
@@ -300,7 +304,7 @@
 							} catch (e) {
 								if (e !== wasmExit) throw e;
 							}
-						}, timeout);
+						}, Number(timeout)/1e6);
 					},
 
 					// func finalizeRef(v ref)
@@ -529,5 +533,27 @@
 				return event.result;
 			};
 		}
+	}
+
+	if (
+		global.require &&
+		global.require.main === module &&
+		global.process &&
+		global.process.versions &&
+		!global.process.versions.electron
+	) {
+		if (process.argv.length != 3) {
+			console.error("usage: go_js_wasm_exec [wasm binary] [arguments]");
+			process.exit(1);
+		}
+
+		const go = new Go();
+		WebAssembly.instantiate(fs.readFileSync(process.argv[2]), go.importObject).then(async (result) => {
+			let exitCode = await go.run(result.instance);
+			process.exit(exitCode);
+		}).catch((err) => {
+			console.error(err);
+			process.exit(1);
+		});
 	}
 })();
