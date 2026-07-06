@@ -10,8 +10,8 @@ export const LangVariant = {
    * Its string representation is "bash".
    *
    * Note: as of mvdan/sh v3.13, {@link LangVariant} values are bit flags (`1 <<
-   * iota`) rather than a sequential enum. The legacy zero value is still
-   * accepted and resolves to `LangBash` for backwards compatibility.
+   * iota`) rather than a sequential enum, so every value changed from the
+   * previous release.
    */
   LangBash: 1,
   /**
@@ -69,7 +69,7 @@ export interface ShParserOptions {
   keepComments?: boolean
   /**
    * LangVariant describes a shell language variant to use when tokenizing and
-   * parsing shell code. The zero value is [LangBash].
+   * parsing shell code. Defaults to {@link LangVariant.LangBash} when omitted.
    */
   variant?: LangVariant
   /**
