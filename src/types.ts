@@ -1,5 +1,9 @@
 export type ValueOf<T> = T[keyof T]
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- `LangVariant` mirrors
+ * `mvdan/sh`s `1 << iota` bit flags, so its values are intentional, not magic
+ * numbers.
+ */
 export const LangVariant = {
   /**
    * LangBash corresponds to the GNU Bash language, as described in its manual
@@ -58,6 +62,7 @@ export const LangVariant = {
    */
   LangAuto: 1 << 5,
 } as const
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 export type LangVariant = ValueOf<typeof LangVariant>
 

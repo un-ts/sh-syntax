@@ -20,14 +20,4 @@ export default [
       'sonarjs/no-empty-test-file': 'off',
     },
   },
-  {
-    /*
-     * `LangVariant` mirrors mvdan/sh's `1 << iota` bit flags, so its values are
-     * intentional rather than magic numbers.
-     */
-    files: ['src/types.ts'],
-    rules: {
-      '@typescript-eslint/no-magic-numbers': 'off',
-    },
-  },
 ]
