@@ -2343,7 +2343,7 @@ EXPOSE 2015
 "
 `;
 
-exports[`processor > should format all fixtures > error.sh 1`] = `[Error: a command can only contain words and redirects; encountered )]`;
+exports[`processor > should format all fixtures > error.sh 1`] = `[Error: a command can only contain words and redirects; encountered \`)\`]`;
 
 exports[`processor > should format all fixtures > hosts 1`] = `
 {

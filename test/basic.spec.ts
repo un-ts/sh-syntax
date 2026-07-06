@@ -16,7 +16,7 @@ test('parse', async () => {
   ).toMatchSnapshot()
 
   await expect(parse('echo )')).rejects.toMatchInlineSnapshot(
-    `[Error: a command can only contain words and redirects; encountered )]`,
+    `[Error: a command can only contain words and redirects; encountered \`)\`]`,
   )
 })
 
