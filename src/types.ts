@@ -9,8 +9,8 @@ export const LangVariant = {
    *
    * Its string representation is "bash".
    *
-   * Note: as of mvdan/sh v3.13, {@link LangVariant} values are bit flags
-   * (`1 << iota`) rather than a sequential enum. The legacy zero value is still
+   * Note: as of mvdan/sh v3.13, {@link LangVariant} values are bit flags (`1 <<
+   * iota`) rather than a sequential enum. The legacy zero value is still
    * accepted and resolves to `LangBash` for backwards compatibility.
    */
   LangBash: 1,
