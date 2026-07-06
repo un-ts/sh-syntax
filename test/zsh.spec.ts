@@ -7,7 +7,7 @@ import { LangVariant, parse, print } from 'sh-syntax'
 // `${p:offset:length}` as a substring expansion whose `length` is an arithmetic
 // expression, so a third `:` yields `ternary operator missing ? before :`.
 //
-// See https://github.com/un-ts/sh-syntax/issues (zsh scripts fail to parse).
+// See https://github.com/un-ts/sh-syntax/issues/135 (zsh scripts fail to parse).
 const ZSH_SNIPPET = 'REPO="${0:A:h:h}"'
 
 test('parses zsh parameter-expansion modifiers under LangZsh', async () => {
