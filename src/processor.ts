@@ -125,10 +125,9 @@ export const getProcessor = (
     if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
       wasmBufferSourcePromise = Promise.resolve(
         (getWasm as GetWebAssemblySource)(),
-      ).then(source =>
-        /* istanbul ignore next -- @preserve */ 'arrayBuffer' in source
-          ? source.arrayBuffer()
-          : source,
+      ).then(
+        /* istanbul ignore next */ source =>
+          'arrayBuffer' in source ? source.arrayBuffer() : source,
       )
     }
 
