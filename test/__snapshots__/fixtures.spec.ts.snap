@@ -14,7 +14,7 @@ exports[`parser and printer > should format all fixtures > .dockerignore 1`] = `
     "Line": 1,
     "Offset": 6,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -317,7 +317,7 @@ exports[`parser and printer > should format all fixtures > .properties 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -500,7 +500,7 @@ exports[`parser and printer > should format all fixtures > 45.sh 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -1385,7 +1385,7 @@ exports[`parser and printer > should format all fixtures > 46.sh 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -2010,7 +2010,7 @@ exports[`parser and printer > should format all fixtures > Dockerfile 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -2378,7 +2378,7 @@ exports[`parser and printer > should format all fixtures > hosts 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -2716,7 +2716,7 @@ exports[`parser and printer > should format all fixtures > install.sh 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -7333,7 +7333,7 @@ exports[`parser and printer > should format all fixtures > jvm.options 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -7457,7 +7457,7 @@ exports[`parser and printer > should format all fixtures > no-ext 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -7540,7 +7540,7 @@ exports[`parser and printer > should format all fixtures > shell.sh 1`] = `
     "Line": 1,
     "Offset": 0,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
