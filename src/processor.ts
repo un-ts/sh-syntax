@@ -25,10 +25,7 @@ export class ParseError extends Error implements IParseError {
 }
 
 export type GetWebAssemblySource = () =>
-  | Buffer
-  | BufferSource
-  | Promise<Buffer | BufferSource | Response>
-  | Response
+  Buffer | BufferSource | Promise<Buffer | BufferSource | Response> | Response
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
