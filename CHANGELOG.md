@@ -1,5 +1,29 @@
 # sh-syntax
 
+## 0.6.0
+
+### Minor Changes
+
+- [#136](https://github.com/un-ts/sh-syntax/pull/136) [`ecd5eb7`](https://github.com/un-ts/sh-syntax/commit/ecd5eb71a3ba47862b183746f15ca52d410d2272) Thanks [@jjloneman](https://github.com/jjloneman)! - Add zsh dialect support by rebuilding the WASM against a newer `mvdan/sh`:
+
+  - Rebuild `main.wasm` against `mvdan/sh` v3.13.1 (was v3.11.0) and expose the `zsh` `LangVariant`.
+  - Valid zsh such as `${0:A:h:h}` now parses and prints instead of erroring with `ternary operator missing ? before :`.
+
+  **Breaking:** `LangVariant` is now a bit-flag enum (`1 << iota`) to match `mvdan/sh` v3.13, so every numeric value changed. Code using the exported `LangVariant` constants is unaffected; only code passing raw variant numbers needs updating:
+
+  - `LangBash`: `0` → `1`
+  - `LangPOSIX`: `1` → `2`
+  - `LangMirBSDKorn`: `2` → `4`
+  - `LangBats`: `3` → `8`
+  - `LangZsh`: _(new)_ → `16`
+  - `LangAuto`: `4` → `32`
+
+### Patch Changes
+
+- [#138](https://github.com/un-ts/sh-syntax/pull/138) [`2aa922b`](https://github.com/un-ts/sh-syntax/commit/2aa922bcfe789ee6f0f19ecb44e623a2c3ab1fb9) Thanks [@JounQin](https://github.com/JounQin)! - Fix `File.Stmts` JSON field name to match the `mvdan/sh` syntax library, correcting a serialization mismatch between the WASM runtime and TypeScript types.
+
+- [#139](https://github.com/un-ts/sh-syntax/pull/139) [`eea166d`](https://github.com/un-ts/sh-syntax/commit/eea166d9150ae488cb1c3c2a29f40d2098f96dba) Thanks [@JounQin](https://github.com/JounQin)! - Remove unused `tslib` from dependencies.
+
 ## 0.5.8
 
 ### Patch Changes
