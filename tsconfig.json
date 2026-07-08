@@ -2,6 +2,7 @@
   "extends": "@1stg/tsconfig/node16",
   "compilerOptions": {
     "rootDir": ".",
+    "types": ["node", "web", "golang-wasm-exec"],
     "paths": {
       "sh-syntax": ["./src/index.ts"]
     }

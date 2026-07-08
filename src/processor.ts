@@ -25,10 +25,7 @@ export class ParseError extends Error implements IParseError {
 }
 
 export type GetWebAssemblySource = () =>
-  | Buffer
-  | BufferSource
-  | Promise<Buffer | BufferSource | Response>
-  | Response
+  Buffer | BufferSource | Promise<Buffer | BufferSource | Response> | Response
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -128,10 +125,9 @@ export const getProcessor = (
     if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
       wasmBufferSourcePromise = Promise.resolve(
         (getWasm as GetWebAssemblySource)(),
-      ).then(source =>
-        /* istanbul ignore next -- @preserve */ 'arrayBuffer' in source
-          ? source.arrayBuffer()
-          : source,
+      ).then(
+        /* istanbul ignore next */ source =>
+          'arrayBuffer' in source ? source.arrayBuffer() : source,
       )
     }
 
