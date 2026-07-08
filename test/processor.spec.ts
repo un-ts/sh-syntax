@@ -20,10 +20,7 @@ describe('processor', () => {
     const buffer = await fs.readFile(
       path.resolve(import.meta.dirname, '../main.wasm'),
     )
-    const { instance } = await WebAssembly.instantiate(
-      buffer as BufferSource,
-      imports,
-    )
+    const { instance } = await WebAssembly.instantiate(buffer, imports)
     return instance
   }
 

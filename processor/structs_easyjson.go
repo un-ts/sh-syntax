@@ -28,11 +28,6 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor(in *jlexer.Lexer, out 
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Parts":
 			if in.IsNull() {
@@ -51,18 +46,34 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor(in *jlexer.Lexer, out 
 				}
 				for !in.IsDelim(']') {
 					var v1 Node
-					(v1).UnmarshalEasyJSON(in)
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v1).UnmarshalEasyJSON(in)
+					}
 					out.Parts = append(out.Parts, v1)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
 		case "Lit":
-			out.Lit = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Lit = string(in.String())
+			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -147,11 +158,6 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor1(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Comments":
 			if in.IsNull() {
@@ -170,7 +176,11 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor1(in *jlexer.Lexer, out
 				}
 				for !in.IsDelim(']') {
 					var v4 Comment
-					(v4).UnmarshalEasyJSON(in)
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v4).UnmarshalEasyJSON(in)
+					}
 					out.Comments = append(out.Comments, v4)
 					in.WantComma()
 				}
@@ -184,18 +194,42 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor1(in *jlexer.Lexer, out
 				if out.Cmd == nil {
 					out.Cmd = new(Node)
 				}
-				(*out.Cmd).UnmarshalEasyJSON(in)
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					(*out.Cmd).UnmarshalEasyJSON(in)
+				}
 			}
 		case "Position":
-			(out.Position).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Position).UnmarshalEasyJSON(in)
+			}
 		case "Semicolon":
-			(out.Semicolon).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Semicolon).UnmarshalEasyJSON(in)
+			}
 		case "Negated":
-			out.Negated = bool(in.Bool())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Negated = bool(in.Bool())
+			}
 		case "Background":
-			out.Background = bool(in.Bool())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Background = bool(in.Bool())
+			}
 		case "Coprocess":
-			out.Coprocess = bool(in.Bool())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Coprocess = bool(in.Bool())
+			}
 		case "Redirs":
 			if in.IsNull() {
 				in.Skip()
@@ -213,16 +247,28 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor1(in *jlexer.Lexer, out
 				}
 				for !in.IsDelim(']') {
 					var v5 Redirect
-					(v5).UnmarshalEasyJSON(in)
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v5).UnmarshalEasyJSON(in)
+					}
 					out.Redirs = append(out.Redirs, v5)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -353,16 +399,19 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor2(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "file":
-			(out.File).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.File).UnmarshalEasyJSON(in)
+			}
 		case "text":
-			out.Text = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Text = string(in.String())
+			}
 		case "parseError":
 			if in.IsNull() {
 				in.Skip()
@@ -371,10 +420,18 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor2(in *jlexer.Lexer, out
 				if out.ParseError == nil {
 					out.ParseError = new(ParseError)
 				}
-				(*out.ParseError).UnmarshalEasyJSON(in)
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					(*out.ParseError).UnmarshalEasyJSON(in)
+				}
 			}
 		case "message":
-			out.Message = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Message = string(in.String())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -452,16 +509,19 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor3(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "OpPos":
-			(out.OpPos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.OpPos).UnmarshalEasyJSON(in)
+			}
 		case "Op":
-			out.Op = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Op = string(in.String())
+			}
 		case "N":
 			if in.IsNull() {
 				in.Skip()
@@ -470,7 +530,11 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor3(in *jlexer.Lexer, out
 				if out.N == nil {
 					out.N = new(Lit)
 				}
-				(*out.N).UnmarshalEasyJSON(in)
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					(*out.N).UnmarshalEasyJSON(in)
+				}
 			}
 		case "Word":
 			if in.IsNull() {
@@ -480,7 +544,11 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor3(in *jlexer.Lexer, out
 				if out.Word == nil {
 					out.Word = new(Word)
 				}
-				(*out.Word).UnmarshalEasyJSON(in)
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					(*out.Word).UnmarshalEasyJSON(in)
+				}
 			}
 		case "Hdoc":
 			if in.IsNull() {
@@ -490,12 +558,24 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor3(in *jlexer.Lexer, out
 				if out.Hdoc == nil {
 					out.Hdoc = new(Word)
 				}
-				(*out.Hdoc).UnmarshalEasyJSON(in)
+				if in.IsNull() {
+					in.Skip()
+				} else {
+					(*out.Hdoc).UnmarshalEasyJSON(in)
+				}
 			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -596,18 +676,25 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor4(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Offset":
-			out.Offset = uint(in.Uint())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Offset = uint(in.Uint())
+			}
 		case "Line":
-			out.Line = uint(in.Uint())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Line = uint(in.Uint())
+			}
 		case "Col":
-			out.Col = uint(in.Uint())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Col = uint(in.Uint())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -676,20 +763,31 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor5(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "Filename":
-			out.Filename = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Filename = string(in.String())
+			}
 		case "Text":
-			out.Text = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Text = string(in.String())
+			}
 		case "Incomplete":
-			out.Incomplete = bool(in.Bool())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Incomplete = bool(in.Bool())
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -763,16 +861,19 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor6(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -836,22 +937,37 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor7(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "ValuePos":
-			(out.ValuePos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.ValuePos).UnmarshalEasyJSON(in)
+			}
 		case "ValueEnd":
-			(out.ValueEnd).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.ValueEnd).UnmarshalEasyJSON(in)
+			}
 		case "Value":
-			out.Value = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Value = string(in.String())
+			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -930,14 +1046,13 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor8(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Name":
-			out.Name = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Name = string(in.String())
+			}
 		case "Stmts":
 			if in.IsNull() {
 				in.Skip()
@@ -955,7 +1070,11 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor8(in *jlexer.Lexer, out
 				}
 				for !in.IsDelim(']') {
 					var v10 Stmt
-					(v10).UnmarshalEasyJSON(in)
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v10).UnmarshalEasyJSON(in)
+					}
 					out.Stmts = append(out.Stmts, v10)
 					in.WantComma()
 				}
@@ -978,16 +1097,28 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor8(in *jlexer.Lexer, out
 				}
 				for !in.IsDelim(']') {
 					var v11 Comment
-					(v11).UnmarshalEasyJSON(in)
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						(v11).UnmarshalEasyJSON(in)
+					}
 					out.Last = append(out.Last, v11)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -1088,20 +1219,31 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor9(in *jlexer.Lexer, out
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
 		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
 		switch key {
 		case "Hash":
-			(out.Hash).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Hash).UnmarshalEasyJSON(in)
+			}
 		case "Text":
-			out.Text = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				out.Text = string(in.String())
+			}
 		case "Pos":
-			(out.Pos).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.Pos).UnmarshalEasyJSON(in)
+			}
 		case "End":
-			(out.End).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				(out.End).UnmarshalEasyJSON(in)
+			}
 		default:
 			in.SkipRecursive()
 		}
