@@ -14,7 +14,7 @@ exports[`parse 1`] = `
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -72,7 +72,7 @@ exports[`parse 2`] = `
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -130,7 +130,7 @@ exports[`parse 3`] = `
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {
@@ -188,7 +188,7 @@ exports[`parse 4`] = `
     "Line": 1,
     "Offset": 2,
   },
-  "Stmt": [
+  "Stmts": [
     {
       "Background": false,
       "Cmd": {

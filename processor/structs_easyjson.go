@@ -938,25 +938,25 @@ func easyjson6a975c40DecodeGithubComUnTsShSyntaxProcessor8(in *jlexer.Lexer, out
 		switch key {
 		case "Name":
 			out.Name = string(in.String())
-		case "Stmt":
+		case "Stmts":
 			if in.IsNull() {
 				in.Skip()
-				out.Stmt = nil
+				out.Stmts = nil
 			} else {
 				in.Delim('[')
-				if out.Stmt == nil {
+				if out.Stmts == nil {
 					if !in.IsDelim(']') {
-						out.Stmt = make([]Stmt, 0, 0)
+						out.Stmts = make([]Stmt, 0, 0)
 					} else {
-						out.Stmt = []Stmt{}
+						out.Stmts = []Stmt{}
 					}
 				} else {
-					out.Stmt = (out.Stmt)[:0]
+					out.Stmts = (out.Stmts)[:0]
 				}
 				for !in.IsDelim(']') {
 					var v10 Stmt
 					(v10).UnmarshalEasyJSON(in)
-					out.Stmt = append(out.Stmt, v10)
+					out.Stmts = append(out.Stmts, v10)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1008,13 +1008,13 @@ func easyjson6a975c40EncodeGithubComUnTsShSyntaxProcessor8(out *jwriter.Writer, 
 		out.String(string(in.Name))
 	}
 	{
-		const prefix string = ",\"Stmt\":"
+		const prefix string = ",\"Stmts\":"
 		out.RawString(prefix)
-		if in.Stmt == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		if in.Stmts == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v12, v13 := range in.Stmt {
+			for v12, v13 := range in.Stmts {
 				if v12 > 0 {
 					out.RawByte(',')
 				}
