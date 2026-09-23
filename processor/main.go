@@ -20,6 +20,7 @@ type ParserOptions struct {
 }
 
 type PrinterOptions struct {
+    Simplify         bool
 	Indent           uint
 	BinaryNextLine   bool
 	SwitchCaseIndent bool
@@ -68,6 +69,10 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 
 	if err != nil {
 		return "", err
+	}
+
+	if syntaxOptions.Simplify || syntaxOptions.Minify {
+		syntax.Simplify(file)
 	}
 
 	printer = syntax.NewPrinter(

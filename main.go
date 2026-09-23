@@ -70,6 +70,7 @@ func process(
 	recoverErrors int,
 
 	// printer
+	simplify bool,
 	indent int,
 	binaryNextLine,
 	switchCaseIndent,
@@ -94,6 +95,7 @@ func process(
 
 	if print {
 		printerOptions := processor.PrinterOptions{
+			Simplify:         simplify,
 			Indent:           uint(indent),
 			BinaryNextLine:   binaryNextLine,
 			SwitchCaseIndent: switchCaseIndent,
