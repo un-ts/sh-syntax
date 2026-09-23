@@ -30,6 +30,7 @@ test('print', async () => {
   expect(await print(redundantSyntax, { simplify: true })).toBe(
     'echo $((1 + 2))\n',
   )
+  expect(await print(redundantSyntax, { minify: true })).toBe('echo $((1+2))\n')
 
   await expect(print(null!, { filepath: 'foo.sh' })).rejects.toMatchSnapshot()
 })
