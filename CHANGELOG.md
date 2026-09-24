@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.7.0
+
+### Minor Changes
+
+- [#143](https://github.com/un-ts/sh-syntax/pull/143) [`ea9643f`](https://github.com/un-ts/sh-syntax/commit/ea9643f2669b810da3589c995098a075d94e2650) Thanks [@celluj34](https://github.com/celluj34)! - Add a `simplify` print option to remove redundant shell syntax.
+
 ## 0.6.0
 
 ### Minor Changes
