@@ -84,6 +84,7 @@ export const getProcessor = (
    *   - `stopAt`: A token indicating where to halt further processing.
    *   - `recoverErrors`: Sets the level of error recovery during processing
    *       (default is 0).
+   *   - `simplify`: Removes redundant shell syntax before printing.
    *   - `useTabs`, `tabWidth`, `indent`: Options to control indentation formatting.
    *   - `binaryNextLine`, `switchCaseIndent`, `spaceRedirects`, `keepPadding`,
    *       `minify`, `singleLine`, `functionNextLine`: Additional flags that
@@ -111,6 +112,7 @@ export const getProcessor = (
 
       useTabs = false,
       tabWidth = 2,
+      simplify = false,
       indent = useTabs ? 0 : tabWidth,
       binaryNextLine = true,
       switchCaseIndent = true,
@@ -188,6 +190,7 @@ export const getProcessor = (
         stopAt1: number,
         recoverErrors: number,
 
+        simplify: boolean,
         indent: number,
         binaryNextLine: boolean,
         switchCaseIndent: boolean,
@@ -230,6 +233,7 @@ export const getProcessor = (
       uStopAt.byteLength,
       recoverErrors,
 
+      simplify,
       indent,
       binaryNextLine,
       switchCaseIndent,
