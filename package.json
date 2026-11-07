@@ -46,7 +46,7 @@
     "build:tsc": "tsc -p src --declaration false && tsc -p src --removeComments false --emitDeclarationOnly",
     "build:tsdown": "tsdown --no-clean -d lib --format cjs --external '../vendors/wasm_exec.cjs' src/index.ts",
     "format": "prettier --write .",
-    "gen:encoder": "node scripts/gen-encoder.mjs",
+    "gen:encoder": "go run ./scripts/gen-encoder",
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
@@ -54,7 +54,7 @@
     "release": "clean-pkg-json && changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "node scripts/gen-encoder.mjs && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
+    "wasm": "go run ./scripts/gen-encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
   },
   "devDependencies": {
     "@1stg/common-config": "^15.0.0",
