@@ -32,16 +32,11 @@ export function print(
   return processor(textOrAst, options as ShPrintOptions)
 }
 
-const getSyncProcessor = (() => {
-  let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
+let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
-  return () => {
-    if (!syncProcessor) {
-      syncProcessor = getProcessorSync(readFileSync(path.resolve(moduleDir, '../main.wasm')))
-    }
-    return syncProcessor
-  }
-})()
+const getSyncProcessor = () =>
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  (syncProcessor ??= getProcessorSync(readFileSync(path.resolve(moduleDir, '../main.wasm'))))
 
 export const parseSync = (text: string, options?: ShOptions) => getSyncProcessor()(text, options)
 

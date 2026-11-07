@@ -85,8 +85,8 @@ const supportedVariants = new Set<LangVariant>([
   LangVariant.LangZsh,
 ])
 
-const encoder = new TextEncoder()
-const decoder = new TextDecoder()
+let encoder: TextEncoder | undefined
+let decoder: TextDecoder | undefined
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
@@ -114,6 +114,11 @@ const invoke = (
     functionNextLine = false,
   }: InternalOptions = {},
 ): File | string => {
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  encoder ??= new TextEncoder()
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  decoder ??= new TextDecoder()
+
   if (!supportedVariants.has(variant)) {
     throw new TypeError(`Unsupported shell variant: ${variant}`)
   }
