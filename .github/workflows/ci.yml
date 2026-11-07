@@ -80,7 +80,7 @@ jobs:
       - name: Install and test the shell submodule
         run: |
           cd shell
-          npm ci --ignore-scripts
+          npm install
           npm run build
           npm test
 
