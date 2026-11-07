@@ -23,7 +23,6 @@ export class ParseError extends Error implements IParseError {
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
-  | Response
   | WebAssemblyBaseSource
   | {
       headers?: { get(name: string): string | null }
