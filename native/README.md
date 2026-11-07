@@ -33,12 +33,12 @@ node native/benchmark.mjs
 
 Validation observed on Linux x64 (Go 1.27.3, Node 26, latest run):
 
-| case | N-API addon | WASM | native CLI + spawnSync |
-|---|---:|---:|---:|
-| `echo hi` | <0.1ms | 2.2ms | 3.9ms |
-| `install.sh` (140KB) | 151ms | 172ms | 161ms |
+| case | N-API addon | WASM | CLI + spawnSync | CLI daemon (async) |
+|---|---:|---:|---:|---:|
+| `echo hi` | <0.1ms | 2.6ms | 4.1ms | 0.2ms |
+| `install.sh` (140KB) | 145ms | 154ms | 189ms | 121ms |
 
 - AST parity: 11/11 parseable fixtures matched the WASM AST
 - 50,000 `parse('echo hi')` calls: RSS +14MB for the addon vs multi-GB/OOM on the current leaking-WASM sync path
 
-The CLI is the conservative esbuild-style sync case: one process per call. A long-lived child process would avoid startup cost but needs a different synchronous protocol. These numbers are a spike, not a release guarantee.
+The CLI daemon is the persistent esbuild-style case: one long-lived child process and a line-delimited JSON protocol. It is measured asynchronously here; a synchronous API would need an additional worker + `Atomics.wait` bridge. The pure `spawnSync` case is the conservative one-process-per-call upper bound. These numbers are a spike, not a release guarantee.
