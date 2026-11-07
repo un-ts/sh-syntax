@@ -32,7 +32,7 @@ export const testFixtures = (parse: typeof parse_, print: typeof print_) =>
       try {
         const ast = await parse(input, { filepath })
         expect(summarize(ast)).toMatchSnapshot(`${filepath} ast`)
-        expect(await print(ast, { filepath })).toMatchSnapshot(filepath)
+        expect(await print(input, { filepath })).toMatchSnapshot(filepath)
       } catch (err: unknown) {
         expect(err).toMatchSnapshot(filepath)
       }

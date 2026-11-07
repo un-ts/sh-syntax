@@ -27,15 +27,11 @@ describe('processor', () => {
 
   const parse = (text: string, options?: ShOptions) => processor(text, options)
 
-  const print: typeof print_ = (textOrAst, options) => {
-    if (typeof textOrAst === 'string') {
-      return processor(textOrAst, {
-        ...options,
-        print: true,
-      })
-    }
-    return processor(textOrAst, options as ShOptions)
-  }
+  const print: typeof print_ = (text, options) =>
+    processor(text, {
+      ...options,
+      print: true,
+    })
 
   testFixtures(parse, print)
 })

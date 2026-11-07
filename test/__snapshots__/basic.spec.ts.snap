@@ -44,5 +44,3 @@ exports[`print 1`] = `
 "Hello World ! d
 "
 `;
-
-exports[`print 2`] = `[TypeError: Expected shell source text or a syntax tree]`;

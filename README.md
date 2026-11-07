@@ -50,9 +50,8 @@ import { parse, print } from 'sh-syntax'
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
 
-// The parsed tree is printed directly, including any edits made to it.
-ast.stmts[0].cmd.args[0].parts[0].value = 'printf'
-const newText = await print(ast)
+// print() formats source text; printing an edited AST is a planned follow-up.
+const formatted = await print(text)
 ```
 
 The synchronous API is available as `parseSync` and `printSync`:
@@ -61,7 +60,7 @@ The synchronous API is available as `parseSync` and `printSync`:
 import { parseSync, printSync } from 'sh-syntax'
 
 const ast = parseSync("echo 'Hello World!'")
-const newText = printSync(ast)
+const formatted = printSync("echo 'Hello World!'")
 ```
 
 #### syntax tree
@@ -71,7 +70,7 @@ Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
-import { LangVariant, NodeType, Walk, parseSync, printSync } from 'sh-syntax'
+import { LangVariant, NodeType, Walk, parseSync } from 'sh-syntax'
 
 const ast = parseSync("echo 'Hello World!'", {
   keepComments: true,
@@ -89,7 +88,6 @@ Walk(ast, node => {
 const command = ast.stmts[0].cmd // { type: 'CallExpr', args: [...], ... }
 const firstArg = command.args[0] // { type: 'Word', parts: [...], ... }
 console.log(firstArg.start) // 0
-console.log(printSync(ast)) // printf 'Hello World!'
 ```
 
 Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
@@ -113,20 +111,16 @@ const processor = getProcessor(initWasm)
 
 const parse = (text, options) => processor(text, options)
 
-const print = (textOrAst, options) => {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options)
-}
+const print = (text, options) =>
+  processor(text, {
+    ...options,
+    print: true,
+  })
 
 // just like node again
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
-const newText = await print(ast)
+const formatted = await print(text)
 ```
 
 ## Benchmark

@@ -92,7 +92,6 @@ func PrintNode(node syntax.Node, printerOptions PrinterOptions) (string, error) 
 // Modes:
 //   - 0: parse text into a full typed syntax tree
 //   - 1: format text
-//   - 2: format an already parsed syntax tree supplied as JSON
 //
 // The result is a JSON envelope.
 func Process(
@@ -132,12 +131,6 @@ func Process(
 			ParserOptions:  parserOptions,
 			PrinterOptions: printerOptions,
 		})
-	case 2:
-		var node syntax.Node
-		node, err = DecodeNode(bytes.NewReader(textBytes))
-		if err == nil {
-			textOut, err = PrintNode(node, printerOptions)
-		}
 	default:
 		err = fmt.Errorf("unknown process mode: %d", mode)
 	}

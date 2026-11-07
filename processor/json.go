@@ -15,19 +15,10 @@ package processor
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
-	"reflect"
 	"strconv"
-	"strings"
 
 	"mvdan.cc/sh/v3/syntax"
-)
-
-var (
-	posType = reflect.TypeFor[syntax.Pos]()
 )
 
 func writeString(buf *bytes.Buffer, value string) {
@@ -89,155 +80,6 @@ func writePos(buf *bytes.Buffer, pos syntax.Pos) {
 	buf.WriteByte('}')
 }
 
-// DecodeNode reads JSON encoded by [EncodeNode] and returns the syntax node.
-func DecodeNode(r io.Reader) (syntax.Node, error) {
-	data, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	var encoded any
-	if err := json.Unmarshal(data, &encoded); err != nil {
-		return nil, err
-	}
-
-	node := new(syntax.Node)
-	if err := decodeValue(reflect.ValueOf(node).Elem(), encoded); err != nil {
-		return nil, err
-	}
-	return *node, nil
-}
-
-var nodeByName = map[string]reflect.Type{
-	"File": reflect.TypeFor[syntax.File](),
-	"Stmt": reflect.TypeFor[syntax.Stmt](),
-	"Word": reflect.TypeFor[syntax.Word](),
-
-	"Comment":   reflect.TypeFor[syntax.Comment](),
-	"Assign":    reflect.TypeFor[syntax.Assign](),
-	"Redirect":  reflect.TypeFor[syntax.Redirect](),
-	"Lit":       reflect.TypeFor[syntax.Lit](),
-	"SglQuoted": reflect.TypeFor[syntax.SglQuoted](),
-	"DblQuoted": reflect.TypeFor[syntax.DblQuoted](),
-	"ParamExp":  reflect.TypeFor[syntax.ParamExp](),
-	"CmdSubst":  reflect.TypeFor[syntax.CmdSubst](),
-	"CallExpr":  reflect.TypeFor[syntax.CallExpr](),
-	"ArithmExp": reflect.TypeFor[syntax.ArithmExp](),
-	"ProcSubst": reflect.TypeFor[syntax.ProcSubst](),
-	"ExtGlob":   reflect.TypeFor[syntax.ExtGlob](),
-	"BraceExp":  reflect.TypeFor[syntax.BraceExp](),
-	"ArrayExpr": reflect.TypeFor[syntax.ArrayExpr](),
-	"ArrayElem": reflect.TypeFor[syntax.ArrayElem](),
-
-	"ArithmCmd":    reflect.TypeFor[syntax.ArithmCmd](),
-	"BinaryCmd":    reflect.TypeFor[syntax.BinaryCmd](),
-	"IfClause":     reflect.TypeFor[syntax.IfClause](),
-	"ForClause":    reflect.TypeFor[syntax.ForClause](),
-	"WhileClause":  reflect.TypeFor[syntax.WhileClause](),
-	"CaseClause":   reflect.TypeFor[syntax.CaseClause](),
-	"CaseItem":     reflect.TypeFor[syntax.CaseItem](),
-	"Block":        reflect.TypeFor[syntax.Block](),
-	"Subshell":     reflect.TypeFor[syntax.Subshell](),
-	"FuncDecl":     reflect.TypeFor[syntax.FuncDecl](),
-	"TestClause":   reflect.TypeFor[syntax.TestClause](),
-	"DeclClause":   reflect.TypeFor[syntax.DeclClause](),
-	"LetClause":    reflect.TypeFor[syntax.LetClause](),
-	"TimeClause":   reflect.TypeFor[syntax.TimeClause](),
-	"CoprocClause": reflect.TypeFor[syntax.CoprocClause](),
-	"TestDecl":     reflect.TypeFor[syntax.TestDecl](),
-
-	"UnaryArithm":  reflect.TypeFor[syntax.UnaryArithm](),
-	"BinaryArithm": reflect.TypeFor[syntax.BinaryArithm](),
-	"ParenArithm":  reflect.TypeFor[syntax.ParenArithm](),
-	"FlagsArithm":  reflect.TypeFor[syntax.FlagsArithm](),
-
-	"UnaryTest":  reflect.TypeFor[syntax.UnaryTest](),
-	"BinaryTest": reflect.TypeFor[syntax.BinaryTest](),
-	"ParenTest":  reflect.TypeFor[syntax.ParenTest](),
-
-	"WordIter":   reflect.TypeFor[syntax.WordIter](),
-	"CStyleLoop": reflect.TypeFor[syntax.CStyleLoop](),
-}
-
-func decodeValue(val reflect.Value, encoded any) error {
-	switch encoded := encoded.(type) {
-	case map[string]any:
-		if val.Kind() == reflect.Pointer && val.IsNil() {
-			val.Set(reflect.New(val.Type().Elem()))
-		}
-		if typeName, _ := encoded["type"].(string); typeName != "" &&
-			(val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface) {
-			typ := nodeByName[typeName]
-			if typ == nil {
-				return fmt.Errorf("unknown type: %q", typeName)
-			}
-			val.Set(reflect.New(typ))
-		}
-		for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
-			val = val.Elem()
-		}
-		for name, fieldValue := range encoded {
-			switch name {
-			case "type", "start", "end":
-				continue
-			}
-			field := val.FieldByName(goFieldName(name))
-			if !field.IsValid() {
-				return fmt.Errorf("unknown field for %s: %q", val.Type(), name)
-			}
-			if field.Type() == posType {
-				pos, ok := fieldValue.(map[string]any)
-				if !ok {
-					return fmt.Errorf("invalid position for %s", name)
-				}
-				decodePos(field, pos)
-				continue
-			}
-			if err := decodeValue(field, fieldValue); err != nil {
-				return err
-			}
-		}
-	case []any:
-		length := len(encoded)
-		slice := reflect.MakeSlice(val.Type(), length, length)
-		for i, item := range encoded {
-			if err := decodeValue(slice.Index(i), item); err != nil {
-				return err
-			}
-		}
-		val.Set(slice)
-	case float64:
-		// Tokens and thus operators are uint32, but encoding/json defaults to float64.
-		val.SetUint(uint64(encoded))
-	default:
-		if encoded != nil {
-			val.Set(reflect.ValueOf(encoded))
-		}
-	}
-	return nil
-}
-
-func decodePos(val reflect.Value, encoded map[string]any) {
-	offset, _ := encoded["offset"].(float64)
-	line, _ := encoded["line"].(float64)
-	column, _ := encoded["column"].(float64)
-	val.Set(reflect.ValueOf(syntax.NewPos(uint(offset), uint(line), uint(column)+1)))
-}
-
-func goFieldName(name string) string {
-	switch name {
-	case "lastComments":
-		return "Last"
-	case "condComments":
-		return "CondLast"
-	case "thenComments":
-		return "ThenLast"
-	case "doComments":
-		return "DoLast"
-	default:
-		return strings.ToUpper(name[:1]) + name[1:]
-	}
-}
-
 // ErrorPos is the JSON representation of a syntax position in a parse error.
 type ErrorPos struct {
 	Offset uint `json:"offset"`
@@ -285,12 +127,4 @@ func newParseError(parseError syntax.ParseError) *ParseError {
 			Column: pos.Col() - 1,
 		},
 	}
-}
-
-// Result is the JSON envelope returned by the process export.
-type Result struct {
-	File       json.RawMessage `json:"file"`
-	Text       string          `json:"text"`
-	ParseError *ParseError     `json:"parseError"`
-	Message    string          `json:"message"`
 }

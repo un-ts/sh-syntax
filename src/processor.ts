@@ -28,12 +28,10 @@ export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
 ) => Promise<WebAssembly.Instance> | WebAssembly.Instance
 
-type ProcessMode = 0 | 1 | 2
+type ProcessMode = 0 | 1
 
 interface InternalOptions extends ShOptions {
   print?: boolean
-  /** Only present so the public wrappers can reject the legacy combination. */
-  originalText?: string
 }
 
 interface ProcessExports extends WebAssembly.Exports {
@@ -82,11 +80,10 @@ let decoder: TextDecoder | undefined
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
-  textOrAst: File | string,
+  text: string,
   {
     filepath = '',
     print = false,
-    originalText: legacyText,
 
     keepComments = true,
     variant = LangVariant.LangBash,
@@ -110,26 +107,11 @@ const invoke = (
   encoder ??= new TextEncoder()
   decoder ??= new TextDecoder()
 
-  if ((textOrAst as File | string | null | undefined) == null) {
-    throw new TypeError('Expected shell source text or a syntax tree')
+  if (typeof text !== 'string') {
+    throw new TypeError('Expected shell source text')
   }
 
-  if (typeof textOrAst !== 'string' && legacyText != null) {
-    throw new TypeError(
-      '`originalText` cannot be combined with an AST; pass the source text to print() instead',
-    )
-  }
-
-  let mode: ProcessMode
-  let text: string
-
-  if (typeof textOrAst === 'string') {
-    text = textOrAst
-    mode = print ? 1 : 0
-  } else {
-    text = JSON.stringify(textOrAst)
-    mode = 2
-  }
+  const mode: ProcessMode = print ? 1 : 0
 
   const filePath = encoder.encode(filepath)
   const textBytes = encoder.encode(text)
@@ -221,11 +203,7 @@ export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
     text: string,
     options?: ShOptions & { print: true },
   ): string
-  function processor(ast: File, options?: ShOptions): string
-  function processor(
-    textOrAst: File | string,
-    options?: InternalOptions,
-  ): File | string {
+  function processor(text: string, options?: InternalOptions): File | string {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
     /*
@@ -233,7 +211,7 @@ export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
      * function is available synchronously after `_start` has run.
      */
     void go.run(instance)
-    return invoke(instance.exports as ProcessExports, textOrAst, options)
+    return invoke(instance.exports as ProcessExports, text, options)
   }
 
   return processor
@@ -253,9 +231,8 @@ export const getProcessor = (
     text: string,
     options?: ShOptions & { print: true },
   ): Promise<string>
-  function processor(ast: File, options?: ShOptions): Promise<string>
   async function processor(
-    textOrAst: File | string,
+    text: string,
     options: InternalOptions = {},
   ): Promise<File | string> {
     if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
@@ -292,7 +269,7 @@ export const getProcessor = (
      */
     void go.run(wasm.instance)
 
-    return invoke(wasm.instance.exports as ProcessExports, textOrAst, options)
+    return invoke(wasm.instance.exports as ProcessExports, text, options)
   }
 
   return processor

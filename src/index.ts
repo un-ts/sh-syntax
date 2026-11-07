@@ -7,7 +7,7 @@ import './shim.js'
 import '../vendors/wasm_exec.cjs'
 
 import { createSyncProcessor, getProcessor } from './processor.js'
-import type { File, ShOptions } from './types.js'
+import type { ShOptions } from './types.js'
 
 const importMetaUrl = import.meta.url
 
@@ -23,33 +23,11 @@ export const processor = getProcessor(() =>
 export const parse = (text: string, options?: ShOptions) =>
   processor(text, options)
 
-const rejectOriginalText = (options: unknown): void => {
-  if (
-    options != null &&
-    typeof options === 'object' &&
-    'originalText' in options &&
-    (options as { originalText?: unknown }).originalText !== undefined
-  ) {
-    throw new TypeError(
-      '`originalText` is no longer supported; pass the source text to print() instead',
-    )
-  }
-}
-
-export const print = (
-  textOrAst: File | string,
-  options?: ShOptions,
-): Promise<string> => {
-  rejectOriginalText(options)
-
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options)
-}
+export const print = (text: string, options?: ShOptions): Promise<string> =>
+  processor(text, {
+    ...options,
+    print: true,
+  })
 
 let syncProcessor: ReturnType<typeof createSyncProcessor> | undefined
 
@@ -61,20 +39,11 @@ const getSyncProcessor = () =>
 export const parseSync = (text: string, options?: ShOptions) =>
   getSyncProcessor()(text, options)
 
-export const printSync = (
-  textOrAst: File | string,
-  options?: ShOptions,
-): string => {
-  rejectOriginalText(options)
-
-  if (typeof textOrAst === 'string') {
-    return getSyncProcessor()(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return getSyncProcessor()(textOrAst, options)
-}
+export const printSync = (text: string, options?: ShOptions): string =>
+  getSyncProcessor()(text, {
+    ...options,
+    print: true,
+  })
 
 export { DebugPrint, IsIncomplete, NodeType, Walk } from './ast.js'
 export * from './processor.js'

@@ -7,9 +7,8 @@ import {
   Walk,
   parseSync,
   printSync,
-  processor,
 } from 'sh-syntax'
-import type { File, Word } from 'sh-syntax'
+import type { Word } from 'sh-syntax'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -41,28 +40,12 @@ test('sync parser returns the full typed tree', () => {
   expect(types).toContain('Lit')
 })
 
-test('sync printer prints a mutated AST', () => {
-  const ast = parseSync('echo old\n')
-  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
-  const literal = call.args[1].parts[0] as unknown as { value: string }
-  literal.value = 'new'
-
-  expect(printSync(ast)).toBe('echo new\n')
-  expect(printSync('echo  old\n')).toBe('echo old\n')
+test('rejects non-text input', () => {
+  expect(() => parseSync(null as never)).toThrow(TypeError)
 })
 
-test('printer options are applied to an AST', () => {
-  const ast = parseSync('if true;then echo hi >out;fi\n')
-  const defaults = {
-    binaryNextLine: false,
-    switchCaseIndent: false,
-    spaceRedirects: false,
-  }
-
-  expect(printSync(ast, defaults)).toBe('if true; then echo hi >out; fi\n')
-  expect(printSync(ast, { ...defaults, spaceRedirects: true })).toBe(
-    'if true; then echo hi > out; fi\n',
-  )
+test('print formats text', () => {
+  expect(printSync('echo  old\n')).toBe('echo old\n')
 })
 
 test('parse errors expose position and incompleteness', () => {
@@ -112,18 +95,4 @@ test('tree helpers handle edge cases', () => {
     true,
   )
   expect(IsIncomplete(null)).toBe(false)
-})
-
-test('prints non-File roots and rejects originalText', async () => {
-  const ast = parseSync('echo old\n')
-  const stmt = ast.stmts[0] as unknown as File
-  expect(printSync(stmt)).toBe('echo old')
-
-  expect(() => printSync({} as File)).toThrow(SyntaxError)
-  await expect(
-    processor(ast, { originalText: 'echo old\n' } as never),
-  ).rejects.toThrow(TypeError)
-  expect(() => printSync(ast, { originalText: 'echo old\n' } as never)).toThrow(
-    TypeError,
-  )
 })
