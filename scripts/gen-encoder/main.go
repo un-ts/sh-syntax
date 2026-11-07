@@ -40,11 +40,18 @@ var interfaceMethods = map[string]string{
 }
 
 func main() {
+	if err := exec.Command("go", "mod", "download", "mvdan.cc/sh/v3").Run(); err != nil {
+		fatalf("download mvdan.cc/sh/v3: %v", err)
+	}
 	moduleDir, err := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", "mvdan.cc/sh/v3").Output()
 	if err != nil {
 		fatalf("locate mvdan.cc/sh/v3: %v", err)
 	}
-	nodesPath := filepath.Join(strings.TrimSpace(string(moduleDir)), "syntax", "nodes.go")
+	dir := strings.TrimSpace(string(moduleDir))
+	if dir == "" {
+		fatalf("mvdan.cc/sh/v3 has no module directory")
+	}
+	nodesPath := filepath.Join(dir, "syntax", "nodes.go")
 
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, nodesPath, nil, 0)
