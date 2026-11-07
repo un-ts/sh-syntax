@@ -141,6 +141,22 @@ test('lang variants are exported', () => {
   expect(LangVariant.LangMirBSDKorn).toBe(4)
 })
 
+test('walk visits parameter expansion helper nodes', () => {
+  const ast = parseSync('echo ${foo:1:2} ${bar/a/b} ${baz:-qux}\n')
+  const literals: string[] = []
+
+  walk(ast, node => {
+    if (node.type === 'Lit') {
+      literals.push(node.value)
+    }
+    return true
+  })
+
+  expect(literals).toEqual(
+    expect.arrayContaining(['foo', '1', '2', 'bar', 'a', 'b', 'baz', 'qux']),
+  )
+})
+
 test('tree helpers handle edge cases', () => {
   const ast = parseSync('echo hi\n')
   const types: string[] = []

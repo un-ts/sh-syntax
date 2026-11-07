@@ -5,28 +5,38 @@ const isNode = (value: unknown): value is Node =>
   value !== null &&
   typeof (value as { type?: unknown }).type === 'string'
 
-const walkValue = (
-  value: unknown,
-  walker: (node: Node) => boolean | void,
-): void => {
-  if (Array.isArray(value)) {
-    for (const child of value as unknown[]) {
-      walkValue(child, walker)
+const childrenOf = (node: Node): Node[] => {
+  const children: Node[] = []
+
+  const values: unknown[] = Object.values(node)
+
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      children.push(...(value as Node[]))
+    } else if (isNode(value)) {
+      children.push(value)
     }
-    return
   }
 
-  if (value === null || typeof value !== 'object') {
-    return
+  if (node.type === 'ParamExp') {
+    if (node.exp?.word) {
+      children.push(node.exp.word)
+    }
+    if (node.slice?.offset) {
+      children.push(node.slice.offset)
+    }
+    if (node.slice?.length) {
+      children.push(node.slice.length)
+    }
+    if (node.repl?.orig) {
+      children.push(node.repl.orig)
+    }
+    if (node.repl?.with) {
+      children.push(node.repl.with)
+    }
   }
 
-  if (isNode(value) && walker(value) === false) {
-    return
-  }
-
-  for (const child of Object.values(value as Record<string, unknown>)) {
-    walkValue(child, walker)
-  }
+  return children
 }
 
 /**
@@ -37,7 +47,13 @@ export const walk = (
   node: Node,
   walker: (node: Node) => boolean | void,
 ): void => {
-  walkValue(node, walker)
+  if (walker(node) === false) {
+    return
+  }
+
+  for (const child of childrenOf(node)) {
+    walk(child, walker)
+  }
 }
 
 /** Reports whether an error was caused by incomplete shell source. */
