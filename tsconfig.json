@@ -7,5 +7,5 @@
       "sh-syntax": ["./src/index.ts"]
     }
   },
-  "include": ["src", "test", "benchmark"]
+  "include": ["src", "test", "benchmark", "vitest.config.ts"]
 }
