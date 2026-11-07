@@ -23,31 +23,19 @@ export const processor = getProcessor(() =>
 export const parse = (text: string, options?: ShOptions) =>
   processor(text, options)
 
-const printSource = (
-  textOrAst: File | string,
-  options?: ShOptions & { originalText?: string },
-): string => {
-  if (typeof textOrAst === 'string') {
-    return textOrAst
-  }
-  if (options?.originalText == null) {
-    throw new TypeError(
-      'print(ast) is not supported yet; pass { originalText } to format the source text',
-    )
-  }
-  return options.originalText
-}
-
 export function print(text: string, options?: ShOptions): Promise<string>
 export function print(ast: File, options: ShPrintOptions): Promise<string>
 export function print(
   textOrAst: File | string,
   options?: ShOptions & { originalText?: string },
 ): Promise<string> {
-  return processor(printSource(textOrAst, options), {
-    ...options,
-    print: true,
-  })
+  if (typeof textOrAst === 'string') {
+    return processor(textOrAst, {
+      ...options,
+      print: true,
+    })
+  }
+  return processor(textOrAst, options as ShPrintOptions)
 }
 
 let syncProcessor: ReturnType<typeof createSyncProcessor> | undefined
@@ -66,10 +54,13 @@ export function printSync(
   textOrAst: File | string,
   options?: ShOptions & { originalText?: string },
 ): string {
-  return getSyncProcessor()(printSource(textOrAst, options), {
-    ...options,
-    print: true,
-  })
+  if (typeof textOrAst === 'string') {
+    return getSyncProcessor()(textOrAst, {
+      ...options,
+      print: true,
+    })
+  }
+  return getSyncProcessor()(textOrAst, options as ShPrintOptions)
 }
 
 export { isIncomplete, walk } from './ast.js'
