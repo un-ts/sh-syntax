@@ -59,7 +59,7 @@
     "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:encoder && tinygo build -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug"
+    "wasm": "yarn gen:encoder && tinygo build -trimpath -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug"
   },
   "devDependencies": {
     "@1stg/common-config": "^17.0.0",
