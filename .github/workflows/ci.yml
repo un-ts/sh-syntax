@@ -1,8 +1,17 @@
 name: CI
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  merge_group:
+    types:
+      - checks_requested
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,12 +37,18 @@ jobs:
         uses: acifani/setup-tinygo@dd8a7075d951a7595b2ef2123ed0ab1af0c13e56 # v3.0.0
         with:
           tinygo-version: '0.41.1'
-          install-binaryen: false
+          install-binaryen: true
 
-      - name: Regenerate encoder and Wasm
+      - name: Show toolchain versions
         run: |
-          go run ./scripts/gen-encoder
-          tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug
+          go version
+          tinygo version
+
+      - name: Regenerate encoder
+        run: go run ./scripts/gen-encoder
+
+      - name: Build Wasm
+        run: tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug
 
       - name: Verify generated artifacts are committed
         run: git diff --exit-code -- main.wasm processor/encode_generated.go
