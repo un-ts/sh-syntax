@@ -50,8 +50,9 @@
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
+    "prepack": "clean-pkg-json",
     "prepare": "simple-git-hooks && yarn-berry-deduplicate || exit 0",
-    "release": "clean-pkg-json && changeset publish",
+    "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
     "wasm": "yarn gen:encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
@@ -90,6 +91,9 @@
   "resolutions": {
     "prettier": "^3.9.4",
     "sh-syntax": "link:."
+  },
+  "publishConfig": {
+    "provenance": true
   },
   "sideEffects": [
     "lib/browser.js",
