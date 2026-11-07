@@ -194,7 +194,6 @@ const invoke = (
     throw new ParseError(parseError)
   }
 
-  /* istanbul ignore next -- defensive WASM envelope path */
   if (message) {
     throw new SyntaxError(message)
   }

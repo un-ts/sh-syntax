@@ -2,6 +2,7 @@ import {
   LangVariant,
   ParseError,
   isIncomplete,
+  parse,
   parseSync,
   print,
   printSync,
@@ -82,6 +83,12 @@ test('parse errors expose position and incompleteness', () => {
   expect(parseError.message.length).toBeGreaterThan(0)
   expect(parseError.pos?.offset).toBe(5)
   expect(parseError.incomplete).toBe(false)
+})
+
+test('language errors become SyntaxError', async () => {
+  await expect(
+    parse('foo <<<input', { variant: LangVariant.LangPOSIX }),
+  ).rejects.toBeInstanceOf(SyntaxError)
 })
 
 test('lang variants are exported', () => {

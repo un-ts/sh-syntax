@@ -140,20 +140,13 @@ func collectFuncDecl(decl *ast.FuncDecl, structs map[string]*typeInfo, implement
 	if recv == "" {
 		return
 	}
-	switch decl.Name.Name {
-	case "Pos", "End":
-		if info := structs[recv]; info != nil {
-			info.isNode = true
-		}
-	default:
-		implementors[decl.Name.Name] = append(implementors[decl.Name.Name], recv)
-	}
+	implementors[decl.Name.Name] = append(implementors[decl.Name.Name], recv)
 }
 
 func markNodeTypes(structs map[string]*typeInfo, implementors map[string][]string) {
-	for name, info := range structs {
-		for _, impl := range implementors["Pos"] {
-			if impl == name {
+	for _, method := range []string{"Pos", "End"} {
+		for _, impl := range implementors[method] {
+			if info := structs[impl]; info != nil {
 				info.isNode = true
 			}
 		}
