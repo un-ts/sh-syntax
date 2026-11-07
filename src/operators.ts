@@ -125,6 +125,7 @@ export type ParExpOperator =
 export const ParNamesOperator = {
   NamesPrefix: 43,
   NamesPrefixWords: 100,
+  None: 0,
 } as const
 
 export type ParNamesOperator =

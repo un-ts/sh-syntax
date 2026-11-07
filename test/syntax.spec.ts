@@ -1,5 +1,6 @@
 import {
   LangVariant,
+  ParNamesOperator,
   ParseError,
   RedirOperator,
   isIncomplete,
@@ -75,6 +76,19 @@ test('processor(ast, { originalText }) ignores the AST', async () => {
     'echo old\n',
   )
   await expect(processor(ast, {} as never)).rejects.toThrow(TypeError)
+})
+
+test('ParNamesOperator has a zero value', () => {
+  const ast = parseSync('echo $foo\n')
+  const command = ast.stmts[0].cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const part = command.args[1].parts[0]
+  if (part.type !== 'ParamExp') {
+    throw new Error('expected a parameter expansion')
+  }
+  expect(part.names).toBe(ParNamesOperator.None)
 })
 
 test('operator constants match the AST', () => {
