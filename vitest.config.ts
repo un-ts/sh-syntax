@@ -1,4 +1,4 @@
-import { configDefaults, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
@@ -8,11 +8,10 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    exclude: [...configDefaults.exclude, 'shell/**'],
+    include: ['test/**/*.spec.ts'],
     coverage: {
       enabled: true,
-      include: ['src'],
-      exclude: ['**/*.json', '**/@eaDir/**', 'shell/**'],
+      include: ['src/*.ts'],
       provider: 'istanbul',
       reporter: ['lcov', 'json', 'text'],
     },
