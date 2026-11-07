@@ -20,14 +20,15 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup Go
-        run: |
-          curl -sSL https://go.dev/dl/go1.25.14.linux-amd64.tar.gz | tar -xz -C "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/go/bin" >> "$GITHUB_PATH"
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.25.14'
 
       - name: Setup TinyGo
-        run: |
-          curl -sSL https://github.com/tinygo-org/tinygo/releases/download/v0.41.1/tinygo0.41.1.linux-amd64.tar.gz | tar -xz -C "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/tinygo/bin" >> "$GITHUB_PATH"
+        uses: acifani/setup-tinygo@dd8a7075d951a7595b2ef2123ed0ab1af0c13e56 # v3.0.0
+        with:
+          tinygo-version: '0.41.1'
+          install-binaryen: false
 
       - name: Regenerate encoder and Wasm
         run: |
