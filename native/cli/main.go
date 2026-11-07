@@ -13,9 +13,36 @@ import (
 )
 
 type request struct {
+	ID       uint64 `json:"id"`
+	Op       string `json:"op"`
+	Handle   uint64 `json:"handle"`
 	Text     string `json:"text"`
 	Filepath string `json:"filepath"`
+	Start    uint64 `json:"start"`
+	End      uint64 `json:"end"`
+	Value    string `json:"value"`
 }
+
+type response struct {
+	ID     uint64          `json:"id"`
+	OK     bool            `json:"ok"`
+	Handle uint64          `json:"handle,omitempty"`
+	AST    json.RawMessage `json:"ast,omitempty"`
+	Text   string          `json:"text,omitempty"`
+	Error  string          `json:"error,omitempty"`
+}
+
+type litKey = [2]uint64
+
+type handleState struct {
+	file *syntax.File
+	lits map[litKey]*syntax.Lit
+}
+
+var (
+	handles    = map[uint64]*handleState{}
+	nextHandle uint64
+)
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--server" {
@@ -33,23 +60,26 @@ func main() {
 		filepath = os.Args[1]
 	}
 
-	fmt.Print(parse(string(text), filepath))
+	file, ast, err := parseFile(string(text), filepath)
+	if err != nil {
+		fail(err)
+	}
+	_ = file
+	fmt.Print(string(ast))
 }
 
 func serve() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 1024), 64*1024*1024)
+	encoder := json.NewEncoder(os.Stdout)
 
 	for scanner.Scan() {
 		var req request
 		if err := json.Unmarshal(scanner.Bytes(), &req); err != nil {
-			fmt.Println(errorJSON(err))
+			_ = encoder.Encode(response{Error: err.Error()})
 			continue
 		}
-		if req.Filepath == "" {
-			req.Filepath = "<input>"
-		}
-		fmt.Println(parse(req.Text, req.Filepath))
+		_ = encoder.Encode(handleRequest(req))
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -57,7 +87,63 @@ func serve() {
 	}
 }
 
-func parse(text string, filepath string) string {
+func handleRequest(req request) response {
+	switch req.Op {
+	case "parse":
+		file, ast, err := parseFile(req.Text, req.Filepath)
+		if err != nil {
+			return response{ID: req.ID, Error: err.Error()}
+		}
+		nextHandle++
+		handle := nextHandle
+		lits := map[litKey]*syntax.Lit{}
+		syntax.Walk(file, func(node syntax.Node) bool {
+			if lit, ok := node.(*syntax.Lit); ok {
+				lits[litKey{uint64(lit.Pos().Offset()), uint64(lit.End().Offset())}] = lit
+			}
+			return true
+		})
+		handles[handle] = &handleState{file: file, lits: lits}
+		return response{ID: req.ID, OK: true, Handle: handle, AST: ast}
+
+	case "patch":
+		state := handles[req.Handle]
+		if state == nil {
+			return response{ID: req.ID, Error: "unknown handle"}
+		}
+		lit := state.lits[litKey{req.Start, req.End}]
+		if lit == nil {
+			return response{ID: req.ID, Error: "unknown literal"}
+		}
+		lit.Value = req.Value
+		return response{ID: req.ID, OK: true}
+
+	case "print":
+		state := handles[req.Handle]
+		if state == nil {
+			return response{ID: req.ID, Error: "unknown handle"}
+		}
+		output, err := processor.PrintFile(state.file, processor.PrinterOptions{
+			Indent:           2,
+			BinaryNextLine:   true,
+			SwitchCaseIndent: true,
+			SpaceRedirects:   true,
+		})
+		if err != nil {
+			return response{ID: req.ID, Error: err.Error()}
+		}
+		return response{ID: req.ID, OK: true, Text: output}
+
+	case "free":
+		delete(handles, req.Handle)
+		return response{ID: req.ID, OK: true}
+
+	default:
+		return response{ID: req.ID, Error: fmt.Sprintf("unknown op %q", req.Op)}
+	}
+}
+
+func parseFile(text string, filepath string) (*syntax.File, json.RawMessage, error) {
 	file, err := processor.Parse(
 		text,
 		filepath,
@@ -67,20 +153,14 @@ func parse(text string, filepath string) string {
 		},
 	)
 	if err != nil {
-		return errorJSON(err)
+		return nil, nil, err
 	}
 
 	var buf bytes.Buffer
 	if err := processor.EncodeNode(&buf, file); err != nil {
-		return errorJSON(err)
+		return nil, nil, err
 	}
-
-	return `{"ok":true,"ast":` + buf.String() + `}`
-}
-
-func errorJSON(err error) string {
-	encoded, _ := json.Marshal(err.Error())
-	return `{"ok":false,"error":` + string(encoded) + `}`
+	return file, json.RawMessage(buf.Bytes()), nil
 }
 
 func fail(err error) {
