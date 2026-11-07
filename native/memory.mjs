@@ -3,13 +3,15 @@ import fs from 'node:fs'
 import { createInterface } from 'node:readline'
 import { createRequire } from 'node:module'
 
+const DEFAULT_N = 2000
 const mode = process.argv[2]
-const n = Number(process.argv[3] ?? 2000)
+const n = Number(process.argv[3] ?? DEFAULT_N)
 const require = createRequire(import.meta.url)
 
+const PAGE_SIZE = 4096
 const rssMiB = pid => {
   const statm = fs.readFileSync(`/proc/${pid}/statm`, 'utf8').split(' ')
-  return (Number(statm[1]) * 4096) / 1024 / 1024
+  return (Number(statm[1]) * PAGE_SIZE) / 1024 / 1024
 }
 
 if (mode === 'daemon') {
@@ -20,7 +22,7 @@ if (mode === 'daemon') {
   createInterface({ input: child.stdout }).on('line', line => {
     queue.shift()?.(line)
   })
-  const request = text =>
+  const request = () =>
     new Promise((resolve, reject) => {
       queue.push(line => {
         try {
@@ -29,15 +31,17 @@ if (mode === 'daemon') {
           reject(error)
         }
       })
-      child.stdin.write(`${JSON.stringify({ text, filepath: 'x.sh' })}\n`)
+      child.stdin.write(`${JSON.stringify({ text: 'echo hi\n', filepath: 'x.sh' })}\n`)
     })
 
-  await request('echo hi\n')
-  global.gc?.()
+  await request()
+  globalThis.gc?.()
   const beforeParent = process.memoryUsage().rss
   const beforeChild = rssMiB(child.pid)
-  for (let i = 0; i < n; i++) await request('echo hi\n')
-  global.gc?.()
+  for (let i = 0; i < n; i++) {
+    await request()
+  }
+  globalThis.gc?.()
   const afterParent = process.memoryUsage().rss
   const afterChild = rssMiB(child.pid)
   child.kill()
@@ -63,10 +67,12 @@ if (mode === 'napi') {
 }
 
 parse()
-global.gc?.()
+globalThis.gc?.()
 const before = process.memoryUsage().rss
-for (let i = 0; i < n; i++) parse()
-global.gc?.()
+for (let i = 0; i < n; i++) {
+  parse()
+}
+globalThis.gc?.()
 const after = process.memoryUsage().rss
 
 console.log(

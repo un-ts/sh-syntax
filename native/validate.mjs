@@ -9,6 +9,7 @@ const nativeParse = (text, filepath) => JSON.parse(binding.parse(text, filepath)
 const fixtures = fs.readdirSync('test/fixtures')
 let mismatches = 0
 let printMismatches = 0
+let astPrintMismatches = 0
 
 for (const file of fixtures) {
   const text = fs.readFileSync(path.join('test/fixtures', file), 'utf8')
@@ -25,6 +26,11 @@ for (const file of fixtures) {
       printMismatches++
       console.error(`print mismatch: ${file}`)
     }
+    const astPrinted = JSON.parse(binding.printAst(JSON.stringify(native))).text
+    if (astPrinted !== wasmPrinted) {
+      astPrintMismatches++
+      console.error(`printAst mismatch: ${file}`)
+    }
   } catch {
     // Fixtures with syntax errors are covered by the WASM test suite.
   }
@@ -32,4 +38,5 @@ for (const file of fixtures) {
 
 console.log(`AST parity: ${fixtures.length - mismatches}/${fixtures.length} fixtures`)
 console.log(`print parity: ${fixtures.length - printMismatches}/${fixtures.length} fixtures`)
+console.log(`printAst parity: ${fixtures.length - astPrintMismatches}/${fixtures.length} fixtures`)
 
