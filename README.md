@@ -75,6 +75,7 @@ lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
 import { LangVariant, parseSync, walk } from 'sh-syntax'
+import type { CallExpr, Lit } from 'sh-syntax'
 
 const ast = parseSync("echo 'Hello World!'", {
   keepComments: true,
@@ -84,13 +85,13 @@ const ast = parseSync("echo 'Hello World!'", {
 
 walk(ast, node => {
   if (node.type === 'Lit') {
-    console.log(node.value)
+    console.log((node as Lit).value)
   }
 })
 
-const command = ast.stmts[0].cmd // { type: 'CallExpr', args: [...], ... }
-const firstArg = command.args[0] // { type: 'Word', parts: [...], ... }
-console.log(firstArg.start) // 0
+const command = ast.stmts[0].cmd as CallExpr | null
+const firstArg = command?.args[0]
+console.log(firstArg?.start) // 0
 ```
 
 Node `start`/`end` and position fields use UTF-8 byte offsets; position fields

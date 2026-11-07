@@ -36,7 +36,7 @@ func writeBool(buf *bytes.Buffer, value bool) {
 	}
 }
 
-func encodeFile(buf *bytes.Buffer, v *syntax.File, force bool) {
+func encodeFile(buf *bytes.Buffer, v *syntax.File) {
 	writeNodeStart(buf, "File", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "name", &first)
@@ -50,7 +50,7 @@ func encodeFile(buf *bytes.Buffer, v *syntax.File, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -60,13 +60,13 @@ func encodeFile(buf *bytes.Buffer, v *syntax.File, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeComment(buf *bytes.Buffer, v *syntax.Comment, force bool) {
+func encodeComment(buf *bytes.Buffer, v *syntax.Comment) {
 	writeNodeStart(buf, "Comment", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "hash", &first)
@@ -76,7 +76,7 @@ func encodeComment(buf *bytes.Buffer, v *syntax.Comment, force bool) {
 	buf.WriteByte('}')
 }
 
-func encodeStmt(buf *bytes.Buffer, v *syntax.Stmt, force bool) {
+func encodeStmt(buf *bytes.Buffer, v *syntax.Stmt) {
 	writeNodeStart(buf, "Stmt", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "comments", &first)
@@ -85,11 +85,11 @@ func encodeStmt(buf *bytes.Buffer, v *syntax.Stmt, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Comments[i], false)
+		encodeComment(buf, &v.Comments[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "cmd", &first)
-	encodeCommand(buf, v.Cmd, true)
+	encodeCommand(buf, v.Cmd)
 	writeKeyFirst(buf, "position", &first)
 	writePos(buf, v.Position)
 	writeKeyFirst(buf, "semicolon", &first)
@@ -111,14 +111,14 @@ func encodeStmt(buf *bytes.Buffer, v *syntax.Stmt, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeRedirect(buf, item, false)
+			encodeRedirect(buf, item)
 		}
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeAssign(buf *bytes.Buffer, v *syntax.Assign, force bool) {
+func encodeAssign(buf *bytes.Buffer, v *syntax.Assign) {
 	writeNodeStart(buf, "Assign", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "append", &first)
@@ -129,26 +129,26 @@ func encodeAssign(buf *bytes.Buffer, v *syntax.Assign, force bool) {
 	if v.Name == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Name, false)
+		encodeLit(buf, v.Name)
 	}
 	writeKeyFirst(buf, "index", &first)
-	encodeArithmExpr(buf, v.Index, true)
+	encodeArithmExpr(buf, v.Index)
 	writeKeyFirst(buf, "value", &first)
 	if v.Value == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Value, false)
+		encodeWord(buf, v.Value)
 	}
 	writeKeyFirst(buf, "array", &first)
 	if v.Array == nil {
 		buf.WriteString("null")
 	} else {
-		encodeArrayExpr(buf, v.Array, false)
+		encodeArrayExpr(buf, v.Array)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeRedirect(buf *bytes.Buffer, v *syntax.Redirect, force bool) {
+func encodeRedirect(buf *bytes.Buffer, v *syntax.Redirect) {
 	writeNodeStart(buf, "Redirect", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -159,24 +159,24 @@ func encodeRedirect(buf *bytes.Buffer, v *syntax.Redirect, force bool) {
 	if v.N == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.N, false)
+		encodeLit(buf, v.N)
 	}
 	writeKeyFirst(buf, "word", &first)
 	if v.Word == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Word, false)
+		encodeWord(buf, v.Word)
 	}
 	writeKeyFirst(buf, "hdoc", &first)
 	if v.Hdoc == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Hdoc, false)
+		encodeWord(buf, v.Hdoc)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeCallExpr(buf *bytes.Buffer, v *syntax.CallExpr, force bool) {
+func encodeCallExpr(buf *bytes.Buffer, v *syntax.CallExpr) {
 	writeNodeStart(buf, "CallExpr", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "assigns", &first)
@@ -188,7 +188,7 @@ func encodeCallExpr(buf *bytes.Buffer, v *syntax.CallExpr, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeAssign(buf, item, false)
+			encodeAssign(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -201,14 +201,14 @@ func encodeCallExpr(buf *bytes.Buffer, v *syntax.CallExpr, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeWord(buf, item, false)
+			encodeWord(buf, item)
 		}
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeSubshell(buf *bytes.Buffer, v *syntax.Subshell, force bool) {
+func encodeSubshell(buf *bytes.Buffer, v *syntax.Subshell) {
 	writeNodeStart(buf, "Subshell", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lparen", &first)
@@ -224,7 +224,7 @@ func encodeSubshell(buf *bytes.Buffer, v *syntax.Subshell, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -234,13 +234,13 @@ func encodeSubshell(buf *bytes.Buffer, v *syntax.Subshell, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeBlock(buf *bytes.Buffer, v *syntax.Block, force bool) {
+func encodeBlock(buf *bytes.Buffer, v *syntax.Block) {
 	writeNodeStart(buf, "Block", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lbrace", &first)
@@ -256,7 +256,7 @@ func encodeBlock(buf *bytes.Buffer, v *syntax.Block, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -266,13 +266,13 @@ func encodeBlock(buf *bytes.Buffer, v *syntax.Block, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
+func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause) {
 	writeNodeStart(buf, "IfClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "position", &first)
@@ -290,7 +290,7 @@ func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -300,7 +300,7 @@ func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.CondLast[i], false)
+		encodeComment(buf, &v.CondLast[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "then", &first)
@@ -312,7 +312,7 @@ func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -322,14 +322,14 @@ func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.ThenLast[i], false)
+		encodeComment(buf, &v.ThenLast[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "else", &first)
 	if v.Else == nil {
 		buf.WriteString("null")
 	} else {
-		encodeIfClause(buf, v.Else, false)
+		encodeIfClause(buf, v.Else)
 	}
 	writeKeyFirst(buf, "lastComments", &first)
 	buf.WriteByte('[')
@@ -337,13 +337,13 @@ func encodeIfClause(buf *bytes.Buffer, v *syntax.IfClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause, force bool) {
+func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause) {
 	writeNodeStart(buf, "WhileClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "whilePos", &first)
@@ -363,7 +363,7 @@ func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -373,7 +373,7 @@ func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.CondLast[i], false)
+		encodeComment(buf, &v.CondLast[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "do", &first)
@@ -385,7 +385,7 @@ func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -395,13 +395,13 @@ func encodeWhileClause(buf *bytes.Buffer, v *syntax.WhileClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.DoLast[i], false)
+		encodeComment(buf, &v.DoLast[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeForClause(buf *bytes.Buffer, v *syntax.ForClause, force bool) {
+func encodeForClause(buf *bytes.Buffer, v *syntax.ForClause) {
 	writeNodeStart(buf, "ForClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "forPos", &first)
@@ -415,7 +415,7 @@ func encodeForClause(buf *bytes.Buffer, v *syntax.ForClause, force bool) {
 	writeKeyFirst(buf, "braces", &first)
 	writeBool(buf, v.Braces)
 	writeKeyFirst(buf, "loop", &first)
-	encodeLoop(buf, v.Loop, true)
+	encodeLoop(buf, v.Loop)
 	writeKeyFirst(buf, "do", &first)
 	buf.WriteByte('[')
 	for i, item := range v.Do {
@@ -425,7 +425,7 @@ func encodeForClause(buf *bytes.Buffer, v *syntax.ForClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -435,20 +435,20 @@ func encodeForClause(buf *bytes.Buffer, v *syntax.ForClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.DoLast[i], false)
+		encodeComment(buf, &v.DoLast[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeWordIter(buf *bytes.Buffer, v *syntax.WordIter, force bool) {
+func encodeWordIter(buf *bytes.Buffer, v *syntax.WordIter) {
 	writeNodeStart(buf, "WordIter", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "name", &first)
 	if v.Name == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Name, false)
+		encodeLit(buf, v.Name)
 	}
 	writeKeyFirst(buf, "inPos", &first)
 	writePos(buf, v.InPos)
@@ -461,14 +461,14 @@ func encodeWordIter(buf *bytes.Buffer, v *syntax.WordIter, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeWord(buf, item, false)
+			encodeWord(buf, item)
 		}
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeCStyleLoop(buf *bytes.Buffer, v *syntax.CStyleLoop, force bool) {
+func encodeCStyleLoop(buf *bytes.Buffer, v *syntax.CStyleLoop) {
 	writeNodeStart(buf, "CStyleLoop", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lparen", &first)
@@ -476,15 +476,15 @@ func encodeCStyleLoop(buf *bytes.Buffer, v *syntax.CStyleLoop, force bool) {
 	writeKeyFirst(buf, "rparen", &first)
 	writePos(buf, v.Rparen)
 	writeKeyFirst(buf, "init", &first)
-	encodeArithmExpr(buf, v.Init, true)
+	encodeArithmExpr(buf, v.Init)
 	writeKeyFirst(buf, "cond", &first)
-	encodeArithmExpr(buf, v.Cond, true)
+	encodeArithmExpr(buf, v.Cond)
 	writeKeyFirst(buf, "post", &first)
-	encodeArithmExpr(buf, v.Post, true)
+	encodeArithmExpr(buf, v.Post)
 	buf.WriteByte('}')
 }
 
-func encodeBinaryCmd(buf *bytes.Buffer, v *syntax.BinaryCmd, force bool) {
+func encodeBinaryCmd(buf *bytes.Buffer, v *syntax.BinaryCmd) {
 	writeNodeStart(buf, "BinaryCmd", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -495,18 +495,18 @@ func encodeBinaryCmd(buf *bytes.Buffer, v *syntax.BinaryCmd, force bool) {
 	if v.X == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.X, false)
+		encodeStmt(buf, v.X)
 	}
 	writeKeyFirst(buf, "y", &first)
 	if v.Y == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.Y, false)
+		encodeStmt(buf, v.Y)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeFuncDecl(buf *bytes.Buffer, v *syntax.FuncDecl, force bool) {
+func encodeFuncDecl(buf *bytes.Buffer, v *syntax.FuncDecl) {
 	writeNodeStart(buf, "FuncDecl", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "position", &first)
@@ -519,7 +519,7 @@ func encodeFuncDecl(buf *bytes.Buffer, v *syntax.FuncDecl, force bool) {
 	if v.Name == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Name, false)
+		encodeLit(buf, v.Name)
 	}
 	writeKeyFirst(buf, "names", &first)
 	buf.WriteByte('[')
@@ -530,7 +530,7 @@ func encodeFuncDecl(buf *bytes.Buffer, v *syntax.FuncDecl, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeLit(buf, item, false)
+			encodeLit(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -538,12 +538,12 @@ func encodeFuncDecl(buf *bytes.Buffer, v *syntax.FuncDecl, force bool) {
 	if v.Body == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.Body, false)
+		encodeStmt(buf, v.Body)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeWord(buf *bytes.Buffer, v *syntax.Word, force bool) {
+func encodeWord(buf *bytes.Buffer, v *syntax.Word) {
 	writeNodeStart(buf, "Word", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "parts", &first)
@@ -552,13 +552,13 @@ func encodeWord(buf *bytes.Buffer, v *syntax.Word, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeWordPart(buf, item, true)
+		encodeWordPart(buf, item)
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeLit(buf *bytes.Buffer, v *syntax.Lit, force bool) {
+func encodeLit(buf *bytes.Buffer, v *syntax.Lit) {
 	writeNodeStart(buf, "Lit", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "valuePos", &first)
@@ -570,7 +570,7 @@ func encodeLit(buf *bytes.Buffer, v *syntax.Lit, force bool) {
 	buf.WriteByte('}')
 }
 
-func encodeSglQuoted(buf *bytes.Buffer, v *syntax.SglQuoted, force bool) {
+func encodeSglQuoted(buf *bytes.Buffer, v *syntax.SglQuoted) {
 	writeNodeStart(buf, "SglQuoted", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -584,7 +584,7 @@ func encodeSglQuoted(buf *bytes.Buffer, v *syntax.SglQuoted, force bool) {
 	buf.WriteByte('}')
 }
 
-func encodeDblQuoted(buf *bytes.Buffer, v *syntax.DblQuoted, force bool) {
+func encodeDblQuoted(buf *bytes.Buffer, v *syntax.DblQuoted) {
 	writeNodeStart(buf, "DblQuoted", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -599,13 +599,13 @@ func encodeDblQuoted(buf *bytes.Buffer, v *syntax.DblQuoted, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeWordPart(buf, item, true)
+		encodeWordPart(buf, item)
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeCmdSubst(buf *bytes.Buffer, v *syntax.CmdSubst, force bool) {
+func encodeCmdSubst(buf *bytes.Buffer, v *syntax.CmdSubst) {
 	writeNodeStart(buf, "CmdSubst", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -621,7 +621,7 @@ func encodeCmdSubst(buf *bytes.Buffer, v *syntax.CmdSubst, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -631,7 +631,7 @@ func encodeCmdSubst(buf *bytes.Buffer, v *syntax.CmdSubst, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "backquotes", &first)
@@ -643,7 +643,7 @@ func encodeCmdSubst(buf *bytes.Buffer, v *syntax.CmdSubst, force bool) {
 	buf.WriteByte('}')
 }
 
-func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp, force bool) {
+func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp) {
 	writeNodeStart(buf, "ParamExp", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "dollar", &first)
@@ -656,7 +656,7 @@ func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp, force bool) {
 	if v.Flags == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Flags, false)
+		encodeLit(buf, v.Flags)
 	}
 	writeKeyFirst(buf, "excl", &first)
 	writeBool(buf, v.Excl)
@@ -670,12 +670,12 @@ func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp, force bool) {
 	if v.Param == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Param, false)
+		encodeLit(buf, v.Param)
 	}
 	writeKeyFirst(buf, "nestedParam", &first)
-	encodeWordPart(buf, v.NestedParam, true)
+	encodeWordPart(buf, v.NestedParam)
 	writeKeyFirst(buf, "index", &first)
-	encodeArithmExpr(buf, v.Index, true)
+	encodeArithmExpr(buf, v.Index)
 	writeKeyFirst(buf, "modifiers", &first)
 	buf.WriteByte('[')
 	for i, item := range v.Modifiers {
@@ -685,7 +685,7 @@ func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeLit(buf, item, false)
+			encodeLit(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -716,9 +716,9 @@ func encodeSlice(buf *bytes.Buffer, v *syntax.Slice) {
 	buf.WriteByte('{')
 	first := true
 	writeKeyFirst(buf, "offset", &first)
-	encodeArithmExpr(buf, v.Offset, true)
+	encodeArithmExpr(buf, v.Offset)
 	writeKeyFirst(buf, "length", &first)
-	encodeArithmExpr(buf, v.Length, true)
+	encodeArithmExpr(buf, v.Length)
 	buf.WriteByte('}')
 }
 
@@ -731,13 +731,13 @@ func encodeReplace(buf *bytes.Buffer, v *syntax.Replace) {
 	if v.Orig == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Orig, false)
+		encodeWord(buf, v.Orig)
 	}
 	writeKeyFirst(buf, "with", &first)
 	if v.With == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.With, false)
+		encodeWord(buf, v.With)
 	}
 	buf.WriteByte('}')
 }
@@ -751,12 +751,12 @@ func encodeExpansion(buf *bytes.Buffer, v *syntax.Expansion) {
 	if v.Word == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Word, false)
+		encodeWord(buf, v.Word)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeArithmExp(buf *bytes.Buffer, v *syntax.ArithmExp, force bool) {
+func encodeArithmExp(buf *bytes.Buffer, v *syntax.ArithmExp) {
 	writeNodeStart(buf, "ArithmExp", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -768,11 +768,11 @@ func encodeArithmExp(buf *bytes.Buffer, v *syntax.ArithmExp, force bool) {
 	writeKeyFirst(buf, "unsigned", &first)
 	writeBool(buf, v.Unsigned)
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeArithmCmd(buf *bytes.Buffer, v *syntax.ArithmCmd, force bool) {
+func encodeArithmCmd(buf *bytes.Buffer, v *syntax.ArithmCmd) {
 	writeNodeStart(buf, "ArithmCmd", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -782,11 +782,11 @@ func encodeArithmCmd(buf *bytes.Buffer, v *syntax.ArithmCmd, force bool) {
 	writeKeyFirst(buf, "unsigned", &first)
 	writeBool(buf, v.Unsigned)
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeBinaryArithm(buf *bytes.Buffer, v *syntax.BinaryArithm, force bool) {
+func encodeBinaryArithm(buf *bytes.Buffer, v *syntax.BinaryArithm) {
 	writeNodeStart(buf, "BinaryArithm", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -794,13 +794,13 @@ func encodeBinaryArithm(buf *bytes.Buffer, v *syntax.BinaryArithm, force bool) {
 	writeKeyFirst(buf, "op", &first)
 	writeUint(buf, uint64(v.Op))
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	writeKeyFirst(buf, "y", &first)
-	encodeArithmExpr(buf, v.Y, true)
+	encodeArithmExpr(buf, v.Y)
 	buf.WriteByte('}')
 }
 
-func encodeUnaryArithm(buf *bytes.Buffer, v *syntax.UnaryArithm, force bool) {
+func encodeUnaryArithm(buf *bytes.Buffer, v *syntax.UnaryArithm) {
 	writeNodeStart(buf, "UnaryArithm", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -810,11 +810,11 @@ func encodeUnaryArithm(buf *bytes.Buffer, v *syntax.UnaryArithm, force bool) {
 	writeKeyFirst(buf, "post", &first)
 	writeBool(buf, v.Post)
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeParenArithm(buf *bytes.Buffer, v *syntax.ParenArithm, force bool) {
+func encodeParenArithm(buf *bytes.Buffer, v *syntax.ParenArithm) {
 	writeNodeStart(buf, "ParenArithm", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lparen", &first)
@@ -822,25 +822,25 @@ func encodeParenArithm(buf *bytes.Buffer, v *syntax.ParenArithm, force bool) {
 	writeKeyFirst(buf, "rparen", &first)
 	writePos(buf, v.Rparen)
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeFlagsArithm(buf *bytes.Buffer, v *syntax.FlagsArithm, force bool) {
+func encodeFlagsArithm(buf *bytes.Buffer, v *syntax.FlagsArithm) {
 	writeNodeStart(buf, "FlagsArithm", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "flags", &first)
 	if v.Flags == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Flags, false)
+		encodeLit(buf, v.Flags)
 	}
 	writeKeyFirst(buf, "x", &first)
-	encodeArithmExpr(buf, v.X, true)
+	encodeArithmExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeCaseClause(buf *bytes.Buffer, v *syntax.CaseClause, force bool) {
+func encodeCaseClause(buf *bytes.Buffer, v *syntax.CaseClause) {
 	writeNodeStart(buf, "CaseClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "case", &first)
@@ -855,7 +855,7 @@ func encodeCaseClause(buf *bytes.Buffer, v *syntax.CaseClause, force bool) {
 	if v.Word == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Word, false)
+		encodeWord(buf, v.Word)
 	}
 	writeKeyFirst(buf, "items", &first)
 	buf.WriteByte('[')
@@ -866,7 +866,7 @@ func encodeCaseClause(buf *bytes.Buffer, v *syntax.CaseClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeCaseItem(buf, item, false)
+			encodeCaseItem(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -876,13 +876,13 @@ func encodeCaseClause(buf *bytes.Buffer, v *syntax.CaseClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem, force bool) {
+func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem) {
 	writeNodeStart(buf, "CaseItem", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "op", &first)
@@ -895,7 +895,7 @@ func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Comments[i], false)
+		encodeComment(buf, &v.Comments[i])
 	}
 	buf.WriteByte(']')
 	writeKeyFirst(buf, "patterns", &first)
@@ -907,7 +907,7 @@ func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeWord(buf, item, false)
+			encodeWord(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -920,7 +920,7 @@ func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -930,13 +930,13 @@ func encodeCaseItem(buf *bytes.Buffer, v *syntax.CaseItem, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeTestClause(buf *bytes.Buffer, v *syntax.TestClause, force bool) {
+func encodeTestClause(buf *bytes.Buffer, v *syntax.TestClause) {
 	writeNodeStart(buf, "TestClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "left", &first)
@@ -944,11 +944,11 @@ func encodeTestClause(buf *bytes.Buffer, v *syntax.TestClause, force bool) {
 	writeKeyFirst(buf, "right", &first)
 	writePos(buf, v.Right)
 	writeKeyFirst(buf, "x", &first)
-	encodeTestExpr(buf, v.X, true)
+	encodeTestExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeBinaryTest(buf *bytes.Buffer, v *syntax.BinaryTest, force bool) {
+func encodeBinaryTest(buf *bytes.Buffer, v *syntax.BinaryTest) {
 	writeNodeStart(buf, "BinaryTest", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -956,13 +956,13 @@ func encodeBinaryTest(buf *bytes.Buffer, v *syntax.BinaryTest, force bool) {
 	writeKeyFirst(buf, "op", &first)
 	writeUint(buf, uint64(v.Op))
 	writeKeyFirst(buf, "x", &first)
-	encodeTestExpr(buf, v.X, true)
+	encodeTestExpr(buf, v.X)
 	writeKeyFirst(buf, "y", &first)
-	encodeTestExpr(buf, v.Y, true)
+	encodeTestExpr(buf, v.Y)
 	buf.WriteByte('}')
 }
 
-func encodeUnaryTest(buf *bytes.Buffer, v *syntax.UnaryTest, force bool) {
+func encodeUnaryTest(buf *bytes.Buffer, v *syntax.UnaryTest) {
 	writeNodeStart(buf, "UnaryTest", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -970,11 +970,11 @@ func encodeUnaryTest(buf *bytes.Buffer, v *syntax.UnaryTest, force bool) {
 	writeKeyFirst(buf, "op", &first)
 	writeUint(buf, uint64(v.Op))
 	writeKeyFirst(buf, "x", &first)
-	encodeTestExpr(buf, v.X, true)
+	encodeTestExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeParenTest(buf *bytes.Buffer, v *syntax.ParenTest, force bool) {
+func encodeParenTest(buf *bytes.Buffer, v *syntax.ParenTest) {
 	writeNodeStart(buf, "ParenTest", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lparen", &first)
@@ -982,18 +982,18 @@ func encodeParenTest(buf *bytes.Buffer, v *syntax.ParenTest, force bool) {
 	writeKeyFirst(buf, "rparen", &first)
 	writePos(buf, v.Rparen)
 	writeKeyFirst(buf, "x", &first)
-	encodeTestExpr(buf, v.X, true)
+	encodeTestExpr(buf, v.X)
 	buf.WriteByte('}')
 }
 
-func encodeDeclClause(buf *bytes.Buffer, v *syntax.DeclClause, force bool) {
+func encodeDeclClause(buf *bytes.Buffer, v *syntax.DeclClause) {
 	writeNodeStart(buf, "DeclClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "variant", &first)
 	if v.Variant == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Variant, false)
+		encodeLit(buf, v.Variant)
 	}
 	writeKeyFirst(buf, "args", &first)
 	buf.WriteByte('[')
@@ -1004,14 +1004,14 @@ func encodeDeclClause(buf *bytes.Buffer, v *syntax.DeclClause, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeAssign(buf, item, false)
+			encodeAssign(buf, item)
 		}
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeArrayExpr(buf *bytes.Buffer, v *syntax.ArrayExpr, force bool) {
+func encodeArrayExpr(buf *bytes.Buffer, v *syntax.ArrayExpr) {
 	writeNodeStart(buf, "ArrayExpr", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "lparen", &first)
@@ -1027,7 +1027,7 @@ func encodeArrayExpr(buf *bytes.Buffer, v *syntax.ArrayExpr, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeArrayElem(buf, item, false)
+			encodeArrayElem(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -1037,22 +1037,22 @@ func encodeArrayExpr(buf *bytes.Buffer, v *syntax.ArrayExpr, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeArrayElem(buf *bytes.Buffer, v *syntax.ArrayElem, force bool) {
+func encodeArrayElem(buf *bytes.Buffer, v *syntax.ArrayElem) {
 	writeNodeStart(buf, "ArrayElem", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "index", &first)
-	encodeArithmExpr(buf, v.Index, true)
+	encodeArithmExpr(buf, v.Index)
 	writeKeyFirst(buf, "value", &first)
 	if v.Value == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Value, false)
+		encodeWord(buf, v.Value)
 	}
 	writeKeyFirst(buf, "comments", &first)
 	buf.WriteByte('[')
@@ -1060,13 +1060,13 @@ func encodeArrayElem(buf *bytes.Buffer, v *syntax.ArrayElem, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Comments[i], false)
+		encodeComment(buf, &v.Comments[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeExtGlob(buf *bytes.Buffer, v *syntax.ExtGlob, force bool) {
+func encodeExtGlob(buf *bytes.Buffer, v *syntax.ExtGlob) {
 	writeNodeStart(buf, "ExtGlob", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -1077,12 +1077,12 @@ func encodeExtGlob(buf *bytes.Buffer, v *syntax.ExtGlob, force bool) {
 	if v.Pattern == nil {
 		buf.WriteString("null")
 	} else {
-		encodeLit(buf, v.Pattern, false)
+		encodeLit(buf, v.Pattern)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeProcSubst(buf *bytes.Buffer, v *syntax.ProcSubst, force bool) {
+func encodeProcSubst(buf *bytes.Buffer, v *syntax.ProcSubst) {
 	writeNodeStart(buf, "ProcSubst", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "opPos", &first)
@@ -1100,7 +1100,7 @@ func encodeProcSubst(buf *bytes.Buffer, v *syntax.ProcSubst, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeStmt(buf, item, false)
+			encodeStmt(buf, item)
 		}
 	}
 	buf.WriteByte(']')
@@ -1110,13 +1110,13 @@ func encodeProcSubst(buf *bytes.Buffer, v *syntax.ProcSubst, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeComment(buf, &v.Last[i], false)
+		encodeComment(buf, &v.Last[i])
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeTimeClause(buf *bytes.Buffer, v *syntax.TimeClause, force bool) {
+func encodeTimeClause(buf *bytes.Buffer, v *syntax.TimeClause) {
 	writeNodeStart(buf, "TimeClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "time", &first)
@@ -1127,12 +1127,12 @@ func encodeTimeClause(buf *bytes.Buffer, v *syntax.TimeClause, force bool) {
 	if v.Stmt == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.Stmt, false)
+		encodeStmt(buf, v.Stmt)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeCoprocClause(buf *bytes.Buffer, v *syntax.CoprocClause, force bool) {
+func encodeCoprocClause(buf *bytes.Buffer, v *syntax.CoprocClause) {
 	writeNodeStart(buf, "CoprocClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "coproc", &first)
@@ -1141,18 +1141,18 @@ func encodeCoprocClause(buf *bytes.Buffer, v *syntax.CoprocClause, force bool) {
 	if v.Name == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Name, false)
+		encodeWord(buf, v.Name)
 	}
 	writeKeyFirst(buf, "stmt", &first)
 	if v.Stmt == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.Stmt, false)
+		encodeStmt(buf, v.Stmt)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeLetClause(buf *bytes.Buffer, v *syntax.LetClause, force bool) {
+func encodeLetClause(buf *bytes.Buffer, v *syntax.LetClause) {
 	writeNodeStart(buf, "LetClause", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "let", &first)
@@ -1163,13 +1163,13 @@ func encodeLetClause(buf *bytes.Buffer, v *syntax.LetClause, force bool) {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		encodeArithmExpr(buf, item, true)
+		encodeArithmExpr(buf, item)
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeBraceExp(buf *bytes.Buffer, v *syntax.BraceExp, force bool) {
+func encodeBraceExp(buf *bytes.Buffer, v *syntax.BraceExp) {
 	writeNodeStart(buf, "BraceExp", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "sequence", &first)
@@ -1183,14 +1183,14 @@ func encodeBraceExp(buf *bytes.Buffer, v *syntax.BraceExp, force bool) {
 		if item == nil {
 			buf.WriteString("null")
 		} else {
-			encodeWord(buf, item, false)
+			encodeWord(buf, item)
 		}
 	}
 	buf.WriteByte(']')
 	buf.WriteByte('}')
 }
 
-func encodeTestDecl(buf *bytes.Buffer, v *syntax.TestDecl, force bool) {
+func encodeTestDecl(buf *bytes.Buffer, v *syntax.TestDecl) {
 	writeNodeStart(buf, "TestDecl", v.Pos(), v.End())
 	first := false
 	writeKeyFirst(buf, "position", &first)
@@ -1199,139 +1199,139 @@ func encodeTestDecl(buf *bytes.Buffer, v *syntax.TestDecl, force bool) {
 	if v.Description == nil {
 		buf.WriteString("null")
 	} else {
-		encodeWord(buf, v.Description, false)
+		encodeWord(buf, v.Description)
 	}
 	writeKeyFirst(buf, "body", &first)
 	if v.Body == nil {
 		buf.WriteString("null")
 	} else {
-		encodeStmt(buf, v.Body, false)
+		encodeStmt(buf, v.Body)
 	}
 	buf.WriteByte('}')
 }
 
-func encodeCommand(buf *bytes.Buffer, v syntax.Command, force bool) {
+func encodeCommand(buf *bytes.Buffer, v syntax.Command) {
 	if v == nil {
 		buf.WriteString("null")
 		return
 	}
 	switch v := v.(type) {
 	case *syntax.CallExpr:
-		encodeCallExpr(buf, v, force)
+		encodeCallExpr(buf, v)
 	case *syntax.IfClause:
-		encodeIfClause(buf, v, force)
+		encodeIfClause(buf, v)
 	case *syntax.WhileClause:
-		encodeWhileClause(buf, v, force)
+		encodeWhileClause(buf, v)
 	case *syntax.ForClause:
-		encodeForClause(buf, v, force)
+		encodeForClause(buf, v)
 	case *syntax.CaseClause:
-		encodeCaseClause(buf, v, force)
+		encodeCaseClause(buf, v)
 	case *syntax.Block:
-		encodeBlock(buf, v, force)
+		encodeBlock(buf, v)
 	case *syntax.Subshell:
-		encodeSubshell(buf, v, force)
+		encodeSubshell(buf, v)
 	case *syntax.BinaryCmd:
-		encodeBinaryCmd(buf, v, force)
+		encodeBinaryCmd(buf, v)
 	case *syntax.FuncDecl:
-		encodeFuncDecl(buf, v, force)
+		encodeFuncDecl(buf, v)
 	case *syntax.ArithmCmd:
-		encodeArithmCmd(buf, v, force)
+		encodeArithmCmd(buf, v)
 	case *syntax.TestClause:
-		encodeTestClause(buf, v, force)
+		encodeTestClause(buf, v)
 	case *syntax.DeclClause:
-		encodeDeclClause(buf, v, force)
+		encodeDeclClause(buf, v)
 	case *syntax.LetClause:
-		encodeLetClause(buf, v, force)
+		encodeLetClause(buf, v)
 	case *syntax.TimeClause:
-		encodeTimeClause(buf, v, force)
+		encodeTimeClause(buf, v)
 	case *syntax.CoprocClause:
-		encodeCoprocClause(buf, v, force)
+		encodeCoprocClause(buf, v)
 	case *syntax.TestDecl:
-		encodeTestDecl(buf, v, force)
+		encodeTestDecl(buf, v)
 	default:
 		buf.WriteString("null")
 	}
 }
 
-func encodeWordPart(buf *bytes.Buffer, v syntax.WordPart, force bool) {
+func encodeWordPart(buf *bytes.Buffer, v syntax.WordPart) {
 	if v == nil {
 		buf.WriteString("null")
 		return
 	}
 	switch v := v.(type) {
 	case *syntax.Lit:
-		encodeLit(buf, v, force)
+		encodeLit(buf, v)
 	case *syntax.SglQuoted:
-		encodeSglQuoted(buf, v, force)
+		encodeSglQuoted(buf, v)
 	case *syntax.DblQuoted:
-		encodeDblQuoted(buf, v, force)
+		encodeDblQuoted(buf, v)
 	case *syntax.ParamExp:
-		encodeParamExp(buf, v, force)
+		encodeParamExp(buf, v)
 	case *syntax.CmdSubst:
-		encodeCmdSubst(buf, v, force)
+		encodeCmdSubst(buf, v)
 	case *syntax.ArithmExp:
-		encodeArithmExp(buf, v, force)
+		encodeArithmExp(buf, v)
 	case *syntax.ProcSubst:
-		encodeProcSubst(buf, v, force)
+		encodeProcSubst(buf, v)
 	case *syntax.ExtGlob:
-		encodeExtGlob(buf, v, force)
+		encodeExtGlob(buf, v)
 	case *syntax.BraceExp:
-		encodeBraceExp(buf, v, force)
+		encodeBraceExp(buf, v)
 	default:
 		buf.WriteString("null")
 	}
 }
 
-func encodeLoop(buf *bytes.Buffer, v syntax.Loop, force bool) {
+func encodeLoop(buf *bytes.Buffer, v syntax.Loop) {
 	if v == nil {
 		buf.WriteString("null")
 		return
 	}
 	switch v := v.(type) {
 	case *syntax.WordIter:
-		encodeWordIter(buf, v, force)
+		encodeWordIter(buf, v)
 	case *syntax.CStyleLoop:
-		encodeCStyleLoop(buf, v, force)
+		encodeCStyleLoop(buf, v)
 	default:
 		buf.WriteString("null")
 	}
 }
 
-func encodeArithmExpr(buf *bytes.Buffer, v syntax.ArithmExpr, force bool) {
+func encodeArithmExpr(buf *bytes.Buffer, v syntax.ArithmExpr) {
 	if v == nil {
 		buf.WriteString("null")
 		return
 	}
 	switch v := v.(type) {
 	case *syntax.BinaryArithm:
-		encodeBinaryArithm(buf, v, force)
+		encodeBinaryArithm(buf, v)
 	case *syntax.UnaryArithm:
-		encodeUnaryArithm(buf, v, force)
+		encodeUnaryArithm(buf, v)
 	case *syntax.ParenArithm:
-		encodeParenArithm(buf, v, force)
+		encodeParenArithm(buf, v)
 	case *syntax.FlagsArithm:
-		encodeFlagsArithm(buf, v, force)
+		encodeFlagsArithm(buf, v)
 	case *syntax.Word:
-		encodeWord(buf, v, force)
+		encodeWord(buf, v)
 	default:
 		buf.WriteString("null")
 	}
 }
 
-func encodeTestExpr(buf *bytes.Buffer, v syntax.TestExpr, force bool) {
+func encodeTestExpr(buf *bytes.Buffer, v syntax.TestExpr) {
 	if v == nil {
 		buf.WriteString("null")
 		return
 	}
 	switch v := v.(type) {
 	case *syntax.BinaryTest:
-		encodeBinaryTest(buf, v, force)
+		encodeBinaryTest(buf, v)
 	case *syntax.UnaryTest:
-		encodeUnaryTest(buf, v, force)
+		encodeUnaryTest(buf, v)
 	case *syntax.ParenTest:
-		encodeParenTest(buf, v, force)
+		encodeParenTest(buf, v)
 	case *syntax.Word:
-		encodeWord(buf, v, force)
+		encodeWord(buf, v)
 	default:
 		buf.WriteString("null")
 	}
@@ -1342,91 +1342,91 @@ func EncodeNode(w io.Writer, node syntax.Node) error {
 	var buf bytes.Buffer
 	switch node := node.(type) {
 	case *syntax.File:
-		encodeFile(&buf, node, true)
+		encodeFile(&buf, node)
 	case *syntax.Comment:
-		encodeComment(&buf, node, true)
+		encodeComment(&buf, node)
 	case *syntax.Stmt:
-		encodeStmt(&buf, node, true)
+		encodeStmt(&buf, node)
 	case *syntax.Assign:
-		encodeAssign(&buf, node, true)
+		encodeAssign(&buf, node)
 	case *syntax.Redirect:
-		encodeRedirect(&buf, node, true)
+		encodeRedirect(&buf, node)
 	case *syntax.CallExpr:
-		encodeCallExpr(&buf, node, true)
+		encodeCallExpr(&buf, node)
 	case *syntax.Subshell:
-		encodeSubshell(&buf, node, true)
+		encodeSubshell(&buf, node)
 	case *syntax.Block:
-		encodeBlock(&buf, node, true)
+		encodeBlock(&buf, node)
 	case *syntax.IfClause:
-		encodeIfClause(&buf, node, true)
+		encodeIfClause(&buf, node)
 	case *syntax.WhileClause:
-		encodeWhileClause(&buf, node, true)
+		encodeWhileClause(&buf, node)
 	case *syntax.ForClause:
-		encodeForClause(&buf, node, true)
+		encodeForClause(&buf, node)
 	case *syntax.WordIter:
-		encodeWordIter(&buf, node, true)
+		encodeWordIter(&buf, node)
 	case *syntax.CStyleLoop:
-		encodeCStyleLoop(&buf, node, true)
+		encodeCStyleLoop(&buf, node)
 	case *syntax.BinaryCmd:
-		encodeBinaryCmd(&buf, node, true)
+		encodeBinaryCmd(&buf, node)
 	case *syntax.FuncDecl:
-		encodeFuncDecl(&buf, node, true)
+		encodeFuncDecl(&buf, node)
 	case *syntax.Word:
-		encodeWord(&buf, node, true)
+		encodeWord(&buf, node)
 	case *syntax.Lit:
-		encodeLit(&buf, node, true)
+		encodeLit(&buf, node)
 	case *syntax.SglQuoted:
-		encodeSglQuoted(&buf, node, true)
+		encodeSglQuoted(&buf, node)
 	case *syntax.DblQuoted:
-		encodeDblQuoted(&buf, node, true)
+		encodeDblQuoted(&buf, node)
 	case *syntax.CmdSubst:
-		encodeCmdSubst(&buf, node, true)
+		encodeCmdSubst(&buf, node)
 	case *syntax.ParamExp:
-		encodeParamExp(&buf, node, true)
+		encodeParamExp(&buf, node)
 	case *syntax.ArithmExp:
-		encodeArithmExp(&buf, node, true)
+		encodeArithmExp(&buf, node)
 	case *syntax.ArithmCmd:
-		encodeArithmCmd(&buf, node, true)
+		encodeArithmCmd(&buf, node)
 	case *syntax.BinaryArithm:
-		encodeBinaryArithm(&buf, node, true)
+		encodeBinaryArithm(&buf, node)
 	case *syntax.UnaryArithm:
-		encodeUnaryArithm(&buf, node, true)
+		encodeUnaryArithm(&buf, node)
 	case *syntax.ParenArithm:
-		encodeParenArithm(&buf, node, true)
+		encodeParenArithm(&buf, node)
 	case *syntax.FlagsArithm:
-		encodeFlagsArithm(&buf, node, true)
+		encodeFlagsArithm(&buf, node)
 	case *syntax.CaseClause:
-		encodeCaseClause(&buf, node, true)
+		encodeCaseClause(&buf, node)
 	case *syntax.CaseItem:
-		encodeCaseItem(&buf, node, true)
+		encodeCaseItem(&buf, node)
 	case *syntax.TestClause:
-		encodeTestClause(&buf, node, true)
+		encodeTestClause(&buf, node)
 	case *syntax.BinaryTest:
-		encodeBinaryTest(&buf, node, true)
+		encodeBinaryTest(&buf, node)
 	case *syntax.UnaryTest:
-		encodeUnaryTest(&buf, node, true)
+		encodeUnaryTest(&buf, node)
 	case *syntax.ParenTest:
-		encodeParenTest(&buf, node, true)
+		encodeParenTest(&buf, node)
 	case *syntax.DeclClause:
-		encodeDeclClause(&buf, node, true)
+		encodeDeclClause(&buf, node)
 	case *syntax.ArrayExpr:
-		encodeArrayExpr(&buf, node, true)
+		encodeArrayExpr(&buf, node)
 	case *syntax.ArrayElem:
-		encodeArrayElem(&buf, node, true)
+		encodeArrayElem(&buf, node)
 	case *syntax.ExtGlob:
-		encodeExtGlob(&buf, node, true)
+		encodeExtGlob(&buf, node)
 	case *syntax.ProcSubst:
-		encodeProcSubst(&buf, node, true)
+		encodeProcSubst(&buf, node)
 	case *syntax.TimeClause:
-		encodeTimeClause(&buf, node, true)
+		encodeTimeClause(&buf, node)
 	case *syntax.CoprocClause:
-		encodeCoprocClause(&buf, node, true)
+		encodeCoprocClause(&buf, node)
 	case *syntax.LetClause:
-		encodeLetClause(&buf, node, true)
+		encodeLetClause(&buf, node)
 	case *syntax.BraceExp:
-		encodeBraceExp(&buf, node, true)
+		encodeBraceExp(&buf, node)
 	case *syntax.TestDecl:
-		encodeTestDecl(&buf, node, true)
+		encodeTestDecl(&buf, node)
 	default:
 		buf.WriteString("null")
 	}

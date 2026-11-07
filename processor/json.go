@@ -1,15 +1,14 @@
-// Package processor bridges mvdan.cc/sh's syntax tree to and from JSON.
+// Package processor bridges mvdan.cc/sh's syntax tree to JSON.
 package processor
 
-// The encoder and decoder in this file are derived from
-// mvdan.cc/sh/v3/syntax/typedjson, which is licensed under the BSD 3-Clause
-// license:
+// The encoder is derived from mvdan.cc/sh/v3/syntax/typedjson, which is
+// licensed under the BSD 3-Clause license:
 //
 // Copyright (c) 2017, Daniel Martí <mvdan@mvdan.cc>
 // See https://github.com/mvdan/sh/blob/master/LICENSE for details.
 //
 // Unlike typedjson, the encoder emits every field, including empty slices and
-// invalid positions, and adds a "__type" key to every syntax node. JavaScript
+// invalid positions, and adds a "type" key to every syntax node. JavaScript
 // consumers get a tree that mirrors the Go structs, including the zero values
 // that the GopherJS build of mvdan-sh exposes.
 
@@ -67,6 +66,10 @@ func writeUint(buf *bytes.Buffer, value uint64) {
 }
 
 func writePos(buf *bytes.Buffer, pos syntax.Pos) {
+	if pos.IsRecovered() {
+		buf.WriteString(`{"offset":0,"line":0,"column":0,"recovered":true}`)
+		return
+	}
 	if !pos.IsValid() {
 		buf.WriteString(`{"offset":0,"line":0,"column":0}`)
 		return
@@ -117,14 +120,16 @@ func MapParseError(err error) (*ParseError, string) {
 
 func newParseError(parseError syntax.ParseError) *ParseError {
 	pos := parseError.Pos
+	errorPos := &ErrorPos{}
+	if pos.IsValid() {
+		errorPos.Offset = pos.Offset()
+		errorPos.Line = pos.Line()
+		errorPos.Column = pos.Col() - 1
+	}
 	return &ParseError{
 		Filename:   parseError.Filename,
 		Incomplete: parseError.Incomplete,
 		Text:       parseError.Text,
-		Pos: &ErrorPos{
-			Offset: pos.Offset(),
-			Line:   pos.Line(),
-			Column: pos.Col() - 1,
-		},
+		Pos:        errorPos,
 	}
 }

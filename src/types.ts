@@ -192,6 +192,8 @@ export interface Pos {
   offset: number
   line: number
   column: number
+  /** Set when the parser recovered this position due to recoverErrors. */
+  recovered?: boolean
 }
 
 export interface Node {
@@ -207,6 +209,11 @@ export interface Comment extends Node {
 
 export interface Word extends Node {
   parts: Node[]
+}
+
+export interface CallExpr extends Node {
+  assigns: Node[]
+  args: Word[]
 }
 
 export interface Lit extends Node {

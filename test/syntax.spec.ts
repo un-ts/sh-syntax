@@ -91,6 +91,18 @@ test('language errors become SyntaxError', async () => {
   ).rejects.toBeInstanceOf(SyntaxError)
 })
 
+test('recoverErrors marks recovered positions', () => {
+  const ast = parseSync('(foo |\n', { recoverErrors: 2 })
+  expect(JSON.stringify(ast)).toContain('"recovered":true')
+})
+
+test('unsupported variants are rejected', () => {
+  expect(() => parseSync('echo hi', { variant: LangVariant.LangAuto })).toThrow(
+    TypeError,
+  )
+  expect(() => parseSync('echo hi', { variant: 0 })).toThrow(TypeError)
+})
+
 test('lang variants are exported', () => {
   expect(LangVariant.LangBash).toBe(1)
   expect(LangVariant.LangPOSIX).toBe(2)

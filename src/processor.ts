@@ -74,6 +74,14 @@ interface RawResult {
   message: string
 }
 
+const supportedVariants = new Set<LangVariant>([
+  LangVariant.LangBash,
+  LangVariant.LangPOSIX,
+  LangVariant.LangMirBSDKorn,
+  LangVariant.LangBats,
+  LangVariant.LangZsh,
+])
+
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
 
@@ -106,6 +114,10 @@ const invoke = (
 ): File | string => {
   encoder ??= new TextEncoder()
   decoder ??= new TextDecoder()
+
+  if (!supportedVariants.has(variant)) {
+    throw new TypeError(`Unsupported shell variant: ${variant}`)
+  }
 
   let text: string
   let printOutput: boolean

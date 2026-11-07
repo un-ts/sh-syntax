@@ -26,12 +26,6 @@ type typeInfo struct {
 	isNode bool
 }
 
-var helperTypes = map[string]bool{
-	"Slice":     true,
-	"Replace":   true,
-	"Expansion": true,
-}
-
 var interfaceMethods = map[string]string{
 	"Command":    "commandNode",
 	"WordPart":   "wordPartNode",
@@ -213,11 +207,7 @@ func writeEncoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 
 	for _, name := range allTypes {
 		info := structs[name]
-		sig := ""
-		if !helperTypes[name] {
-			sig = ", force bool"
-		}
-		fmt.Fprintf(buf, "func encode%s(buf *bytes.Buffer, v *syntax.%s%s) {\n", name, name, sig)
+		fmt.Fprintf(buf, "func encode%s(buf *bytes.Buffer, v *syntax.%s) {\n", name, name)
 		if info.isNode {
 			fmt.Fprintf(buf, "\twriteNodeStart(buf, %q, v.Pos(), v.End())\n", name)
 			fmt.Fprintln(buf, "\tfirst := false")
@@ -236,11 +226,11 @@ func writeEncoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 
 	for _, name := range []string{"Command", "WordPart", "Loop", "ArithmExpr", "TestExpr"} {
 		types := interfaces[name]
-		fmt.Fprintf(buf, "func encode%s(buf *bytes.Buffer, v syntax.%s, force bool) {\n", name, name)
+		fmt.Fprintf(buf, "func encode%s(buf *bytes.Buffer, v syntax.%s) {\n", name, name)
 		fmt.Fprintln(buf, "\tif v == nil { buf.WriteString(\"null\"); return }")
 		fmt.Fprintln(buf, "\tswitch v := v.(type) {")
 		for _, typ := range types {
-			fmt.Fprintf(buf, "\tcase *syntax.%s: encode%s(buf, v, force)\n", typ, typ)
+			fmt.Fprintf(buf, "\tcase *syntax.%s: encode%s(buf, v)\n", typ, typ)
 		}
 		fmt.Fprintln(buf, "\tdefault: buf.WriteString(\"null\")")
 		fmt.Fprintln(buf, "\t}")
@@ -253,10 +243,10 @@ func writeEncoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 	fmt.Fprintln(buf, "\tvar buf bytes.Buffer")
 	fmt.Fprintln(buf, "\tswitch node := node.(type) {")
 	for _, name := range allTypes {
-		if helperTypes[name] || !structs[name].isNode {
+		if !structs[name].isNode {
 			continue
 		}
-		fmt.Fprintf(buf, "\tcase *syntax.%s: encode%s(&buf, node, true)\n", name, name)
+		fmt.Fprintf(buf, "\tcase *syntax.%s: encode%s(&buf, node)\n", name, name)
 	}
 	fmt.Fprintln(buf, "\tdefault: buf.WriteString(\"null\")")
 	fmt.Fprintln(buf, "\t}")
@@ -314,21 +304,18 @@ func valueExpr(typ, expr string, interfaces map[string][]string) string {
 		el := strings.TrimPrefix(typ, "[]")
 		if strings.HasPrefix(el, "*") {
 			el = strings.TrimPrefix(el, "*")
-			return fmt.Sprintf("buf.WriteByte('['); for i, item := range %s { if i > 0 { buf.WriteByte(',') }; if item == nil { buf.WriteString(\"null\") } else { encode%s(buf, item, false) } }; buf.WriteByte(']')", expr, el)
+			return fmt.Sprintf("buf.WriteByte('['); for i, item := range %s { if i > 0 { buf.WriteByte(',') }; if item == nil { buf.WriteString(\"null\") } else { encode%s(buf, item) } }; buf.WriteByte(']')", expr, el)
 		}
 		if _, ok := interfaces[el]; ok {
-			return fmt.Sprintf("buf.WriteByte('['); for i, item := range %s { if i > 0 { buf.WriteByte(',') }; encode%s(buf, item, true) }; buf.WriteByte(']')", expr, el)
+			return fmt.Sprintf("buf.WriteByte('['); for i, item := range %s { if i > 0 { buf.WriteByte(',') }; encode%s(buf, item) }; buf.WriteByte(']')", expr, el)
 		}
-		return fmt.Sprintf("buf.WriteByte('['); for i := range %s { if i > 0 { buf.WriteByte(',') }; encode%s(buf, &%s[i], false) }; buf.WriteByte(']')", expr, el, expr)
+		return fmt.Sprintf("buf.WriteByte('['); for i := range %s { if i > 0 { buf.WriteByte(',') }; encode%s(buf, &%s[i]) }; buf.WriteByte(']')", expr, el, expr)
 	case strings.HasPrefix(typ, "*"):
 		el := strings.TrimPrefix(typ, "*")
-		if helperTypes[el] {
-			return fmt.Sprintf("if %s == nil { buf.WriteString(\"null\") } else { encode%s(buf, %s) }", expr, el, expr)
-		}
-		return fmt.Sprintf("if %s == nil { buf.WriteString(\"null\") } else { encode%s(buf, %s, false) }", expr, el, expr)
+		return fmt.Sprintf("if %s == nil { buf.WriteString(\"null\") } else { encode%s(buf, %s) }", expr, el, expr)
 	default:
 		if _, ok := interfaces[typ]; ok {
-			return fmt.Sprintf("encode%s(buf, %s, true)", typ, expr)
+			return fmt.Sprintf("encode%s(buf, %s)", typ, expr)
 		}
 		return fmt.Sprintf("writeUint(buf, uint64(%s))", expr)
 	}
