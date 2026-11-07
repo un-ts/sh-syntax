@@ -11,3 +11,6 @@ node_modules
 native/build/
 native/linux-x64-gnu/build/
 native/linux-x64-gnu/*.log
+
+# Native validation shared library
+/build/
