@@ -263,11 +263,6 @@ export const getProcessorSync = (
   return processor
 }
 
-const isResponseLike = (value: unknown): value is WebAssemblyResponseLike =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as WebAssemblyResponseLike).arrayBuffer === 'function'
-
 export const getProcessor = (
   getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
 ) => {
@@ -280,7 +275,7 @@ export const getProcessor = (
   const loadModule = async (): Promise<WebAssembly.Module> => {
     const source = await (getWasm as GetWebAssemblySource)()
 
-    if (isResponseLike(source)) {
+    if ('arrayBuffer' in source) {
       const contentType = source.headers
         ?.get('content-type')
         ?.split(';')[0]
