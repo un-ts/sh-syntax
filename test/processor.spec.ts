@@ -22,12 +22,12 @@ describe('processor', () => {
     return instance
   }
 
-  const processor = getProcessor(initWasm)
+  const processShell = getProcessor(initWasm)
 
-  const parse = (text: string, options?: ShOptions) => processor(text, options)
+  const parse = (text: string, options?: ShOptions) => processShell(text, options)
 
   const print = (text: string, options?: ShOptions) =>
-    processor(text, {
+    processShell(text, {
       ...options,
       print: true,
     })

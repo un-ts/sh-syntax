@@ -11,9 +11,9 @@ import type { File, ShOptions, ShPrintOptions } from './types.js'
 const importMetaUrl = import.meta.url
 
 /* istanbul ignore next -- @preserve */
-const _dirname = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : __dirname
+const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : __dirname
 
-export const processor = getProcessor(() => fs.readFile(path.resolve(_dirname, '../main.wasm')))
+export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, '../main.wasm')))
 
 export const parse = (text: string, options?: ShOptions) => processor(text, options)
 
@@ -35,7 +35,7 @@ export function print(
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
 const getSyncProcessor = () =>
-  (syncProcessor ??= getProcessorSync(readFileSync(path.resolve(_dirname, '../main.wasm'))))
+  (syncProcessor ??= getProcessorSync(readFileSync(path.resolve(moduleDir, '../main.wasm'))))
 
 export const parseSync = (text: string, options?: ShOptions) => getSyncProcessor()(text, options)
 
