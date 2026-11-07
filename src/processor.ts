@@ -190,10 +190,13 @@ const invoke = (
     message,
   } = JSON.parse(string) as RawResult
 
-  if (parseError || message) {
-    throw parseError == null
-      ? new SyntaxError(message)
-      : new ParseError(parseError)
+  if (parseError) {
+    throw new ParseError(parseError)
+  }
+
+  /* istanbul ignore next -- defensive WASM envelope path */
+  if (message) {
+    throw new SyntaxError(message)
   }
 
   return printOutput ? processedText : file
