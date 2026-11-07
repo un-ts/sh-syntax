@@ -85,6 +85,25 @@ describe('processor', () => {
     }
   })
 
+  test('getProcessor retries module loading after a failure', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    let attempts = 0
+    const processor = getProcessor(() => {
+      attempts++
+      return attempts === 1
+        ? Promise.reject(new Error('load failed'))
+        : Promise.resolve(wasm)
+    })
+
+    await expect(processor('echo hi\n')).rejects.toThrow('load failed')
+    await expect(processor('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+    expect(attempts).toBe(2)
+  })
+
   test('getProcessor accepts response-like sources', async () => {
     const wasm = new Uint8Array(
       readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),

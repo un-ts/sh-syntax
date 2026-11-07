@@ -270,22 +270,18 @@ export const getProcessor = (
     const source = await (getWasm as GetWebAssemblySource)()
 
     if ('arrayBuffer' in source) {
-      const contentType = source.headers
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- response-like sources may omit headers
-        ?.get('content-type')
-        ?.split(';')[0]
-        .trim()
-        .toLowerCase()
-
       /*
-       * Node 16/17 have neither compileStreaming nor Response. Check
-       * compileStreaming first so those runtimes short-circuit before the
-       * instanceof, then fall back to arrayBuffer below.
+       * compileStreaming is only safe for a real, same-realm Response.
+       * Response-like sources and cross-realm responses use arrayBuffer.
        */
       if (
         typeof WebAssembly.compileStreaming === 'function' &&
         source instanceof Response &&
-        contentType === 'application/wasm'
+        source.headers
+          .get('content-type')
+          ?.split(';')[0]
+          .trim()
+          .toLowerCase() === 'application/wasm'
       ) {
         return WebAssembly.compileStreaming(source)
       }
@@ -314,7 +310,11 @@ export const getProcessor = (
     }
 
     if (wasmModulePromise) {
-      wasmModule = await wasmModulePromise
+      try {
+        wasmModule = await wasmModulePromise
+      } finally {
+        wasmModulePromise = undefined
+      }
     }
 
     const go = new Go()
