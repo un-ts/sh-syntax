@@ -189,6 +189,7 @@ export interface ShPrintOptions extends ShOptions {
 }
 
 export type * from './ast-types.js'
+export * from './operators.js'
 
 export interface Pos {
   offset: number

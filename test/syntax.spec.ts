@@ -1,6 +1,7 @@
 import {
   LangVariant,
   ParseError,
+  RedirOperator,
   isIncomplete,
   parse,
   parseSync,
@@ -74,6 +75,11 @@ test('processor(ast, { originalText }) ignores the AST', async () => {
     'echo old\n',
   )
   await expect(processor(ast, {} as never)).rejects.toThrow(TypeError)
+})
+
+test('operator constants match the AST', () => {
+  const ast = parseSync('echo hi > out\n')
+  expect(ast.stmts[0].redirs[0]?.op).toBe(RedirOperator.RdrOut)
 })
 
 test('print formats text', () => {

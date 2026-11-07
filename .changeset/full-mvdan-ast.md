@@ -14,7 +14,8 @@ Return the full shell syntax tree and keep printing source text.
   `Filename` → `filename`, `Incomplete` → `incomplete`, `Text` → `text`,
   and `Pos` → `pos`.
 - Operator-valued fields (`op`) now use the upstream numeric enum values instead
-  of display strings. Typed operator constants are not exported yet.
+  of display strings. Typed constants such as `RedirOperator`,
+  `CaseOperator`, `ProcOperator`, and `BinAritOperator` are exported.
 - `Word.Lit` is gone; use `parts`. `File.Last` is now `lastComments`.
 - `print(ast)` without `originalText` is no longer supported and throws a
   `TypeError`. Printing an edited AST is deferred to a follow-up; the AST is
@@ -28,6 +29,9 @@ Return the full shell syntax tree and keep printing source text.
   position fields are `{ offset, line, column }` objects.
 - Add a `walk()` helper for the typed tree; use `node.type` instead of a
   node-type helper.
+- Public AST types are a discriminated union: `BaseNode` plus literal
+  `type` fields, with `Node`, `Command`, `WordPart`, `Loop`,
+  `ArithmExpr`, and `TestExpr` unions so `node.type` narrows in TypeScript.
 - `print()` continues to format source text. `print(ast, { originalText })`
   and `processor(ast, { originalText })` remain accepted for tooling
   compatibility, but the AST is deliberately ignored and `originalText` is
