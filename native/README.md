@@ -27,7 +27,7 @@ zig c++ -shared -fPIC -I"$NODE_HEADERS/include/node" \
 Validation observed on Linux x64 (Go 1.27.3, Node 26):
 
 - AST parity: 11/11 parseable fixtures matched the WASM AST
-- `install.sh` parse: native ~141ms vs WASM ~247ms (including JSON parsing)
+- `install.sh` parse: native ~190ms vs WASM ~230ms in the latest local run (including JSON parsing; earlier runs ranged 141–190ms vs 230–247ms)
 - 50,000 `parse('echo hi')` calls: RSS +14MB native vs multi-GB/OOM on the current leaking-WASM sync path
 
 These numbers are a spike, not a release guarantee.
