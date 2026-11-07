@@ -23,8 +23,15 @@ export class ParseError extends Error implements IParseError {
 
 export type WebAssemblySource = Buffer | BufferSource
 
+export interface WebAssemblyResponseLike {
+  headers?: { get(name: string): string | null }
+  arrayBuffer(): Promise<ArrayBuffer>
+}
+
+type WebAssemblySourceInput = WebAssemblyResponseLike | WebAssemblySource
+
 export type GetWebAssemblySource = () =>
-  Promise<Response | WebAssemblySource> | Response | WebAssemblySource
+  Promise<WebAssemblySourceInput> | WebAssemblySourceInput
 
 export type GetWebAssemblySourceSync = () => WebAssemblySource
 
@@ -218,7 +225,7 @@ const invoke = (
 }
 
 /**
- * Creates a synchronous processor from WASM bytes that are already available.
+ * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
  * This is useful for Node.js and for callers that preload the WASM file. The
  * asynchronous [getProcessor] remains the recommended browser entry point.
@@ -256,6 +263,11 @@ export const getProcessorSync = (
   return processor
 }
 
+const isResponseLike = (value: unknown): value is WebAssemblyResponseLike =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as WebAssemblyResponseLike).arrayBuffer === 'function'
+
 export const getProcessor = (
   getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
 ) => {
@@ -268,14 +280,16 @@ export const getProcessor = (
   const loadModule = async (): Promise<WebAssembly.Module> => {
     const source = await (getWasm as GetWebAssemblySource)()
 
-    if (typeof Response !== 'undefined' && source instanceof Response) {
+    if (isResponseLike(source)) {
       const contentType = source.headers
-        .get('content-type')
+        ?.get('content-type')
         ?.split(';')[0]
         .trim()
         .toLowerCase()
 
       if (
+        typeof Response !== 'undefined' &&
+        source instanceof Response &&
         contentType === 'application/wasm' &&
         typeof WebAssembly.compileStreaming === 'function'
       ) {
@@ -285,7 +299,7 @@ export const getProcessor = (
       return WebAssembly.compile(await source.arrayBuffer())
     }
 
-    return WebAssembly.compile(source as BufferSource)
+    return WebAssembly.compile(source)
   }
 
   function processor(text: string, options?: ShOptions): Promise<File>

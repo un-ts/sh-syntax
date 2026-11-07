@@ -37,7 +37,8 @@ Return the full shell syntax tree and keep printing source text.
   compatibility, but the AST is deliberately ignored and `originalText` is
   formatted.
 - `getProcessor()` caches the compiled WebAssembly module, uses
-  `compileStreaming()` for `Response` inputs when available, and instantiates a
+  `compileStreaming()` for `application/wasm` responses, accepts
+  `Buffer`/`BufferSource`/`Response`/response-like sources, and instantiates a
   fresh runtime per call.
 - Add `parseSync()` and `printSync()` for synchronous consumers, plus
   `getProcessorSync()` for preloaded WASM bytes or a synchronous loader.

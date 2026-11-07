@@ -85,6 +85,20 @@ describe('processor', () => {
     }
   })
 
+  test('getProcessor accepts response-like sources', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    const responseLike = {
+      arrayBuffer: () => Promise.resolve(wasm.buffer),
+    }
+    const processor = getProcessor(() => responseLike)
+
+    await expect(processor('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+  })
+
   test('getProcessor falls back for a non-WASM response', async () => {
     const wasm = new Uint8Array(
       readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
