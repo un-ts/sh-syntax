@@ -1,4 +1,5 @@
 .yarn
 test/fixtures
+shell
 vendors/*.cjs
 *.mod

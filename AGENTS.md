@@ -25,7 +25,7 @@ yarn gen:encoder # regenerate processor/encode_generated.go
 yarn wasm        # gen:encoder + TinyGo build of main.wasm
 ```
 
-`yarn format` formats the whole repository, including the `shell/` submodule when it is checked out. Do not commit formatting-only changes inside `shell/`.
+`yarn format` formats the root repository. `shell/` is ignored by the root Prettier config because the submodule has its own formatting setup.
 
 ## Layout
 
