@@ -2,41 +2,441 @@
 
 exports[`parse 1`] = `
 {
-  "CallExpr": 1,
-  "File": 1,
-  "Lit": 2,
-  "Stmt": 1,
-  "Word": 2,
+  "end": 16,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
+    {
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 16,
+            "parts": [
+              {
+                "end": 16,
+                "start": 10,
+                "type": "Lit",
+                "value": "World!",
+                "valueEnd": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 16,
+        "start": 2,
+        "type": "CallExpr",
+      },
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 16,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
+      },
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
+      },
+      "start": 2,
+      "type": "Stmt",
+    },
+  ],
+  "type": "File",
 }
 `;
 
 exports[`parse 2`] = `
 {
-  "CallExpr": 1,
-  "File": 1,
-  "Lit": 2,
-  "Stmt": 1,
-  "Word": 2,
+  "end": 15,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
+    {
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 15,
+        "start": 2,
+        "type": "CallExpr",
+      },
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 15,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
+      },
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
+      },
+      "start": 2,
+      "type": "Stmt",
+    },
+  ],
+  "type": "File",
 }
 `;
 
 exports[`parse 3`] = `
 {
-  "CallExpr": 1,
-  "File": 1,
-  "Lit": 4,
-  "Stmt": 1,
-  "Word": 4,
+  "end": 19,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
+    {
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+          {
+            "end": 17,
+            "parts": [
+              {
+                "end": 17,
+                "start": 16,
+                "type": "Lit",
+                "value": "!",
+                "valueEnd": {
+                  "column": 17,
+                  "line": 1,
+                  "offset": 17,
+                },
+                "valuePos": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+              },
+            ],
+            "start": 16,
+            "type": "Word",
+          },
+          {
+            "end": 19,
+            "parts": [
+              {
+                "end": 19,
+                "start": 18,
+                "type": "Lit",
+                "value": "b",
+                "valueEnd": {
+                  "column": 19,
+                  "line": 1,
+                  "offset": 19,
+                },
+                "valuePos": {
+                  "column": 18,
+                  "line": 1,
+                  "offset": 18,
+                },
+              },
+            ],
+            "start": 18,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 19,
+        "start": 2,
+        "type": "CallExpr",
+      },
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 19,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
+      },
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
+      },
+      "start": 2,
+      "type": "Stmt",
+    },
+  ],
+  "type": "File",
 }
 `;
 
 exports[`parse 4`] = `
 {
-  "CallExpr": 1,
-  "File": 1,
-  "Lit": 4,
-  "Stmt": 1,
-  "Word": 4,
+  "end": 19,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
+    {
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+          {
+            "end": 17,
+            "parts": [
+              {
+                "end": 17,
+                "start": 16,
+                "type": "Lit",
+                "value": "!",
+                "valueEnd": {
+                  "column": 17,
+                  "line": 1,
+                  "offset": 17,
+                },
+                "valuePos": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+              },
+            ],
+            "start": 16,
+            "type": "Word",
+          },
+          {
+            "end": 19,
+            "parts": [
+              {
+                "end": 19,
+                "start": 18,
+                "type": "Lit",
+                "value": "c",
+                "valueEnd": {
+                  "column": 19,
+                  "line": 1,
+                  "offset": 19,
+                },
+                "valuePos": {
+                  "column": 18,
+                  "line": 1,
+                  "offset": 18,
+                },
+              },
+            ],
+            "start": 18,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 19,
+        "start": 2,
+        "type": "CallExpr",
+      },
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 19,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
+      },
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
+      },
+      "start": 2,
+      "type": "Stmt",
+    },
+  ],
+  "type": "File",
 }
 `;
 
