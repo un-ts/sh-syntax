@@ -1,4 +1,6 @@
 import {
+  DebugPrint,
+  IsIncomplete,
   LangVariant,
   NodeType,
   ParseError,
@@ -6,7 +8,7 @@ import {
   parseSync,
   printSync,
 } from 'sh-syntax'
-import type { Word } from 'sh-syntax'
+import type { File, Word } from 'sh-syntax'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -85,4 +87,41 @@ test('lang variants are exported', () => {
   expect(LangVariant.LangPOSIX).toBe(2)
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- public enum value
   expect(LangVariant.LangMirBSDKorn).toBe(4)
+})
+
+test('tree helpers handle edge cases', () => {
+  expect(NodeType(null)).toBe('nil')
+  expect(
+    NodeType({ Type: 'File' } as unknown as Parameters<typeof NodeType>[0]),
+  ).toBe('File')
+  expect(NodeType({} as unknown as Parameters<typeof NodeType>[0])).toBe('')
+
+  const ast = parseSync('echo hi\n')
+  const types: string[] = []
+  Walk(ast, node => {
+    types.push(NodeType(node))
+    return node !== ast
+  })
+  expect(types).toEqual(['File'])
+
+  const log = vi.spyOn(console, 'log').mockImplementation(() => 0)
+  DebugPrint(ast)
+  expect(log).toHaveBeenCalled()
+  log.mockRestore()
+
+  expect(IsIncomplete(new ParseError({ Incomplete: true, Text: 'x' }))).toBe(
+    true,
+  )
+  expect(IsIncomplete(null)).toBe(false)
+})
+
+test('prints non-File roots and legacy AST objects', () => {
+  const ast = parseSync('echo old\n')
+  const stmt = ast.Stmts[0] as unknown as File
+  expect(printSync(stmt)).toBe('echo old')
+
+  const legacy = { Name: '', Stmts: [] } as unknown as File
+  expect(printSync(legacy, { originalText: 'echo legacy\n' })).toBe(
+    'echo legacy\n',
+  )
 })
