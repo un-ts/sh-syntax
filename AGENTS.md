@@ -74,6 +74,7 @@ yarn wasm        # gen:encoder + TinyGo build of main.wasm
 
 - `ci.yml` runs on pushes to `main`, pull requests, and merge queues. Do not re-enable every-branch pushes; that duplicates PR runs.
 - The `Build Wasm` job rebuilds the encoder and WASM on Ubuntu, then verifies them.
+- The integration job checks out the `shell/` submodule, builds the root package, then installs, builds, and tests `@eslint/shell`.
 - `autofix.ci` runs `yarn run-s build format`; it must stay green.
 - Keep action pins as full commit SHAs and retain `persist-credentials: false` in the WASM checkout.
 

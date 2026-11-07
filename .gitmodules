@@ -1,4 +1,3 @@
 [submodule "shell"]
 path=shell
 url=https://github.com/JounQin/shell
-branch=feat/sh-syntax
