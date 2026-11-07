@@ -32,6 +32,7 @@ type ProcessMode = 0 | 1
 
 interface InternalOptions extends ShOptions {
   print?: boolean
+  originalText?: string
 }
 
 interface ProcessExports extends WebAssembly.Exports {
@@ -80,10 +81,11 @@ let decoder: TextDecoder | undefined
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
-  text: string,
+  textOrAst: File | string,
   {
     filepath = '',
     print = false,
+    originalText,
 
     keepComments = true,
     variant = LangVariant.LangBash,
@@ -107,11 +109,21 @@ const invoke = (
   encoder ??= new TextEncoder()
   decoder ??= new TextDecoder()
 
-  if (typeof text !== 'string') {
-    throw new TypeError('Expected shell source text')
-  }
+  let text: string
+  let mode: ProcessMode
 
-  const mode: ProcessMode = print ? 1 : 0
+  if (typeof textOrAst === 'string') {
+    text = textOrAst
+    mode = print ? 1 : 0
+  } else {
+    if (originalText == null) {
+      throw new TypeError(
+        'processor(ast) is not supported; pass { originalText } to format the source text',
+      )
+    }
+    text = originalText
+    mode = 1
+  }
 
   const filePath = encoder.encode(filepath)
   const textBytes = encoder.encode(text)
@@ -203,7 +215,14 @@ export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
     text: string,
     options?: ShOptions & { print: true },
   ): string
-  function processor(text: string, options?: InternalOptions): File | string {
+  function processor(
+    ast: File,
+    options: ShOptions & { originalText: string },
+  ): string
+  function processor(
+    textOrAst: File | string,
+    options?: InternalOptions,
+  ): File | string {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
     /*
@@ -211,7 +230,7 @@ export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
      * function is available synchronously after `_start` has run.
      */
     void go.run(instance)
-    return invoke(instance.exports as ProcessExports, text, options)
+    return invoke(instance.exports as ProcessExports, textOrAst, options)
   }
 
   return processor
@@ -231,8 +250,12 @@ export const getProcessor = (
     text: string,
     options?: ShOptions & { print: true },
   ): Promise<string>
+  function processor(
+    ast: File,
+    options: ShOptions & { originalText: string },
+  ): Promise<string>
   async function processor(
-    text: string,
+    textOrAst: File | string,
     options: InternalOptions = {},
   ): Promise<File | string> {
     if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
@@ -269,7 +292,7 @@ export const getProcessor = (
      */
     void go.run(wasm.instance)
 
-    return invoke(wasm.instance.exports as ProcessExports, text, options)
+    return invoke(wasm.instance.exports as ProcessExports, textOrAst, options)
   }
 
   return processor

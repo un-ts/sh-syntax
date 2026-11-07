@@ -2,9 +2,10 @@ import {
   LangVariant,
   ParseError,
   isIncomplete,
-  walk,
   parseSync,
   printSync,
+  processor,
+  walk,
 } from 'sh-syntax'
 import type { Word } from 'sh-syntax'
 
@@ -49,6 +50,14 @@ test('print(ast, { originalText }) ignores the AST', () => {
 
   expect(printSync(ast, { originalText: 'echo  old\n' })).toBe('echo old\n')
   expect(() => printSync(ast, {} as never)).toThrow(TypeError)
+})
+
+test('processor(ast, { originalText }) ignores the AST', async () => {
+  const ast = parseSync('echo old\n')
+  await expect(processor(ast, { originalText: 'echo  old\n' })).resolves.toBe(
+    'echo old\n',
+  )
+  await expect(processor(ast, {} as never)).rejects.toThrow(TypeError)
 })
 
 test('print formats text', () => {
