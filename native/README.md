@@ -64,7 +64,7 @@ Both native paths plateau; the addon avoids the extra process.
 The generated non-reflective decoder makes full-AST `printAst` correct, but serializing the whole tree is not the performance path. The POC adds:
 
 - `parseHandle(text)` → native AST handle + JS AST
-- shared-prototype `BaseNode.patch('value', value)` (POC covers `Lit.value`)
+- shared-prototype `BaseNode.patch(field, value)` for scalar fields (string/bool/int/uint/enums)
 - `printHandle(handle)` → native printer without JSON serialization
 - daemon commands: `parse` / `patch` / `print` / `free` with request IDs
 
@@ -78,4 +78,4 @@ Latest `install.sh` print benchmark:
 
 `native/patch.mjs` and `native/daemon-patch.mjs` decorate the returned AST with a shared prototype. Mutations are sent as `(handle, start, end, field, value)` and applied directly to the Go AST. The daemon client is async here; a sync bridge would need a worker + `Atomics.wait`.
 
-This is a POC: only `Lit.value` is supported, and array insert/remove and node replacement are still pending. The native API can diverge from the WASM API here; the priority is the native parse/print performance path, not API symmetry.
+This is a POC: scalar fields are generated; array insert/remove and node replacement are still pending. The native API can diverge from the WASM API here; the priority is the native parse/print performance path, not API symmetry.

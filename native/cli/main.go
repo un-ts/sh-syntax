@@ -20,6 +20,8 @@ type request struct {
 	Filepath string `json:"filepath"`
 	Start    uint64 `json:"start"`
 	End      uint64 `json:"end"`
+	Type     string `json:"type"`
+	Field    string `json:"field"`
 	Value    string `json:"value"`
 }
 
@@ -34,9 +36,16 @@ type response struct {
 
 type litKey = [2]uint64
 
+type nodeKey struct {
+	typeName string
+	start    uint64
+	end      uint64
+}
+
 type handleState struct {
-	file *syntax.File
-	lits map[litKey]*syntax.Lit
+	file  *syntax.File
+	lits  map[litKey]*syntax.Lit
+	nodes map[nodeKey]syntax.Node
 }
 
 var (
@@ -97,13 +106,18 @@ func handleRequest(req request) response {
 		nextHandle++
 		handle := nextHandle
 		lits := map[litKey]*syntax.Lit{}
+		nodes := map[nodeKey]syntax.Node{}
 		syntax.Walk(file, func(node syntax.Node) bool {
+			if node == nil {
+				return true
+			}
+			nodes[nodeKey{processor.NodeTypeName(node), uint64(node.Pos().Offset()), uint64(node.End().Offset())}] = node
 			if lit, ok := node.(*syntax.Lit); ok {
 				lits[litKey{uint64(lit.Pos().Offset()), uint64(lit.End().Offset())}] = lit
 			}
 			return true
 		})
-		handles[handle] = &handleState{file: file, lits: lits}
+		handles[handle] = &handleState{file: file, lits: lits, nodes: nodes}
 		return response{ID: req.ID, OK: true, Handle: handle, AST: ast}
 
 	case "patch":
@@ -111,11 +125,13 @@ func handleRequest(req request) response {
 		if state == nil {
 			return response{ID: req.ID, Error: "unknown handle"}
 		}
-		lit := state.lits[litKey{req.Start, req.End}]
-		if lit == nil {
-			return response{ID: req.ID, Error: "unknown literal"}
+		node := state.nodes[nodeKey{req.Type, req.Start, req.End}]
+		if node == nil {
+			return response{ID: req.ID, Error: "unknown node"}
 		}
-		lit.Value = req.Value
+		if err := processor.PatchScalar(node, req.Field, json.RawMessage(req.Value)); err != nil {
+			return response{ID: req.ID, Error: err.Error()}
+		}
 		return response{ID: req.ID, OK: true}
 
 	case "print":

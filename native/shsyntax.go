@@ -16,9 +16,16 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
+type nodeKey struct {
+	typeName string
+	start    uint64
+	end      uint64
+}
+
 type handleState struct {
-	file *syntax.File
-	lits map[[2]uint64]*syntax.Lit
+	file  *syntax.File
+	lits  map[[2]uint64]*syntax.Lit
+	nodes map[nodeKey]syntax.Node
 }
 
 var (
@@ -46,7 +53,13 @@ func sh_syntax_parse_handle(text *C.char, filepath *C.char) *C.char {
 	}
 
 	lits := map[litKey]*syntax.Lit{}
+	nodes := map[nodeKey]syntax.Node{}
 	syntax.Walk(file, func(node syntax.Node) bool {
+		if node == nil {
+			return true
+		}
+		key := nodeKey{processor.NodeTypeName(node), uint64(node.Pos().Offset()), uint64(node.End().Offset())}
+		nodes[key] = node
 		if lit, ok := node.(*syntax.Lit); ok {
 			lits[litKey{uint64(lit.Pos().Offset()), uint64(lit.End().Offset())}] = lit
 		}
@@ -56,7 +69,7 @@ func sh_syntax_parse_handle(text *C.char, filepath *C.char) *C.char {
 	handleMu.Lock()
 	handleNext++
 	handle := handleNext
-	handleStates[handle] = &handleState{file: file, lits: lits}
+	handleStates[handle] = &handleState{file: file, lits: lits, nodes: nodes}
 	handleMu.Unlock()
 
 	return C.CString(`{"ok":true,"handle":` + jsonNumber(handle) + `,"ast":` + buf.String() + `}`)
@@ -76,6 +89,25 @@ func sh_syntax_patch_lit(handle C.ulonglong, start C.ulonglong, end C.ulonglong,
 		return C.CString(`{"ok":false,"error":"unknown literal"}`)
 	}
 	lit.Value = C.GoString(value)
+	return C.CString(`{"ok":true}`)
+}
+
+//export sh_syntax_patch_scalar
+func sh_syntax_patch_scalar(handle C.ulonglong, typeName *C.char, start C.ulonglong, end C.ulonglong, field *C.char, valueJSON *C.char) *C.char {
+	handleMu.Lock()
+	state := handleStates[uint64(handle)]
+	handleMu.Unlock()
+	if state == nil {
+		return C.CString(`{"ok":false,"error":"unknown handle"}`)
+	}
+
+	node := state.nodes[nodeKey{C.GoString(typeName), uint64(start), uint64(end)}]
+	if node == nil {
+		return C.CString(`{"ok":false,"error":"unknown node"}`)
+	}
+	if err := processor.PatchScalar(node, C.GoString(field), json.RawMessage(C.GoString(valueJSON))); err != nil {
+		return C.CString(errorJSON(err))
+	}
 	return C.CString(`{"ok":true}`)
 }
 

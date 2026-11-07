@@ -8,5 +8,8 @@ assert.equal(print(ast), 'echo hi\n')
 ast.stmts[0].cmd.args[0].parts[0].patch('value', 'bye')
 assert.equal(print(ast), 'bye hi\n')
 
+ast.stmts[0].patch('negated', true)
+assert.equal(print(ast), '! bye hi\n')
+
 dispose(ast)
 console.log('patch POC ok')

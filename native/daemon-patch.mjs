@@ -25,16 +25,21 @@ const handles = new WeakMap()
 
 class ShellNode {
   patch(field, value) {
-    if (field !== 'value' || this.type !== 'Lit') {
-      throw new TypeError('POC supports only Lit.value patches')
-    }
     const handle = handles.get(this)
     if (handle === undefined) {
       throw new TypeError('Node is not attached to a native handle')
     }
     // Patches are ordered before the next print request on the same pipe.
-    void request({ op: 'patch', handle, start: this.start, end: this.end, value })
-    this.value = value
+    void request({
+      op: 'patch',
+      handle,
+      type: this.type,
+      start: this.start,
+      end: this.end,
+      field,
+      value: JSON.stringify(value),
+    })
+    this[field] = value
     return this
   }
 }

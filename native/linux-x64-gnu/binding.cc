@@ -9,6 +9,7 @@ char* sh_syntax_print(const char* text, const char* filepath);
 char* sh_syntax_print_ast(const char* jsonText);
 char* sh_syntax_parse_handle(const char* text, const char* filepath);
 char* sh_syntax_patch_lit(uint64_t handle, uint64_t start, uint64_t end, const char* value);
+char* sh_syntax_patch_scalar(uint64_t handle, const char* typeName, uint64_t start, uint64_t end, const char* field, const char* valueJSON);
 char* sh_syntax_print_handle(uint64_t handle);
 void sh_syntax_free_handle(uint64_t handle);
 void sh_syntax_free(char* value);
@@ -83,6 +84,18 @@ napi_value PatchLit(napi_env env, napi_callback_info info) {
                                                GetInt64(env, argv[2]), value.c_str()));
 }
 
+napi_value PatchScalar(napi_env env, napi_callback_info info) {
+  size_t argc = 6;
+  napi_value argv[6];
+  napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+  std::string typeName = GetString(env, argv[1]);
+  std::string field = GetString(env, argv[4]);
+  std::string valueJSON = GetString(env, argv[5]);
+  return ReturnString(env, sh_syntax_patch_scalar(GetInt64(env, argv[0]), typeName.c_str(),
+                                                  GetInt64(env, argv[2]), GetInt64(env, argv[3]),
+                                                  field.c_str(), valueJSON.c_str()));
+}
+
 napi_value PrintHandle(napi_env env, napi_callback_info info) {
   size_t argc = 1;
   napi_value argv[1];
@@ -118,6 +131,7 @@ napi_value Init(napi_env env, napi_value exports) {
   napi_value printAst;
   napi_value parseHandle;
   napi_value patchLit;
+  napi_value patchScalar;
   napi_value printHandle;
   napi_value freeHandle;
   napi_create_function(env, "parse", NAPI_AUTO_LENGTH, Parse, nullptr, &parse);
@@ -125,6 +139,7 @@ napi_value Init(napi_env env, napi_value exports) {
   napi_create_function(env, "printAst", NAPI_AUTO_LENGTH, PrintAst, nullptr, &printAst);
   napi_create_function(env, "parseHandle", NAPI_AUTO_LENGTH, ParseHandle, nullptr, &parseHandle);
   napi_create_function(env, "patchLit", NAPI_AUTO_LENGTH, PatchLit, nullptr, &patchLit);
+  napi_create_function(env, "patchScalar", NAPI_AUTO_LENGTH, PatchScalar, nullptr, &patchScalar);
   napi_create_function(env, "printHandle", NAPI_AUTO_LENGTH, PrintHandle, nullptr, &printHandle);
   napi_create_function(env, "freeHandle", NAPI_AUTO_LENGTH, FreeHandle, nullptr, &freeHandle);
   napi_set_named_property(env, exports, "parse", parse);
@@ -132,6 +147,7 @@ napi_value Init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "printAst", printAst);
   napi_set_named_property(env, exports, "parseHandle", parseHandle);
   napi_set_named_property(env, exports, "patchLit", patchLit);
+  napi_set_named_property(env, exports, "patchScalar", patchScalar);
   napi_set_named_property(env, exports, "printHandle", printHandle);
   napi_set_named_property(env, exports, "freeHandle", freeHandle);
   return exports;
