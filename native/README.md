@@ -41,4 +41,15 @@ Validation observed on Linux x64 (Go 1.27.3, Node 26, latest run):
 - AST parity: 11/11 parseable fixtures matched the WASM AST
 - 50,000 `parse('echo hi')` calls: RSS +14MB for the addon vs multi-GB/OOM on the current leaking-WASM sync path
 
+Memory growth for repeated synchronous `parse('echo hi')` calls (separate processes, `global.gc()` between measurements):
+
+| calls | N-API addon RSS delta | WASM RSS delta |
+|---:|---:|---:|
+| 2,000 | +6.3MB | +452.2MB |
+| 5,000 | +7.0MB | +1,097.6MB |
+| 10,000 | — | +2,156.8MB |
+| 50,000 | +11.9MB | OOM |
+
+The N-API addon plateaus because Go's GC reclaims the temporary ASTs. The current leaking-WASM sync path retains one instance per call until the event loop yields, so it grows linearly.
+
 The CLI daemon is the persistent esbuild-style case: one long-lived child process and a line-delimited JSON protocol. It is measured asynchronously here; a synchronous API would need an additional worker + `Atomics.wait` bridge. The pure `spawnSync` case is the conservative one-process-per-call upper bound. These numbers are a spike, not a release guarantee.
