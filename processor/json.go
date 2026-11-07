@@ -29,18 +29,6 @@ var (
 	posType = reflect.TypeFor[syntax.Pos]()
 )
 
-// EncodeNode writes node as JSON. The root node and every node stored in an
-// interface field carry a "Type" key so that the result can be decoded later.
-// Every syntax node also carries a "__type" key for JavaScript's NodeType.
-func EncodeNode(w io.Writer, node syntax.Node) error {
-	var buf bytes.Buffer
-	if err := encodeValue(&buf, reflect.ValueOf(node), true); err != nil {
-		return err
-	}
-	_, err := w.Write(buf.Bytes())
-	return err
-}
-
 func writeString(buf *bytes.Buffer, value string) {
 	buf.WriteByte('"')
 	start := 0
@@ -81,16 +69,6 @@ func writeString(buf *bytes.Buffer, value string) {
 	buf.WriteByte('"')
 }
 
-func writeField(buf *bytes.Buffer, name string, first *bool) {
-	if !*first {
-		buf.WriteByte(',')
-	}
-	*first = false
-	buf.WriteByte('"')
-	buf.WriteString(name)
-	buf.WriteString("\":")
-}
-
 func writeUint(buf *bytes.Buffer, value uint64) {
 	var scratch [24]byte
 	buf.Write(strconv.AppendUint(scratch[:0], value, 10))
@@ -104,103 +82,6 @@ func writePos(buf *bytes.Buffer, pos syntax.Pos) {
 	buf.WriteString(`,"Col":`)
 	writeUint(buf, uint64(pos.Col()))
 	buf.WriteByte('}')
-}
-
-func encodeValue(buf *bytes.Buffer, val reflect.Value, forceType bool) error {
-	if !val.IsValid() {
-		buf.WriteString("null")
-		return nil
-	}
-
-	switch val.Kind() {
-	case reflect.Pointer:
-		if val.IsNil() {
-			buf.WriteString("null")
-			return nil
-		}
-		return encodeValue(buf, val.Elem(), forceType)
-	case reflect.Interface:
-		if val.IsNil() {
-			buf.WriteString("null")
-			return nil
-		}
-		return encodeValue(buf, val.Elem(), true)
-	case reflect.Struct:
-		if val.Type() == posType {
-			writePos(buf, val.Interface().(syntax.Pos))
-			return nil
-		}
-
-		if !val.CanAddr() {
-			addressable := reflect.New(val.Type()).Elem()
-			addressable.Set(val)
-			val = addressable
-		}
-
-		typ := val.Type()
-		node, isNode := val.Addr().Interface().(syntax.Node)
-		first := true
-		buf.WriteByte('{')
-
-		if isNode {
-			writeField(buf, "__type", &first)
-			writeString(buf, typ.Name())
-			if forceType {
-				writeField(buf, "Type", &first)
-				writeString(buf, typ.Name())
-			}
-			writeField(buf, "Pos", &first)
-			writePos(buf, node.Pos())
-			writeField(buf, "End", &first)
-			writePos(buf, node.End())
-		}
-
-		for i := range typ.NumField() {
-			field := typ.Field(i)
-			// Unexported fields cannot be represented in JSON.
-			if field.PkgPath != "" {
-				continue
-			}
-			fieldValue := val.Field(i)
-			writeField(buf, field.Name, &first)
-			if field.Type == posType {
-				writePos(buf, fieldValue.Interface().(syntax.Pos))
-				continue
-			}
-			if err := encodeValue(buf, fieldValue, false); err != nil {
-				return fmt.Errorf("encode %s.%s: %w", typ.Name(), field.Name, err)
-			}
-		}
-
-		buf.WriteByte('}')
-		return nil
-	case reflect.Slice:
-		buf.WriteByte('[')
-		for i := range val.Len() {
-			if i > 0 {
-				buf.WriteByte(',')
-			}
-			if err := encodeValue(buf, val.Index(i), false); err != nil {
-				return err
-			}
-		}
-		buf.WriteByte(']')
-		return nil
-	case reflect.Bool:
-		buf.WriteString(strconv.FormatBool(val.Bool()))
-		return nil
-	case reflect.String:
-		writeString(buf, val.String())
-		return nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		buf.WriteString(strconv.FormatUint(val.Uint(), 10))
-		return nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		buf.WriteString(strconv.FormatInt(val.Int(), 10))
-		return nil
-	default:
-		return fmt.Errorf("unsupported syntax field kind: %s", val.Kind())
-	}
 }
 
 // DecodeNode reads JSON encoded by [EncodeNode] and returns the syntax node.

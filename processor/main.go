@@ -107,9 +107,9 @@ func Process(
 	filepath := string(filepathBytes)
 	text := string(textBytes)
 
-	result := Result{
-		File: json.RawMessage("null"),
-	}
+	fileJSON := []byte("null")
+	textOut := ""
+	message := ""
 
 	var err error
 
@@ -121,13 +121,14 @@ func Process(
 			file = &syntax.File{}
 		}
 		var encoded bytes.Buffer
+		encoded.Grow(min(len(textBytes)*64, 64<<20))
 		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
 			err = encodeErr
 			break
 		}
-		result.File = encoded.Bytes()
+		fileJSON = encoded.Bytes()
 	case 1:
-		result.Text, err = Print(text, filepath, SyntaxOptions{
+		textOut, err = Print(text, filepath, SyntaxOptions{
 			ParserOptions:  parserOptions,
 			PrinterOptions: printerOptions,
 		})
@@ -135,28 +136,40 @@ func Process(
 		var node syntax.Node
 		node, err = DecodeNode(bytes.NewReader(textBytes))
 		if err == nil {
-			result.Text, err = PrintNode(node, printerOptions)
+			textOut, err = PrintNode(node, printerOptions)
 		}
 	default:
 		err = fmt.Errorf("unknown process mode: %d", mode)
 	}
 
 	if err != nil {
-		result.Message = err.Error()
+		message = err.Error()
 	}
-	if parseError, message := MapParseError(err); parseError != nil {
-		result.ParseError = parseError
-		if message != "" {
-			result.Message = message
+	var parseError *ParseError
+	if mapped, mappedMessage := MapParseError(err); mapped != nil {
+		parseError = mapped
+		if mappedMessage != "" {
+			message = mappedMessage
 		}
 	}
 
-	encoded, marshalErr := json.Marshal(result)
+	parseErrorJSON, marshalErr := json.Marshal(parseError)
 	if marshalErr != nil {
-		encoded = []byte(marshalErr.Error())
+		parseErrorJSON = []byte("null")
 	}
 
-	return encoded
+	var out bytes.Buffer
+	out.Grow(len(fileJSON) + len(parseErrorJSON) + len(textOut) + len(message) + 64)
+	out.WriteString(`{"file":`)
+	out.Write(fileJSON)
+	out.WriteString(`,"text":`)
+	writeString(&out, textOut)
+	out.WriteString(`,"parseError":`)
+	out.Write(parseErrorJSON)
+	out.WriteString(`,"message":`)
+	writeString(&out, message)
+	out.WriteByte('}')
+	return out.Bytes()
 }
 
 func main() {
