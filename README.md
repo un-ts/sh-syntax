@@ -74,7 +74,7 @@ Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
-import { LangVariant, NodeType, Walk, parseSync } from 'sh-syntax'
+import { LangVariant, parseSync, walk } from 'sh-syntax'
 
 const ast = parseSync("echo 'Hello World!'", {
   keepComments: true,
@@ -82,8 +82,8 @@ const ast = parseSync("echo 'Hello World!'", {
   filepath: 'script.sh',
 })
 
-Walk(ast, node => {
-  if (NodeType(node) === 'Lit') {
+walk(ast, node => {
+  if (node.type === 'Lit') {
     node.value = 'printf'
   }
   return true

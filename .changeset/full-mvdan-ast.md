@@ -8,7 +8,7 @@ Return the full shell syntax tree and keep printing source text.
   package instead of only positions. The tree is plain JSON-compatible data:
   every node has `type`, `start`, and `end`; fields use lowerCamelCase; and
   position fields are `{ offset, line, column }` objects.
-- Add `NodeType()` and `Walk()` helpers for the typed tree.
+- Add a `walk()` helper for the typed tree; use `node.type` instead of a node-type helper.
 - `print()` continues to format source text. `print(ast, { originalText })`
   remains accepted for compatibility, but the AST is deliberately ignored and
   `originalText` is formatted. Printing an edited AST is deferred to a

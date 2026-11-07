@@ -1,10 +1,9 @@
 import {
-  DebugPrint,
-  IsIncomplete,
   LangVariant,
-  NodeType,
   ParseError,
-  Walk,
+  debugPrint,
+  isIncomplete,
+  walk,
   parseSync,
   printSync,
 } from 'sh-syntax'
@@ -16,9 +15,8 @@ test('sync parser returns the full typed tree', () => {
     filepath: 'test.sh',
   })
 
-  expect(NodeType(ast)).toBe('File')
-  expect(ast.start).toBe(0)
   expect(ast.type).toBe('File')
+  expect(ast.start).toBe(0)
   expect(ast.stmts).toHaveLength(1)
   expect(ast.stmts[0].position.offset).toBe(0)
   expect(ast.stmts[0].comments[0].text).toBe(' note')
@@ -31,8 +29,8 @@ test('sync parser returns the full typed tree', () => {
   expect(call.args[0].start).toBe(0)
 
   const types: string[] = []
-  Walk(ast, node => {
-    types.push(NodeType(node))
+  walk(ast, node => {
+    types.push(node.type)
     return true
   })
   expect(types).toContain('CallExpr')
@@ -82,27 +80,21 @@ test('lang variants are exported', () => {
 })
 
 test('tree helpers handle edge cases', () => {
-  expect(NodeType(null)).toBe('nil')
-  expect(
-    NodeType({ type: 'File' } as unknown as Parameters<typeof NodeType>[0]),
-  ).toBe('File')
-  expect(NodeType({} as unknown as Parameters<typeof NodeType>[0])).toBe('')
-
   const ast = parseSync('echo hi\n')
   const types: string[] = []
-  Walk(ast, node => {
-    types.push(NodeType(node))
+  walk(ast, node => {
+    types.push(node.type)
     return node !== ast
   })
   expect(types).toEqual(['File'])
 
   const log = vi.spyOn(console, 'log').mockImplementation(() => 0)
-  DebugPrint(ast)
+  debugPrint(ast)
   expect(log).toHaveBeenCalled()
   log.mockRestore()
 
-  expect(IsIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(
+  expect(isIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(
     true,
   )
-  expect(IsIncomplete(null)).toBe(false)
+  expect(isIncomplete(null)).toBe(false)
 })

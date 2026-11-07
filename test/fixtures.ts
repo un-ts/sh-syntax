@@ -1,13 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import {
-  NodeType,
-  Walk,
-  type File,
-  type ShOptions,
-  parse as parse_,
-} from 'sh-syntax'
+import { walk, type File, type ShOptions, parse as parse_ } from 'sh-syntax'
 
 /**
  * Returns a compact node-type histogram. Snapshotting the full tree for the
@@ -16,8 +10,8 @@ import {
  */
 export const summarize = (ast: File): Record<string, number> => {
   const counts: Record<string, number> = {}
-  Walk(ast, node => {
-    const type = NodeType(node)
+  walk(ast, node => {
+    const type = node.type
     counts[type] = (counts[type] ?? 0) + 1
   })
   return counts
