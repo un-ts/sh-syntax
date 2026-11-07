@@ -49,11 +49,51 @@ import { parse, print } from 'sh-syntax'
 
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
-const newText = await print(ast, {
-  // `originalText` is required for now, hope we will find better solution later
-  originalText: text,
-})
+
+// The parsed tree is printed directly, including any edits made to it.
+ast.Stmts[0].Cmd.Args[0].Parts[0].Value = 'printf'
+const newText = await print(ast)
 ```
+
+The synchronous API is available as `parseSync` and `printSync`:
+
+```js
+import { parseSync, printSync } from 'sh-syntax'
+
+const ast = parseSync("echo 'Hello World!'")
+const newText = printSync(ast)
+```
+
+#### syntax tree
+
+`parse` returns the complete shell syntax tree as plain, JSON-friendly data.
+Every node has a `__type` name, and every node stored in an interface field
+also has a `Type` name. Positions are data:
+
+```js
+import { LangVariant, NodeType, Walk, parseSync, printSync } from 'sh-syntax'
+
+const ast = parseSync("echo 'Hello World!'", {
+  keepComments: true,
+  variant: LangVariant.LangBash,
+  filepath: 'script.sh',
+})
+
+Walk(ast, node => {
+  if (NodeType(node) === 'Lit') {
+    node.Value = 'printf'
+  }
+  return true
+})
+
+const command = ast.Stmts[0].Cmd // { __type: 'CallExpr', Args: [...], ... }
+const firstArg = command.Args[0] // { __type: 'Word', Parts: [...], ... }
+console.log(firstArg.Pos.Offset) // 0
+console.log(printSync(ast)) // printf 'Hello World!'
+```
+
+Node positions use byte offsets; `Pos.Offset`, `Pos.Line`, and `Pos.Col` are
+the raw values.
 
 #### browser
 
@@ -86,7 +126,7 @@ const print = (textOrAst, options) => {
 // just like node again
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
-const newText = await print(ast, { originalText: text })
+const newText = await print(ast)
 ```
 
 ## Benchmark

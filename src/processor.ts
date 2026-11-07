@@ -1,7 +1,9 @@
 import {
   type IParseError,
   type File,
+  type Pos,
   type ShOptions,
+  type ShPrintOptions,
   LangVariant,
 } from './types.js'
 
@@ -9,11 +11,7 @@ export class ParseError extends Error implements IParseError {
   Filename?: string
   Incomplete: boolean
   Text: string
-  Pos?: {
-    Col: number
-    Line: number
-    Offset: number
-  }
+  Pos?: Pos
 
   constructor({ Filename, Incomplete, Text, Pos }: IParseError) {
     super(Text)
@@ -31,8 +29,235 @@ export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
 ) => Promise<WebAssembly.Instance> | WebAssembly.Instance
 
+type ProcessMode = 0 | 1 | 2
+
+interface InternalOptions extends ShOptions {
+  print?: boolean
+  originalText?: string
+}
+
+interface ProcessExports extends WebAssembly.Exports {
+  memory: WebAssembly.Memory
+  wasmAlloc: (size: number) => number
+  wasmFree: (pointer: number) => void
+  process: (
+    filePathPointer: number,
+    filePath0: number,
+    filePath1: number,
+
+    textPointer: number,
+    text0: number,
+    text1: number,
+
+    mode: ProcessMode,
+
+    keepComments: boolean,
+    variant: LangVariant,
+    stopAtPointer: number,
+    stopAt0: number,
+    stopAt1: number,
+    recoverErrors: number,
+
+    simplify: boolean,
+    indent: number,
+    binaryNextLine: boolean,
+    switchCaseIndent: boolean,
+    spaceRedirects: boolean,
+    keepPadding: boolean,
+    minify: boolean,
+    singleLine: boolean,
+    functionNextLine: boolean,
+  ) => number
+}
+
+interface RawResult {
+  file: File
+  text: string
+  parseError: IParseError | null
+  message: string
+}
+
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
+
+const stringifyAst = (textOrAst: File): string => {
+  const ast = textOrAst as File & { __type?: string }
+
+  /*
+   * The root needs a Type for the Go decoder. Files have one; other roots,
+   * such as a Stmt or Word, only carry __type.
+   */
+  if (ast.Type || !ast.__type) {
+    return JSON.stringify(textOrAst)
+  }
+
+  const { __type, ...rest } = ast
+  return JSON.stringify({ ...rest, Type: __type })
+}
+
+const invoke = (
+  { memory, wasmAlloc, wasmFree, process }: ProcessExports,
+  textOrAst: File | string,
+  {
+    filepath = '',
+    print = false,
+    originalText,
+
+    keepComments = true,
+    variant = LangVariant.LangBash,
+    stopAt = '',
+    recoverErrors = 0,
+
+    useTabs = false,
+    tabWidth = 2,
+    simplify = false,
+    indent = useTabs ? 0 : tabWidth,
+    binaryNextLine = true,
+    switchCaseIndent = true,
+    spaceRedirects = true,
+    // eslint-disable-next-line sonarjs/deprecation -- still supported by mvdan/sh
+    keepPadding = false,
+    minify = false,
+    singleLine = false,
+    functionNextLine = false,
+  }: InternalOptions = {},
+): File | string => {
+  encoder ??= new TextEncoder()
+  decoder ??= new TextDecoder()
+
+  if ((textOrAst as File | string | null | undefined) == null) {
+    throw new TypeError('Expected shell source text or a syntax tree')
+  }
+
+  let mode: ProcessMode
+  let text: string
+
+  if (typeof textOrAst === 'string') {
+    text = textOrAst
+    mode = print ? 1 : 0
+  } else if (
+    originalText != null &&
+    (textOrAst as { __type?: string; Type?: string }).__type == null &&
+    (textOrAst as { __type?: string; Type?: string }).Type == null
+  ) {
+    /*
+     * Older, minimal AST objects have neither tag and still need their
+     * original source text.
+     */
+    text = originalText
+    mode = 1
+  } else {
+    text = stringifyAst(textOrAst)
+    mode = 2
+  }
+
+  const filePath = encoder.encode(filepath)
+  const textBytes = encoder.encode(text)
+  const stopAtBytes = encoder.encode(stopAt)
+
+  const filePathPointer = wasmAlloc(filePath.byteLength)
+  new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+
+  const textPointer = wasmAlloc(textBytes.byteLength)
+  new Uint8Array(memory.buffer).set(textBytes, textPointer)
+
+  const stopAtPointer = wasmAlloc(stopAtBytes.byteLength)
+  new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
+
+  const resultPointer = process(
+    filePathPointer,
+    filePath.byteLength,
+    filePath.byteLength,
+
+    textPointer,
+    textBytes.byteLength,
+    textBytes.byteLength,
+
+    mode,
+
+    keepComments,
+    variant,
+    stopAtPointer,
+    stopAtBytes.byteLength,
+    stopAtBytes.byteLength,
+    recoverErrors,
+
+    simplify,
+    indent,
+    binaryNextLine,
+    switchCaseIndent,
+    spaceRedirects,
+    keepPadding,
+    minify,
+    singleLine,
+    functionNextLine,
+  )
+
+  wasmFree(filePathPointer)
+  wasmFree(textPointer)
+  wasmFree(stopAtPointer)
+
+  const result = new Uint8Array(memory.buffer).subarray(resultPointer)
+  const end = result.indexOf(0)
+  const string = decoder.decode(result.subarray(0, end))
+
+  // Naive check that the WASM module returned JSON.
+  /* istanbul ignore if -- @preserve */
+  if (!string.startsWith('{"') || !string.endsWith('}')) {
+    throw new ParseError({
+      Filename: filepath,
+      Incomplete: true,
+      Text: string,
+    })
+  }
+
+  const {
+    file,
+    text: processedText,
+    parseError,
+    message,
+  } = JSON.parse(string) as RawResult
+
+  if (parseError || message) {
+    throw parseError == null
+      ? new SyntaxError(message)
+      : new ParseError(parseError)
+  }
+
+  return mode === 0 ? file : processedText
+}
+
+/**
+ * Creates a synchronous processor from WASM bytes that are already available.
+ *
+ * This is useful for Node.js and for callers that preload the WASM file. The
+ * asynchronous [getProcessor] remains the recommended browser entry point.
+ */
+export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
+  const module = new WebAssembly.Module(wasmBufferSource)
+
+  function processor(text: string, options?: ShOptions): File
+  function processor(
+    text: string,
+    options?: ShOptions & { print: true },
+  ): string
+  function processor(ast: File, options?: ShPrintOptions): string
+  function processor(
+    textOrAst: File | string,
+    options?: InternalOptions,
+  ): File | string {
+    const go = new Go()
+    const instance = new WebAssembly.Instance(module, go.importObject)
+    /*
+     * `go.run` only resolves when the Go program exits. The exported `process`
+     * function is available synchronously after `_start` has run.
+     */
+    void go.run(instance)
+    return invoke(instance.exports as ProcessExports, textOrAst, options)
+  }
+
+  return processor
+}
 
 export const getProcessor = (
   getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
@@ -48,82 +273,11 @@ export const getProcessor = (
     text: string,
     options?: ShOptions & { print: true },
   ): Promise<string>
-  function processor(
-    ast: File,
-    options?: ShOptions & {
-      originalText: string
-    },
-  ): Promise<string>
-
-  /**
-   * Processes a shell script input using a WebAssembly module.
-   *
-   * This asynchronous function accepts shell script input either as a string or
-   * as an AST File, along with a set of options that control formatting, error
-   * recovery, and output. It ensures that the WebAssembly module is loaded and
-   * instantiated, allocates memory for the file path and text content, and then
-   * calls the module's processing function with the provided options. Depending
-   * on the `print` flag, it returns either the processed text or a File
-   * representing the parsed AST.
-   *
-   * @param textOrAst - The shell script input as a string or as an AST File.
-   *   When providing a non-string input and `print` is false, the
-   *   `originalText` option must be supplied.
-   * @param options - An object containing processing options:
-   *
-   *   - `filepath`: The file path associated with the input, used primarily for
-   *       error reporting.
-   *   - `print`: If true, the function returns the processed text; otherwise, it
-   *       returns the processed AST as a File.
-   *   - `originalText`: The original text of the shell script, required when
-   *       `textOrAst` is not a string.
-   *   - `keepComments`: Determines whether comments should be preserved in the
-   *       output.
-   *   - `variant`: Specifies the shell scripting variant (e.g.,
-   *       {@link LangVariant.LangBash}).
-   *   - `stopAt`: A token indicating where to halt further processing.
-   *   - `recoverErrors`: Sets the level of error recovery during processing
-   *       (default is 0).
-   *   - `simplify`: Removes redundant shell syntax before printing.
-   *   - `useTabs`, `tabWidth`, `indent`: Options to control indentation formatting.
-   *   - `binaryNextLine`, `switchCaseIndent`, `spaceRedirects`, `keepPadding`,
-   *       `minify`, `singleLine`, `functionNextLine`: Additional flags that
-   *       influence formatting details and output structure.
-   *
-   * @returns A promise that resolves to either the processed text (if `print`
-   *   is true) or a File (if `print` is false).
-   * @throws {TypeError} If the original text is required but not provided.
-   * @throws {ParseError} If the processed output is not valid JSON or indicates
-   *   a parsing error.
-   * @throws {SyntaxError} If a syntax error is detected without an associated
-   *   parse error object.
-   */
+  function processor(ast: File, options?: ShPrintOptions): Promise<string>
   async function processor(
     textOrAst: File | string,
-    {
-      filepath,
-      print = false,
-      originalText,
-
-      keepComments = true,
-      variant = LangVariant.LangBash,
-      stopAt = '',
-      recoverErrors = 0,
-
-      useTabs = false,
-      tabWidth = 2,
-      simplify = false,
-      indent = useTabs ? 0 : tabWidth,
-      binaryNextLine = true,
-      switchCaseIndent = true,
-      spaceRedirects = true,
-      // eslint-disable-next-line sonarjs/deprecation
-      keepPadding = false,
-      minify = false,
-      singleLine = false,
-      functionNextLine = false,
-    }: ShOptions & { print?: boolean; originalText?: string } = {},
-  ) {
+    options: InternalOptions = {},
+  ): Promise<File | string> {
     if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
       wasmBufferSourcePromise = Promise.resolve(
         (getWasm as GetWebAssemblySource)(),
@@ -135,16 +289,6 @@ export const getProcessor = (
 
     if (wasmBufferSourcePromise) {
       wasmBufferSource = await wasmBufferSourcePromise
-    }
-
-    if (typeof textOrAst !== 'string' && !print) {
-      print = true
-
-      if (originalText == null) {
-        throw new TypeError(
-          '`originalText` is required for now, hope we will find better solution later',
-        )
-      }
     }
 
     const go = new Go()
@@ -162,127 +306,13 @@ export const getProcessor = (
           }
 
     /**
-     * Do not await this promise, because it only resolves once the go main()
+     * Do not await this promise, because it only resolves once the Go main()
      * function has exited. But we need the main function to stay alive to be
-     * able to call the `parse` and `print` function.
+     * able to call the `process` function.
      */
     void go.run(wasm.instance)
 
-    const { memory, wasmAlloc, wasmFree, process } = wasm.instance.exports as {
-      memory: WebAssembly.Memory
-      wasmAlloc: (size: number) => number
-      wasmFree: (pointer: number) => void
-      process: (
-        filePathPointer: number,
-        filePath0: number,
-        filePath1: number,
-
-        textPointer: number,
-        text0: number,
-        text1: number,
-
-        isAst: boolean,
-
-        keepComments: boolean,
-        variant: LangVariant,
-        stopAtPointer: number,
-        stopAt0: number,
-        stopAt1: number,
-        recoverErrors: number,
-
-        simplify: boolean,
-        indent: number,
-        binaryNextLine: boolean,
-        switchCaseIndent: boolean,
-        spaceRedirects: boolean,
-        keepPadding: boolean,
-        minify: boolean,
-        singleLine: boolean,
-        functionNextLine: boolean,
-      ) => number
-    }
-
-    const filePath = encoder!.encode(filepath)
-    const text = encoder!.encode(originalText || (textOrAst as string))
-    const uStopAt = encoder!.encode(stopAt)
-
-    const filePathPointer = wasmAlloc(filePath.byteLength)
-    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
-
-    const textPointer = wasmAlloc(text.byteLength)
-    new Uint8Array(memory.buffer).set(text, textPointer)
-
-    const stopAtPointer = wasmAlloc(uStopAt.byteLength)
-    new Uint8Array(memory.buffer).set(uStopAt, stopAtPointer)
-
-    const resultPointer = process(
-      filePathPointer,
-      filePath.byteLength,
-      filePath.byteLength,
-
-      textPointer,
-      text.byteLength,
-      text.byteLength,
-
-      print,
-
-      keepComments,
-      variant,
-      stopAtPointer,
-      uStopAt.byteLength,
-      uStopAt.byteLength,
-      recoverErrors,
-
-      simplify,
-      indent,
-      binaryNextLine,
-      switchCaseIndent,
-      spaceRedirects,
-      keepPadding,
-      minify,
-      singleLine,
-      functionNextLine,
-    )
-
-    wasmFree(filePathPointer)
-    wasmFree(textPointer)
-    wasmFree(stopAtPointer)
-
-    const result = new Uint8Array(memory.buffer).subarray(resultPointer)
-    const end = result.indexOf(0)
-
-    const string = decoder!.decode(result.subarray(0, end))
-
-    // naive check whether the string is a json
-    /* istanbul ignore if -- @preserve */
-    if (!string.startsWith('{"') || !string.endsWith('}')) {
-      throw new ParseError({
-        Filename: filepath,
-        Incomplete: true,
-        Text: string,
-      })
-    }
-
-    const {
-      file,
-      text: processedText,
-      parseError,
-      message,
-    } = JSON.parse(string) as {
-      file: File
-      text: string
-      parseError: IParseError | null
-      message: string
-    }
-
-    if (parseError || message) {
-      /* istanbul ignore next -- @preserve */
-      throw parseError == null
-        ? new SyntaxError(message)
-        : new ParseError(parseError)
-    }
-
-    return print ? processedText : file
+    return invoke(wasm.instance.exports as ProcessExports, textOrAst, options)
   }
 
   return processor

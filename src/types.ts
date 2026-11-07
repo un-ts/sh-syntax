@@ -184,27 +184,37 @@ export interface ShOptions extends ShSyntaxOptions {
 }
 
 export interface ShPrintOptions extends ShOptions {
-  originalText: string
+  /**
+   * The source text the AST was parsed from.
+   *
+   * @deprecated ASTs returned by this package can be printed directly, so this
+   * option is only needed for legacy or hand-written AST objects.
+   */
+  originalText?: string
 }
 
 export interface Pos {
-  Col: number
-  Line: number
   Offset: number
+  Line: number
+  Col: number
 }
 
 export interface Node {
+  /** The mvdan/sh type name on nodes stored in interface fields. */
+  Type?: string
+  /** The node type, available on every node. */
+  __type?: string
   Pos: Pos
   End: Pos
 }
 
 export interface Comment extends Node {
+  Hash: Pos
   Text: string
 }
 
 export interface Word extends Node {
   Parts: Node[]
-  Lit: string
 }
 
 export interface Lit extends Node {
@@ -215,9 +225,9 @@ export interface Lit extends Node {
 
 export interface Redirect extends Node {
   OpPos: Pos
-  Op: string
+  Op: number
   N: Lit | null
-  Word: Word
+  Word: Word | null
   Hdoc: Word | null
 }
 
@@ -229,12 +239,14 @@ export interface Stmt extends Node {
   Negated: boolean
   Background: boolean
   Coprocess: boolean
+  Disown: boolean
   Redirs: Redirect[]
 }
 
 export interface File extends Node {
   Name: string
   Stmts: Stmt[]
+  Last: Comment[]
 }
 
 export interface IParseError {

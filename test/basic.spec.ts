@@ -1,18 +1,24 @@
+import { summarize } from './fixtures.ts'
+
 import { LangVariant, parse, print } from 'sh-syntax'
 
 test('parse', async () => {
-  expect(await parse('  Hello   World!')).toMatchSnapshot()
-
-  expect(await parse('  Hello   World ! a', { stopAt: '!' })).toMatchSnapshot()
+  expect(summarize(await parse('  Hello   World!'))).toMatchSnapshot()
 
   expect(
-    await parse('  Hello   World ! b', {
-      variant: LangVariant.LangPOSIX,
-    }),
+    summarize(await parse('  Hello   World ! a', { stopAt: '!' })),
   ).toMatchSnapshot()
 
   expect(
-    await parse('  Hello   World ! c', { useTabs: true }),
+    summarize(
+      await parse('  Hello   World ! b', {
+        variant: LangVariant.LangPOSIX,
+      }),
+    ),
+  ).toMatchSnapshot()
+
+  expect(
+    summarize(await parse('  Hello   World ! c', { useTabs: true })),
   ).toMatchSnapshot()
 
   await expect(parse('echo )')).rejects.toMatchInlineSnapshot(

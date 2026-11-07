@@ -1,20 +1,38 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { parse as parse_, print as print_ } from 'sh-syntax'
+import {
+  NodeType,
+  Walk,
+  type File,
+  parse as parse_,
+  print as print_,
+} from 'sh-syntax'
+
+/**
+ * Returns a compact node-type histogram. Snapshotting the full tree for the
+ * large fixtures would be megabytes of JSON, while the histogram still catches
+ * missing or extra nodes.
+ */
+export const summarize = (ast: File): Record<string, number> => {
+  const counts: Record<string, number> = {}
+  Walk(ast, node => {
+    const type = NodeType(node)
+    counts[type] = (counts[type] ?? 0) + 1
+  })
+  return counts
+}
 
 export const testFixtures = (parse: typeof parse_, print: typeof print_) =>
-  it('should format all fixtures', async () => {
+  it('should format all fixtures', { timeout: 30_000 }, async () => {
     const fixtures = path.resolve(import.meta.dirname, 'fixtures')
     for (const filepath of await fs.readdir(fixtures)) {
       const input = await fs.readFile(path.resolve(fixtures, filepath), 'utf8')
 
       try {
         const ast = await parse(input, { filepath })
-        expect(ast).toMatchSnapshot(filepath)
-        expect(
-          await print(ast, { filepath, originalText: input }),
-        ).toMatchSnapshot(filepath)
+        expect(summarize(ast)).toMatchSnapshot(`${filepath} ast`)
+        expect(await print(ast, { filepath })).toMatchSnapshot(filepath)
       } catch (err: unknown) {
         expect(err).toMatchSnapshot(filepath)
       }

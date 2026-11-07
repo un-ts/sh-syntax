@@ -2,14 +2,10 @@ package processor
 
 import (
 	"bytes"
-	"io"
+	"encoding/json"
+	"fmt"
 
 	"mvdan.cc/sh/v3/syntax"
-)
-
-var (
-	parser  *syntax.Parser
-	printer *syntax.Printer
 )
 
 type ParserOptions struct {
@@ -20,7 +16,7 @@ type ParserOptions struct {
 }
 
 type PrinterOptions struct {
-    Simplify         bool
+	Simplify         bool
 	Indent           uint
 	BinaryNextLine   bool
 	SwitchCaseIndent bool
@@ -36,11 +32,7 @@ type SyntaxOptions struct {
 	PrinterOptions
 }
 
-// `Parse` converts shell script text into a structured syntax tree.
-// It assembles parser options based on the provided configuration—such as whether to keep comments,
-// the shell syntax variant to use, an optional stopping point, and the desired error recovery level.
-// The supplied file path is used for contextual error reporting.
-// It returns a syntax.File representing the parsed script, or an error if parsing fails.
+// Parse converts shell script text into a structured syntax tree.
 func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
 	var options []syntax.ParserOption
 
@@ -54,46 +46,118 @@ func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.F
 		options = append(options, syntax.RecoverErrors(parserOptions.RecoverErrors))
 	}
 
-	parser = syntax.NewParser(options...)
+	parser := syntax.NewParser(options...)
 
 	return parser.Parse(bytes.NewReader([]byte(text)), filepath)
 }
 
-// `Print` returns the formatted shell script defined in originalText.
-// It first parses the input using the parser options in syntaxOptions and then prints the resulting
-// syntax tree using printer options—including indentation, single-line formatting, and others.
-// The filepath parameter is used for context in error messages. On success, Print returns the formatted
-// script as a string, or an error if parsing or printing fails.
+// Print returns the formatted shell script defined in originalText.
 func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (string, error) {
 	file, err := Parse(originalText, filepath, syntaxOptions.ParserOptions)
-
 	if err != nil {
 		return "", err
 	}
 
-	if syntaxOptions.Simplify || syntaxOptions.Minify {
-		syntax.Simplify(file)
+	return PrintNode(file, syntaxOptions.PrinterOptions)
+}
+
+// PrintNode formats an already parsed syntax node.
+func PrintNode(node syntax.Node, printerOptions PrinterOptions) (string, error) {
+	if printerOptions.Simplify || printerOptions.Minify {
+		syntax.Simplify(node)
 	}
 
-	printer = syntax.NewPrinter(
-		syntax.Indent(syntaxOptions.Indent),
-		syntax.BinaryNextLine(syntaxOptions.BinaryNextLine),
-		syntax.SwitchCaseIndent(syntaxOptions.SwitchCaseIndent),
-		syntax.SpaceRedirects(syntaxOptions.SpaceRedirects),
-		syntax.KeepPadding(syntaxOptions.KeepPadding),
-		syntax.Minify(syntaxOptions.Minify),
-		syntax.SingleLine(syntaxOptions.SingleLine),
-		syntax.FunctionNextLine(syntaxOptions.FunctionNextLine),
+	printer := syntax.NewPrinter(
+		syntax.Indent(printerOptions.Indent),
+		syntax.BinaryNextLine(printerOptions.BinaryNextLine),
+		syntax.SwitchCaseIndent(printerOptions.SwitchCaseIndent),
+		syntax.SpaceRedirects(printerOptions.SpaceRedirects),
+		syntax.KeepPadding(printerOptions.KeepPadding),
+		syntax.Minify(printerOptions.Minify),
+		syntax.SingleLine(printerOptions.SingleLine),
+		syntax.FunctionNextLine(printerOptions.FunctionNextLine),
 	)
 
 	var buf bytes.Buffer
-	writer := io.Writer(&buf)
-
-	err = printer.Print(writer, file)
-
-	if err != nil {
+	if err := printer.Print(&buf, node); err != nil {
 		return "", err
 	}
 
-	return buf.String(), err
+	return buf.String(), nil
+}
+
+// Process processes the input file path and text by performing either
+// formatting or parsing, based on the mode.
+//
+// Modes:
+//   - 0: parse text into a full typed syntax tree
+//   - 1: format text
+//   - 2: format an already parsed syntax tree supplied as JSON
+//
+// The result is a JSON envelope.
+func Process(
+	filepathBytes []byte,
+	textBytes []byte,
+
+	mode int,
+
+	parserOptions ParserOptions,
+	printerOptions PrinterOptions,
+) []byte {
+	filepath := string(filepathBytes)
+	text := string(textBytes)
+
+	result := Result{
+		File: json.RawMessage("null"),
+	}
+
+	var err error
+
+	switch mode {
+	case 0:
+		var file *syntax.File
+		file, err = Parse(text, filepath, parserOptions)
+		if file == nil {
+			file = &syntax.File{}
+		}
+		var encoded bytes.Buffer
+		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
+			err = encodeErr
+			break
+		}
+		result.File = encoded.Bytes()
+	case 1:
+		result.Text, err = Print(text, filepath, SyntaxOptions{
+			ParserOptions:  parserOptions,
+			PrinterOptions: printerOptions,
+		})
+	case 2:
+		var node syntax.Node
+		node, err = DecodeNode(bytes.NewReader(textBytes))
+		if err == nil {
+			result.Text, err = PrintNode(node, printerOptions)
+		}
+	default:
+		err = fmt.Errorf("unknown process mode: %d", mode)
+	}
+
+	if err != nil {
+		result.Message = err.Error()
+	}
+	if parseError, message := MapParseError(err); parseError != nil {
+		result.ParseError = parseError
+		if message != "" {
+			result.Message = message
+		}
+	}
+
+	encoded, marshalErr := json.Marshal(result)
+	if marshalErr != nil {
+		encoded = []byte(marshalErr.Error())
+	}
+
+	return encoded
+}
+
+func main() {
 }

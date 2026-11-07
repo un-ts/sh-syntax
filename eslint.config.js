@@ -4,7 +4,7 @@ import stylistic from '@stylistic/eslint-plugin'
 export default [
   ...base,
   {
-    ignores: ['vendors'],
+    ignores: ['vendors', 'shell'],
   },
   {
     plugins: {

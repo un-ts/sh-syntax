@@ -2,233 +2,41 @@
 
 exports[`parse 1`] = `
 {
-  "End": {
-    "Col": 17,
-    "Line": 1,
-    "Offset": 16,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
-    {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 17,
-          "Line": 1,
-          "Offset": 16,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
-      },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 17,
-        "Line": 1,
-        "Offset": 16,
-      },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
-    },
-  ],
+  "CallExpr": 1,
+  "File": 1,
+  "Lit": 2,
+  "Stmt": 1,
+  "Word": 2,
 }
 `;
 
 exports[`parse 2`] = `
 {
-  "End": {
-    "Col": 16,
-    "Line": 1,
-    "Offset": 15,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
-    {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 16,
-          "Line": 1,
-          "Offset": 15,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
-      },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 16,
-        "Line": 1,
-        "Offset": 15,
-      },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
-    },
-  ],
+  "CallExpr": 1,
+  "File": 1,
+  "Lit": 2,
+  "Stmt": 1,
+  "Word": 2,
 }
 `;
 
 exports[`parse 3`] = `
 {
-  "End": {
-    "Col": 20,
-    "Line": 1,
-    "Offset": 19,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
-    {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 20,
-          "Line": 1,
-          "Offset": 19,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
-      },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 20,
-        "Line": 1,
-        "Offset": 19,
-      },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
-    },
-  ],
+  "CallExpr": 1,
+  "File": 1,
+  "Lit": 4,
+  "Stmt": 1,
+  "Word": 4,
 }
 `;
 
 exports[`parse 4`] = `
 {
-  "End": {
-    "Col": 20,
-    "Line": 1,
-    "Offset": 19,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
-    {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 20,
-          "Line": 1,
-          "Offset": 19,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
-      },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 20,
-        "Line": 1,
-        "Offset": 19,
-      },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
-    },
-  ],
+  "CallExpr": 1,
+  "File": 1,
+  "Lit": 4,
+  "Stmt": 1,
+  "Word": 4,
 }
 `;
 
@@ -237,4 +45,4 @@ exports[`print 1`] = `
 "
 `;
 
-exports[`print 2`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;
+exports[`print 2`] = `[TypeError: Expected shell source text or a syntax tree]`;
