@@ -5,8 +5,8 @@ import {
   NodeType,
   Walk,
   type File,
+  type ShOptions,
   parse as parse_,
-  print as print_,
 } from 'sh-syntax'
 
 /**
@@ -23,7 +23,9 @@ export const summarize = (ast: File): Record<string, number> => {
   return counts
 }
 
-export const testFixtures = (parse: typeof parse_, print: typeof print_) =>
+type Print = (text: string, options?: ShOptions) => Promise<string>
+
+export const testFixtures = (parse: typeof parse_, print: Print) =>
   it('should format all fixtures', { timeout: 30_000 }, async () => {
     const fixtures = path.resolve(import.meta.dirname, 'fixtures')
     for (const filepath of await fs.readdir(fixtures)) {

@@ -7,7 +7,6 @@ import {
   type GetWebAssemblyInstance,
   type ShOptions,
   getProcessor,
-  print as print_,
 } from 'sh-syntax'
 
 describe('processor', () => {
@@ -27,7 +26,7 @@ describe('processor', () => {
 
   const parse = (text: string, options?: ShOptions) => processor(text, options)
 
-  const print: typeof print_ = (text, options) =>
+  const print = (text: string, options?: ShOptions) =>
     processor(text, {
       ...options,
       print: true,

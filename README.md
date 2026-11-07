@@ -52,6 +52,10 @@ const ast = await parse(text)
 
 // print() formats source text; printing an edited AST is a planned follow-up.
 const formatted = await print(text)
+
+// Compatibility: print(ast, { originalText }) is accepted, but the AST is
+// ignored and originalText is formatted.
+const legacyFormatted = await print(ast, { originalText: text })
 ```
 
 The synchronous API is available as `parseSync` and `printSync`:

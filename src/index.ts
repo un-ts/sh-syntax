@@ -7,7 +7,7 @@ import './shim.js'
 import '../vendors/wasm_exec.cjs'
 
 import { createSyncProcessor, getProcessor } from './processor.js'
-import type { ShOptions } from './types.js'
+import type { File, ShOptions, ShPrintOptions } from './types.js'
 
 const importMetaUrl = import.meta.url
 
@@ -23,11 +23,32 @@ export const processor = getProcessor(() =>
 export const parse = (text: string, options?: ShOptions) =>
   processor(text, options)
 
-export const print = (text: string, options?: ShOptions): Promise<string> =>
-  processor(text, {
+const printSource = (
+  textOrAst: File | string,
+  options?: ShOptions & { originalText?: string },
+): string => {
+  if (typeof textOrAst === 'string') {
+    return textOrAst
+  }
+  if (options?.originalText == null) {
+    throw new TypeError(
+      'print(ast) is not supported yet; pass { originalText } to format the source text',
+    )
+  }
+  return options.originalText
+}
+
+export function print(text: string, options?: ShOptions): Promise<string>
+export function print(ast: File, options: ShPrintOptions): Promise<string>
+export function print(
+  textOrAst: File | string,
+  options?: ShOptions & { originalText?: string },
+): Promise<string> {
+  return processor(printSource(textOrAst, options), {
     ...options,
     print: true,
   })
+}
 
 let syncProcessor: ReturnType<typeof createSyncProcessor> | undefined
 
@@ -39,11 +60,17 @@ const getSyncProcessor = () =>
 export const parseSync = (text: string, options?: ShOptions) =>
   getSyncProcessor()(text, options)
 
-export const printSync = (text: string, options?: ShOptions): string =>
-  getSyncProcessor()(text, {
+export function printSync(text: string, options?: ShOptions): string
+export function printSync(ast: File, options: ShPrintOptions): string
+export function printSync(
+  textOrAst: File | string,
+  options?: ShOptions & { originalText?: string },
+): string {
+  return getSyncProcessor()(printSource(textOrAst, options), {
     ...options,
     print: true,
   })
+}
 
 export { DebugPrint, IsIncomplete, NodeType, Walk } from './ast.js'
 export * from './processor.js'

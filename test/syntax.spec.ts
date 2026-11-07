@@ -44,6 +44,16 @@ test('rejects non-text input', () => {
   expect(() => parseSync(null as never)).toThrow(TypeError)
 })
 
+test('print(ast, { originalText }) ignores the AST', () => {
+  const ast = parseSync('echo old\n')
+  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
+  const literal = call.args[0].parts[0] as unknown as { value: string }
+  literal.value = 'new'
+
+  expect(printSync(ast, { originalText: 'echo  old\n' })).toBe('echo old\n')
+  expect(() => printSync(ast, {} as never)).toThrow(TypeError)
+})
+
 test('print formats text', () => {
   expect(printSync('echo  old\n')).toBe('echo old\n')
 })

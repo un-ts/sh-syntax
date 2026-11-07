@@ -176,6 +176,11 @@ export interface ShPrinterOptions {
 
 export interface ShSyntaxOptions extends ShParserOptions, ShPrinterOptions {}
 
+export interface ShPrintOptions extends ShOptions {
+  /** The source text to format. The AST is accepted for compatibility and is ignored. */
+  originalText: string
+}
+
 export interface ShOptions extends ShSyntaxOptions {
   filepath?: string
 
