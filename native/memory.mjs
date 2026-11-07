@@ -58,9 +58,6 @@ let parse
 if (mode === 'napi') {
   const binding = require('./linux-x64-gnu/build/Release/sh_syntax_binding.node')
   parse = () => JSON.parse(binding.parse('echo hi\n', 'x.sh')).ast
-} else if (mode === 'wasm') {
-  const { parseSync } = await import('../lib/index.js')
-  parse = () => parseSync('echo hi\n')
 } else {
   throw new Error(`Unknown mode: ${mode}`)
 }

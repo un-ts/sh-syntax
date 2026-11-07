@@ -2,11 +2,15 @@
 
 This directory is a feasibility spike for the native-first direction in #146. It is not published and not wired into the package yet.
 
-- Go: `native/shsyntax.go` builds a `c-shared` library exposing `sh_syntax_parse`/`sh_syntax_free`.
-- N-API: `native/linux-x64-gnu/binding.cc` wraps the C ABI.
+- Go: `native/shsyntax.go` builds a `c-shared` library exposing `sh_syntax_parse` / `sh_syntax_print` / `sh_syntax_free`.
+- N-API: `native/linux-x64-gnu/binding.cc` wraps the C ABI and exports `parse` and `print`.
 - Package name (validation only): `@ungo/sh-syntax-binding-linux-x64-gnu`.
 
-Build on Linux x64 with Go, Node.js headers, and a C/C++ toolchain:
+WASM is deliberately excluded from the performance matrix. It is only used to validate that native `parse` and `print(text)` produce the same result.
+
+## Build
+
+On Linux x64 with Go, Node.js headers, and a C/C++ toolchain:
 
 ```sh
 go build -buildmode=c-shared -o build/libshsyntax.so native/shsyntax.go
@@ -24,32 +28,43 @@ zig c++ -shared -fPIC -I"$NODE_HEADERS/include/node" \
   -Wl,-rpath,"$PWD/build" -o native/linux-x64-gnu/build/Release/sh_syntax_binding.node
 ```
 
-Run the comparison with:
+## API parity
 
-```sh
-CGO_ENABLED=0 go build -trimpath -o native/sh-syntax-native ./native/cli
-node native/benchmark.mjs
-```
+`native/validate.mjs` compares native output with the WASM implementation:
 
-Validation observed on Linux x64 (Go 1.27.3, Node 26, latest run):
+- AST: 11/11 parseable fixtures
+- `print(text)`: 11/11 fixtures
 
-| case | N-API addon | WASM | CLI + spawnSync | CLI daemon (async) |
-|---|---:|---:|---:|---:|
-| `echo hi` | <0.1ms | 2.6ms | 4.1ms | 0.2ms |
-| `install.sh` (140KB) | 145ms | 154ms | 189ms | 121ms |
+WASM is not benchmarked because it is the fallback path, not the performance target.
 
-- AST parity: 11/11 parseable fixtures matched the WASM AST
-- 50,000 `parse('echo hi')` calls: RSS +14MB for the addon vs multi-GB/OOM on the current leaking-WASM sync path
+## Native performance
 
-Memory growth for repeated synchronous `parse('echo hi')` calls (separate processes, `global.gc()` between measurements):
+Latest run on Linux x64, Go 1.27.3, Node 26:
 
-| calls | N-API addon RSS delta | WASM RSS delta | daemon parent + child |
-|---:|---:|---:|---:|
-| 2,000 | +6.3MB | +452.2MB | +10.8MB |
-| 5,000 | +7.0MB | +1,097.6MB | +11.7MB |
-| 10,000 | +7.0MB | +2,156.8MB | +15.9MB |
-| 50,000 | +11.9MB | OOM | +16.1MB |
+| case | N-API addon | CLI + spawnSync | CLI daemon (async) |
+|---|---:|---:|---:|
+| `echo hi` | <0.1ms | 4.1ms | 0.2ms |
+| `install.sh` (140KB) | 145ms | 189ms | 121ms |
 
-The N-API addon plateaus because Go's GC reclaims the temporary ASTs. The daemon column is the Node parent plus the native child RSS; both are stable. The current leaking-WASM sync path retains one instance per call until the event loop yields, so it grows linearly.
+The daemon is the persistent esbuild-style case: one long-lived child process and a line-delimited JSON protocol. It is async here; a synchronous API would need an additional worker + `Atomics.wait` bridge. The `spawnSync` case is the conservative one-process-per-call upper bound.
 
-The CLI daemon is the persistent esbuild-style case: one long-lived child process and a line-delimited JSON protocol. It is measured asynchronously here; a synchronous API would need an additional worker + `Atomics.wait` bridge. The pure `spawnSync` case is the conservative one-process-per-call upper bound. These numbers are a spike, not a release guarantee.
+Memory growth for repeated synchronous `parse('echo hi')` calls, measured in isolated processes:
+
+| calls | N-API addon RSS delta | daemon parent + child |
+|---:|---:|---:|
+| 2,000 | +6.3MB | +10.8MB |
+| 5,000 | +7.0MB | +11.7MB |
+| 10,000 | +7.0MB | +15.9MB |
+| 50,000 | +11.9MB | +16.1MB |
+
+Both native paths plateau; the addon avoids the extra process.
+
+## `print(ast)` requirement
+
+Text print is validated. Printing an AST after JS-side mutations is the remaining Phase 2 design problem:
+
+- N-API can accept the JS AST directly, but Go still needs a generated, non-reflective decoder.
+- A daemon needs the same AST representation on the wire.
+- The decoder must handle added/removed nodes, comments, and positions; it cannot be a reflective `encoding/json` decode of the existing output alone.
+
+The native API can diverge from the WASM API here; the priority is the native parse/print performance path, not API symmetry.

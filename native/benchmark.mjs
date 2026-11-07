@@ -2,7 +2,6 @@ import { spawn, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import { createInterface } from 'node:readline'
 import { createRequire } from 'node:module'
-import { parseSync } from '../lib/index.js'
 
 const require = createRequire(import.meta.url)
 const binding = require('./linux-x64-gnu/build/Release/sh_syntax_binding.node')
@@ -16,7 +15,6 @@ const nativeCli = text => {
   if (result.status !== 0) throw new Error(result.stderr)
   return JSON.parse(result.stdout).ast
 }
-const wasm = text => parseSync(text, { keepComments: true, filepath: 'bench.sh' })
 
 class NativeDaemon {
   constructor() {
@@ -71,7 +69,6 @@ try {
     console.log(`input: ${text.length} bytes`)
     for (const [name, fn] of [
       ['napi', nativeAddon],
-      ['wasm', wasm],
       ['cli-spawn', nativeCli],
     ]) {
       const result = bench(name, () => fn(text), n)
