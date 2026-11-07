@@ -21,12 +21,13 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-export type WebAssemblySource = Buffer | BufferSource | Response
+export type WebAssemblyBaseSource = Buffer | BufferSource
+export type WebAssemblySource = Response | WebAssemblyBaseSource
 
 export type GetWebAssemblySource = () =>
   Promise<WebAssemblySource> | WebAssemblySource
 
-export type GetWebAssemblySourceSync = () => Buffer | BufferSource
+export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -224,7 +225,7 @@ const invoke = (
  * asynchronous [getProcessor] remains the recommended browser entry point.
  */
 export const getProcessorSync = (
-  getWasm: Buffer | BufferSource | GetWebAssemblySourceSync,
+  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource,
 ) => {
   const module = new WebAssembly.Module(
     typeof getWasm === 'function' ? getWasm() : getWasm,
@@ -276,11 +277,15 @@ export const getProcessor = (
         .trim()
         .toLowerCase()
 
+      /*
+       * Node 16/17 have neither compileStreaming nor Response. Check
+       * compileStreaming first so those runtimes short-circuit before the
+       * instanceof, then fall back to arrayBuffer below.
+       */
       if (
-        typeof Response !== 'undefined' &&
+        typeof WebAssembly.compileStreaming === 'function' &&
         source instanceof Response &&
-        contentType === 'application/wasm' &&
-        typeof WebAssembly.compileStreaming === 'function'
+        contentType === 'application/wasm'
       ) {
         return WebAssembly.compileStreaming(source)
       }
