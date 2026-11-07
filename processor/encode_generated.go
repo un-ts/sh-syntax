@@ -666,6 +666,12 @@ func encodeParamExp(buf *bytes.Buffer, v *syntax.ParamExp) {
 	writeBool(buf, v.Width)
 	writeKeyFirst(buf, "isSet", &first)
 	writeBool(buf, v.IsSet)
+	writeKeyFirst(buf, "split", &first)
+	writeUint(buf, uint64(v.Split))
+	writeKeyFirst(buf, "globSubst", &first)
+	writeUint(buf, uint64(v.GlobSubst))
+	writeKeyFirst(buf, "rcExpand", &first)
+	writeUint(buf, uint64(v.RcExpand))
 	writeKeyFirst(buf, "param", &first)
 	if v.Param == nil {
 		buf.WriteString("null")
