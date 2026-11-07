@@ -8,9 +8,11 @@ const isNode = (value: unknown): value is Node =>
 const childrenOf = (node: Node): Node[] => {
   const children: Node[] = []
 
-  const values: unknown[] = Object.values(node)
+  const object = node as unknown as Record<string, unknown>
 
-  for (const value of values) {
+  for (const key in object) {
+    const value = object[key]
+
     if (Array.isArray(value)) {
       children.push(...(value as Node[]))
     } else if (isNode(value)) {
