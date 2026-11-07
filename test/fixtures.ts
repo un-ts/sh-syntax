@@ -22,7 +22,14 @@ type Print = (text: string, options?: ShOptions) => Promise<string>
 export const testFixtures = (parse: typeof parse_, print: Print) =>
   it('should format all fixtures', { timeout: 30_000 }, async () => {
     const fixtures = path.resolve(import.meta.dirname, 'fixtures')
-    for (const filepath of await fs.readdir(fixtures)) {
+    const files = await fs.readdir(fixtures)
+
+    const check = async (index: number): Promise<void> => {
+      if (index >= files.length) {
+        return
+      }
+
+      const filepath = files[index]
       const input = await fs.readFile(path.resolve(fixtures, filepath), 'utf8')
 
       try {
@@ -32,5 +39,9 @@ export const testFixtures = (parse: typeof parse_, print: Print) =>
       } catch (err: unknown) {
         expect(err).toMatchSnapshot(filepath)
       }
+
+      await check(index + 1)
     }
+
+    await check(0)
   })

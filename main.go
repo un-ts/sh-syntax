@@ -50,7 +50,7 @@ func process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	print bool,
+	printOutput bool,
 
 	// parser
 	keepComments bool,
@@ -91,7 +91,7 @@ func process(
 	bytes := processor.Process(
 		filepathBytes,
 		textBytes,
-		print,
+		printOutput,
 		parserOptions,
 		printerOptions,
 	)

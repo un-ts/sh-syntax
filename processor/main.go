@@ -87,7 +87,7 @@ func Process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	print bool,
+	printOutput bool,
 
 	parserOptions ParserOptions,
 	printerOptions PrinterOptions,
@@ -101,7 +101,7 @@ func Process(
 
 	var err error
 
-	if print {
+	if printOutput {
 		textOut, err = Print(text, filepath, SyntaxOptions{
 			ParserOptions:  parserOptions,
 			PrinterOptions: printerOptions,
@@ -149,7 +149,4 @@ func Process(
 	writeString(&out, message)
 	out.WriteByte('}')
 	return out.Bytes()
-}
-
-func main() {
 }
