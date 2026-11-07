@@ -2,233 +2,441 @@
 
 exports[`parse 1`] = `
 {
-  "End": {
-    "Col": 17,
-    "Line": 1,
-    "Offset": 16,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
+  "end": 16,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
     {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 17,
-          "Line": 1,
-          "Offset": 16,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 16,
+            "parts": [
+              {
+                "end": 16,
+                "start": 10,
+                "type": "Lit",
+                "value": "World!",
+                "valueEnd": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 16,
+        "start": 2,
+        "type": "CallExpr",
       },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 17,
-        "Line": 1,
-        "Offset": 16,
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 16,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
       },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
       },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
+      "start": 2,
+      "type": "Stmt",
     },
   ],
+  "type": "File",
 }
 `;
 
 exports[`parse 2`] = `
 {
-  "End": {
-    "Col": 16,
-    "Line": 1,
-    "Offset": 15,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
+  "end": 15,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
     {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 16,
-          "Line": 1,
-          "Offset": 15,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 15,
+        "start": 2,
+        "type": "CallExpr",
       },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 16,
-        "Line": 1,
-        "Offset": 15,
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 15,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
       },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
       },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
+      "start": 2,
+      "type": "Stmt",
     },
   ],
+  "type": "File",
 }
 `;
 
 exports[`parse 3`] = `
 {
-  "End": {
-    "Col": 20,
-    "Line": 1,
-    "Offset": 19,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
+  "end": 19,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
     {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 20,
-          "Line": 1,
-          "Offset": 19,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+          {
+            "end": 17,
+            "parts": [
+              {
+                "end": 17,
+                "start": 16,
+                "type": "Lit",
+                "value": "!",
+                "valueEnd": {
+                  "column": 17,
+                  "line": 1,
+                  "offset": 17,
+                },
+                "valuePos": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+              },
+            ],
+            "start": 16,
+            "type": "Word",
+          },
+          {
+            "end": 19,
+            "parts": [
+              {
+                "end": 19,
+                "start": 18,
+                "type": "Lit",
+                "value": "b",
+                "valueEnd": {
+                  "column": 19,
+                  "line": 1,
+                  "offset": 19,
+                },
+                "valuePos": {
+                  "column": 18,
+                  "line": 1,
+                  "offset": 18,
+                },
+              },
+            ],
+            "start": 18,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 19,
+        "start": 2,
+        "type": "CallExpr",
       },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 20,
-        "Line": 1,
-        "Offset": 19,
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 19,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
       },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
       },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
+      "start": 2,
+      "type": "Stmt",
     },
   ],
+  "type": "File",
 }
 `;
 
 exports[`parse 4`] = `
 {
-  "End": {
-    "Col": 20,
-    "Line": 1,
-    "Offset": 19,
-  },
-  "Last": [],
-  "Name": "",
-  "Pos": {
-    "Col": 3,
-    "Line": 1,
-    "Offset": 2,
-  },
-  "Stmts": [
+  "end": 19,
+  "lastComments": [],
+  "name": "",
+  "start": 2,
+  "stmts": [
     {
-      "Background": false,
-      "Cmd": {
-        "End": {
-          "Col": 20,
-          "Line": 1,
-          "Offset": 19,
-        },
-        "Pos": {
-          "Col": 3,
-          "Line": 1,
-          "Offset": 2,
-        },
+      "background": false,
+      "cmd": {
+        "args": [
+          {
+            "end": 7,
+            "parts": [
+              {
+                "end": 7,
+                "start": 2,
+                "type": "Lit",
+                "value": "Hello",
+                "valueEnd": {
+                  "column": 7,
+                  "line": 1,
+                  "offset": 7,
+                },
+                "valuePos": {
+                  "column": 2,
+                  "line": 1,
+                  "offset": 2,
+                },
+              },
+            ],
+            "start": 2,
+            "type": "Word",
+          },
+          {
+            "end": 15,
+            "parts": [
+              {
+                "end": 15,
+                "start": 10,
+                "type": "Lit",
+                "value": "World",
+                "valueEnd": {
+                  "column": 15,
+                  "line": 1,
+                  "offset": 15,
+                },
+                "valuePos": {
+                  "column": 10,
+                  "line": 1,
+                  "offset": 10,
+                },
+              },
+            ],
+            "start": 10,
+            "type": "Word",
+          },
+          {
+            "end": 17,
+            "parts": [
+              {
+                "end": 17,
+                "start": 16,
+                "type": "Lit",
+                "value": "!",
+                "valueEnd": {
+                  "column": 17,
+                  "line": 1,
+                  "offset": 17,
+                },
+                "valuePos": {
+                  "column": 16,
+                  "line": 1,
+                  "offset": 16,
+                },
+              },
+            ],
+            "start": 16,
+            "type": "Word",
+          },
+          {
+            "end": 19,
+            "parts": [
+              {
+                "end": 19,
+                "start": 18,
+                "type": "Lit",
+                "value": "c",
+                "valueEnd": {
+                  "column": 19,
+                  "line": 1,
+                  "offset": 19,
+                },
+                "valuePos": {
+                  "column": 18,
+                  "line": 1,
+                  "offset": 18,
+                },
+              },
+            ],
+            "start": 18,
+            "type": "Word",
+          },
+        ],
+        "assigns": [],
+        "end": 19,
+        "start": 2,
+        "type": "CallExpr",
       },
-      "Comments": [],
-      "Coprocess": false,
-      "End": {
-        "Col": 20,
-        "Line": 1,
-        "Offset": 19,
+      "comments": [],
+      "coprocess": false,
+      "disown": false,
+      "end": 19,
+      "negated": false,
+      "position": {
+        "column": 2,
+        "line": 1,
+        "offset": 2,
       },
-      "Negated": false,
-      "Pos": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
+      "redirs": [],
+      "semicolon": {
+        "column": 0,
+        "line": 0,
+        "offset": 0,
       },
-      "Position": {
-        "Col": 3,
-        "Line": 1,
-        "Offset": 2,
-      },
-      "Redirs": [],
-      "Semicolon": {
-        "Col": 0,
-        "Line": 0,
-        "Offset": 0,
-      },
+      "start": 2,
+      "type": "Stmt",
     },
   ],
+  "type": "File",
 }
 `;
 
@@ -236,5 +444,3 @@ exports[`print 1`] = `
 "Hello World ! d
 "
 `;
-
-exports[`print 2`] = `[TypeError: \`originalText\` is required for now, hope we will find better solution later]`;

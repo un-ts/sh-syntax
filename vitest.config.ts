@@ -8,10 +8,10 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    include: ['test/**/*.spec.ts'],
     coverage: {
       enabled: true,
-      include: ['src'],
-      exclude: ['**/*.json'],
+      include: ['src/*.ts'],
       provider: 'istanbul',
       reporter: ['lcov', 'json', 'text'],
     },

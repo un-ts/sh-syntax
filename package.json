@@ -9,7 +9,7 @@
   "license": "MIT",
   "packageManager": "yarn@4.17.0",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "main": "./lib/index.cjs",
   "types": "./lib/index.d.cts",
@@ -45,8 +45,8 @@
     "build": "run-p 'build:*'",
     "build:tsc": "tsc -p src --declaration false && tsc -p src --removeComments false --emitDeclarationOnly",
     "build:tsdown": "tsdown --no-clean -d lib --format cjs --external '../vendors/wasm_exec.cjs' src/index.ts",
-    "easyjson": "easyjson --all processor/structs.go",
     "format": "prettier --write .",
+    "gen:encoder": "go run ./scripts/gen-encoder && prettier --write src/ast-types.ts src/operators.ts",
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
@@ -54,7 +54,7 @@
     "release": "clean-pkg-json && changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "tinygo build -o main.wasm -target ./target.json --no-debug"
+    "wasm": "yarn gen:encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
   },
   "devDependencies": {
     "@1stg/common-config": "^15.0.0",

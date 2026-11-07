@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -6,9 +7,8 @@ import { testFixtures } from './fixtures.ts'
 import {
   type GetWebAssemblyInstance,
   type ShOptions,
-  type ShPrintOptions,
   getProcessor,
-  print as print_,
+  getProcessorSync,
 } from 'sh-syntax'
 
 describe('processor', () => {
@@ -28,15 +28,128 @@ describe('processor', () => {
 
   const parse = (text: string, options?: ShOptions) => processor(text, options)
 
-  const print: typeof print_ = (textOrAst, options) => {
-    if (typeof textOrAst === 'string') {
-      return processor(textOrAst, {
-        ...options,
-        print: true,
-      })
-    }
-    return processor(textOrAst, options as ShPrintOptions)
-  }
+  const print = (text: string, options?: ShOptions) =>
+    processor(text, {
+      ...options,
+      print: true,
+    })
 
   testFixtures(parse, print)
+
+  test('getProcessor streams a WASM response', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    const streaming = getProcessor(() =>
+      Promise.resolve(
+        new Response(wasm, {
+          headers: { 'Content-Type': 'application/wasm' },
+        }),
+      ),
+    )
+
+    await expect(streaming('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+  })
+
+  test('getProcessor falls back without compileStreaming', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    const descriptor = Object.getOwnPropertyDescriptor(
+      WebAssembly,
+      'compileStreaming',
+    )
+    Object.defineProperty(WebAssembly, 'compileStreaming', {
+      configurable: true,
+      value: undefined,
+    })
+
+    try {
+      const fallback = getProcessor(() =>
+        Promise.resolve(
+          new Response(wasm, {
+            headers: { 'Content-Type': 'application/wasm' },
+          }),
+        ),
+      )
+
+      await expect(fallback('echo hi\n')).resolves.toMatchObject({
+        type: 'File',
+      })
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(WebAssembly, 'compileStreaming', descriptor)
+      }
+    }
+  })
+
+  test('getProcessor retries module loading after a failure', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    let attempts = 0
+    const processor = getProcessor(() => {
+      attempts++
+      return attempts === 1
+        ? Promise.reject(new Error('load failed'))
+        : Promise.resolve(wasm)
+    })
+
+    await expect(processor('echo hi\n')).rejects.toThrow('load failed')
+    await expect(processor('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+    expect(attempts).toBe(2)
+  })
+
+  test('getProcessor accepts response-like sources', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    const responseLike = {
+      arrayBuffer: () => Promise.resolve(wasm.buffer),
+    }
+    const processor = getProcessor(() => responseLike)
+
+    await expect(processor('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+  })
+
+  test('getProcessor falls back for a non-WASM response', async () => {
+    const wasm = new Uint8Array(
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+    const fallback = getProcessor(() =>
+      Promise.resolve(
+        new Response(wasm, {
+          headers: { 'Content-Type': 'application/octet-stream' },
+        }),
+      ),
+    )
+
+    await expect(fallback('echo hi\n')).resolves.toMatchObject({
+      type: 'File',
+    })
+  })
+
+  test('getProcessorSync handles repeated calls', () => {
+    const sync = getProcessorSync(() =>
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+
+    for (let i = 0; i < 1000; i++) {
+      expect(sync('echo hi\n').type).toBe('File')
+    }
+  })
+
+  test('getProcessorSync accepts a synchronous loader', () => {
+    const sync = getProcessorSync(() =>
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+
+    expect(sync('echo hi\n').type).toBe('File')
+  })
 })

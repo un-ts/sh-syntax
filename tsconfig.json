@@ -6,5 +6,6 @@
     "paths": {
       "sh-syntax": ["./src/index.ts"]
     }
-  }
+  },
+  "include": ["src", "test", "benchmark", "vitest.config.ts"]
 }

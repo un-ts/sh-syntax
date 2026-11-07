@@ -2,14 +2,9 @@ package processor
 
 import (
 	"bytes"
-	"io"
+	"encoding/json"
 
 	"mvdan.cc/sh/v3/syntax"
-)
-
-var (
-	parser  *syntax.Parser
-	printer *syntax.Printer
 )
 
 type ParserOptions struct {
@@ -20,7 +15,7 @@ type ParserOptions struct {
 }
 
 type PrinterOptions struct {
-    Simplify         bool
+	Simplify         bool
 	Indent           uint
 	BinaryNextLine   bool
 	SwitchCaseIndent bool
@@ -36,11 +31,7 @@ type SyntaxOptions struct {
 	PrinterOptions
 }
 
-// `Parse` converts shell script text into a structured syntax tree.
-// It assembles parser options based on the provided configuration—such as whether to keep comments,
-// the shell syntax variant to use, an optional stopping point, and the desired error recovery level.
-// The supplied file path is used for contextual error reporting.
-// It returns a syntax.File representing the parsed script, or an error if parsing fails.
+// Parse converts shell script text into a structured syntax tree.
 func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
 	var options []syntax.ParserOption
 
@@ -54,19 +45,14 @@ func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.F
 		options = append(options, syntax.RecoverErrors(parserOptions.RecoverErrors))
 	}
 
-	parser = syntax.NewParser(options...)
+	parser := syntax.NewParser(options...)
 
 	return parser.Parse(bytes.NewReader([]byte(text)), filepath)
 }
 
-// `Print` returns the formatted shell script defined in originalText.
-// It first parses the input using the parser options in syntaxOptions and then prints the resulting
-// syntax tree using printer options—including indentation, single-line formatting, and others.
-// The filepath parameter is used for context in error messages. On success, Print returns the formatted
-// script as a string, or an error if parsing or printing fails.
+// Print returns the formatted shell script defined in originalText.
 func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (string, error) {
 	file, err := Parse(originalText, filepath, syntaxOptions.ParserOptions)
-
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +61,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		syntax.Simplify(file)
 	}
 
-	printer = syntax.NewPrinter(
+	printer := syntax.NewPrinter(
 		syntax.Indent(syntaxOptions.Indent),
 		syntax.BinaryNextLine(syntaxOptions.BinaryNextLine),
 		syntax.SwitchCaseIndent(syntaxOptions.SwitchCaseIndent),
@@ -87,13 +73,85 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 	)
 
 	var buf bytes.Buffer
-	writer := io.Writer(&buf)
-
-	err = printer.Print(writer, file)
-
-	if err != nil {
+	if err := printer.Print(&buf, file); err != nil {
 		return "", err
 	}
 
-	return buf.String(), err
+	return buf.String(), nil
+}
+
+// Process processes the input file path and text by performing either
+// formatting or parsing, based on the print flag. The result is a JSON
+// envelope.
+func Process(
+	filepathBytes []byte,
+	textBytes []byte,
+
+	printOutput bool,
+
+	parserOptions ParserOptions,
+	printerOptions PrinterOptions,
+) []byte {
+	filepath := string(filepathBytes)
+	text := string(textBytes)
+
+	fileJSON := []byte("null")
+	textOut := ""
+	message := ""
+
+	var err error
+
+	if printOutput {
+		textOut, err = Print(text, filepath, SyntaxOptions{
+			ParserOptions:  parserOptions,
+			PrinterOptions: printerOptions,
+		})
+	} else {
+		var file *syntax.File
+		file, err = Parse(text, filepath, parserOptions)
+		if file == nil {
+			file = &syntax.File{}
+		}
+		var encoded bytes.Buffer
+		const maxGrow = 64 << 20
+		grow := maxGrow
+		if len(textBytes) < maxGrow/64 {
+			grow = len(textBytes) * 64
+		}
+		encoded.Grow(grow)
+		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
+			err = encodeErr
+		} else {
+			fileJSON = encoded.Bytes()
+		}
+	}
+
+	if err != nil {
+		message = err.Error()
+	}
+	var parseError *ParseError
+	if mapped, mappedMessage := MapParseError(err); mapped != nil {
+		parseError = mapped
+		if mappedMessage != "" {
+			message = mappedMessage
+		}
+	}
+
+	parseErrorJSON, marshalErr := json.Marshal(parseError)
+	if marshalErr != nil {
+		parseErrorJSON = []byte("null")
+	}
+
+	var out bytes.Buffer
+	out.Grow(len(fileJSON) + len(parseErrorJSON) + len(textOut) + len(message) + 64)
+	out.WriteString(`{"file":`)
+	out.Write(fileJSON)
+	out.WriteString(`,"text":`)
+	writeString(&out, textOut)
+	out.WriteString(`,"parseError":`)
+	out.Write(parseErrorJSON)
+	out.WriteString(`,"message":`)
+	writeString(&out, message)
+	out.WriteByte('}')
+	return out.Bytes()
 }

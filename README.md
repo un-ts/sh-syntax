@@ -49,11 +49,53 @@ import { parse, print } from 'sh-syntax'
 
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
-const newText = await print(ast, {
-  // `originalText` is required for now, hope we will find better solution later
-  originalText: text,
-})
+
+// print() formats source text; printing an edited AST is a planned follow-up.
+const formatted = await print(text)
+
+// Compatibility: print(ast, { originalText }) is accepted, but the AST is
+// ignored and originalText is formatted.
+const legacyFormatted = await print(ast, { originalText: text })
 ```
+
+The synchronous API is available as `parseSync` and `printSync`:
+
+```js
+import { parseSync, printSync } from 'sh-syntax'
+
+const ast = parseSync("echo 'Hello World!'")
+const formatted = printSync("echo 'Hello World!'")
+```
+
+#### syntax tree
+
+`parse` returns the complete shell syntax tree as plain, JSON-friendly data.
+Every node has a `type` plus `start`/`end` byte offsets, and fields use
+lowerCamelCase. Position fields are `{ offset, line, column }` data:
+
+```js
+import { LangVariant, parseSync, walk } from 'sh-syntax'
+
+const ast = parseSync("echo 'Hello World!'", {
+  keepComments: true,
+  variant: LangVariant.LangBash,
+  filepath: 'script.sh',
+})
+
+walk(ast, node => {
+  if (node.type === 'Lit') {
+    console.log(node.value)
+  }
+})
+
+const command = ast.stmts[0].cmd
+if (command?.type === 'CallExpr') {
+  console.log(command.args[0].start) // 0
+}
+```
+
+Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
+expose `offset`, `line` (1-based), and `column` (0-based).
 
 #### browser
 
@@ -73,20 +115,17 @@ const processor = getProcessor(initWasm)
 
 const parse = (text, options) => processor(text, options)
 
-const print = (textOrAst, options) => {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options)
-}
+const print = (text, options) =>
+  processor(text, {
+    ...options,
+    print: true,
+  })
 
 // just like node again
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
-const newText = await print(ast, { originalText: text })
+console.log(ast.stmts[0].cmd)
+const formatted = await print(text)
 ```
 
 ## Benchmark

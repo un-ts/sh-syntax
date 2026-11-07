@@ -7,13 +7,14 @@ import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
 import { createSyncFn } from 'synckit'
 
-import { print } from '../lib/index.js'
+import { LangVariant, print } from '../lib/index.js'
 
 /** @import { ShOptions } from 'sh-syntax' */
 
 const keepComments = true
 
-const variant = 0 // LangVariant.LangBash
+const shVariant = LangVariant.LangBash
+const mvdanVariant = 0 // mvdan-sh's LangBash
 
 const indent = 2
 const binaryNextLine = true
@@ -32,7 +33,7 @@ const text = fs.readFileSync(filePath, 'utf8')
 /** @type {ShOptions} */
 const shOptions = {
   keepComments,
-  variant,
+  variant: shVariant,
 
   indent,
   binaryNextLine,
@@ -65,7 +66,10 @@ summary(() => {
       )
       .Print(
         syntax
-          .NewParser(syntax.KeepComments(keepComments), syntax.Variant(variant))
+          .NewParser(
+            syntax.KeepComments(keepComments),
+            syntax.Variant(mvdanVariant),
+          )
           .Parse(text, filePath),
       )
   })

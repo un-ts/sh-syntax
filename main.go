@@ -5,11 +5,8 @@ package main
 
 import (
 	"container/list"
-	"fmt"
 
-	"github.com/mailru/easyjson/jwriter"
 	"github.com/un-ts/sh-syntax/processor"
-
 	"mvdan.cc/sh/v3/syntax"
 )
 
@@ -42,26 +39,18 @@ func wasmFree(ptr *[]byte) {
 	}
 }
 
-func Parse(text string, filepath string, parserOptions processor.ParserOptions) (*syntax.File, error) {
-	return processor.Parse(text, filepath, parserOptions)
-}
-
-func Print(originalText string, filepath string, syntaxOptions processor.SyntaxOptions) (string, error) {
-	return processor.Print(originalText, filepath, syntaxOptions)
-}
-
-// `process` processes the input file path and text by performing either formatting (printing) or parsing based on the print flag.
+// process processes the input file path and text by performing either
+// formatting (printing) or parsing based on the print flag.
 //
-// It converts the input byte slices to strings and configures parser options—including comment retention, language variant, stop marker, and error recovery settings. When printing is enabled, it applies printer options (indentation, binary next line, switch case indentation, space redirects, padding, minification, single-line formatting, and function next line) to format the text via the Print function. Otherwise, it parses the text with Parse and maps the resulting AST into a file representation.
-//
-// The function then encapsulates the file, the processed text, and any parsing error information into a result structure, marshals it to JSON, appends a null terminator, and returns a pointer to the first byte of the JSON output.
+// The result is a JSON envelope with a null terminator appended, and a pointer
+// to its first byte is returned.
 //
 //export process
 func process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	print bool,
+	printOutput bool,
 
 	// parser
 	keepComments bool,
@@ -80,9 +69,6 @@ func process(
 	singleLine bool,
 	functionNextLine bool,
 ) *byte {
-	filepath := string(filepathBytes)
-	text := string(textBytes)
-
 	parserOptions := processor.ParserOptions{
 		KeepComments:  keepComments,
 		Variant:       syntax.LangVariant(variant),
@@ -90,53 +76,25 @@ func process(
 		RecoverErrors: recoverErrors,
 	}
 
-	var file processor.File
-	var error error
-
-	if print {
-		printerOptions := processor.PrinterOptions{
-			Simplify:         simplify,
-			Indent:           uint(indent),
-			BinaryNextLine:   binaryNextLine,
-			SwitchCaseIndent: switchCaseIndent,
-			SpaceRedirects:   spaceRedirects,
-			KeepPadding:      keepPadding,
-			Minify:           minify,
-			SingleLine:       singleLine,
-			FunctionNextLine: functionNextLine,
-		}
-
-		text, error = Print(text, filepath, processor.SyntaxOptions{
-			ParserOptions:  parserOptions,
-			PrinterOptions: printerOptions,
-		})
-
-	} else {
-		astFile, err := Parse(text, filepath, parserOptions)
-		file = processor.MapFile(*astFile)
-		error = err
+	printerOptions := processor.PrinterOptions{
+		Simplify:         simplify,
+		Indent:           uint(indent),
+		BinaryNextLine:   binaryNextLine,
+		SwitchCaseIndent: switchCaseIndent,
+		SpaceRedirects:   spaceRedirects,
+		KeepPadding:      keepPadding,
+		Minify:           minify,
+		SingleLine:       singleLine,
+		FunctionNextLine: functionNextLine,
 	}
 
-	parseError, message := processor.MapParseError(error)
-
-	result := processor.Result{
-		File:       file,
-		Text:       text,
-		ParseError: parseError,
-		Message:    message,
-	}
-
-	// Marshal via jwriter directly rather than easyjson.Marshal, whose package
-	// pulls in net/http (through the unused MarshalToHTTPResponseWriter helper),
-	// which TinyGo cannot compile for the js/wasm target.
-	w := jwriter.Writer{}
-	result.MarshalEasyJSON(&w)
-	bytes, err := w.BuildBytes()
-
-	if err != nil {
-		fmt.Println(err)
-		bytes = []byte(err.Error())
-	}
+	bytes := processor.Process(
+		filepathBytes,
+		textBytes,
+		printOutput,
+		parserOptions,
+		printerOptions,
+	)
 
 	bytes = append(bytes, 0)
 
