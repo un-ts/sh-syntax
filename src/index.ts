@@ -72,6 +72,6 @@ export function printSync(
   })
 }
 
-export { debugPrint, isIncomplete, walk } from './ast.js'
+export { isIncomplete, walk } from './ast.js'
 export * from './processor.js'
 export * from './types.js'

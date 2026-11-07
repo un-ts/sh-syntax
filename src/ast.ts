@@ -36,11 +36,6 @@ export const walk = (
   }
 }
 
-/** Prints a debug representation of a syntax node. */
-export const debugPrint = (node: Node): void => {
-  console.log(JSON.stringify(node, null, 2))
-}
-
 /** Reports whether an error was caused by incomplete shell source. */
 export const isIncomplete = (error: unknown): boolean =>
   Boolean((error as { incomplete?: boolean } | null)?.incomplete)

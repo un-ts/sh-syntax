@@ -1,7 +1,6 @@
 import {
   LangVariant,
   ParseError,
-  debugPrint,
   isIncomplete,
   walk,
   parseSync,
@@ -87,11 +86,6 @@ test('tree helpers handle edge cases', () => {
     return node !== ast
   })
   expect(types).toEqual(['File'])
-
-  const log = vi.spyOn(console, 'log').mockImplementation(() => 0)
-  debugPrint(ast)
-  expect(log).toHaveBeenCalled()
-  log.mockRestore()
 
   expect(isIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(
     true,
