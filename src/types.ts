@@ -1,9 +1,5 @@
 export type ValueOf<T> = T[keyof T]
 
-/* eslint-disable @typescript-eslint/no-magic-numbers -- `LangVariant` mirrors
- * `mvdan/sh`s `1 << iota` bit flags, so its values are intentional, not magic
- * numbers.
- */
 export const LangVariant = {
   /**
    * LangBash corresponds to the GNU Bash language, as described in its manual at
@@ -26,7 +22,7 @@ export const LangVariant = {
   LangPOSIX: 1 << 1,
   /**
    * LangMirBSDKorn corresponds to the MirBSD Korn Shell, also known as mksh, as described at
-   * http://www.mirbsd.org/htman/i386/man1/mksh.htm. Note that it shares some features with Bash,
+   * https://www.mirbsd.org/htman/i386/man1/mksh.htm. Note that it shares some features with Bash,
    * due to the shared ancestry that is ksh.
    *
    * We currently follow mksh version 59.
@@ -60,7 +56,6 @@ export const LangVariant = {
    */
   LangAuto: 1 << 5,
 } as const
-/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 export type LangVariant = ValueOf<typeof LangVariant>
 

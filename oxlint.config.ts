@@ -10,9 +10,21 @@ export default defineConfig({
       },
     },
     {
+      files: ['src/types.ts'],
+      rules: {
+        'no-magic-numbers': 'off',
+      },
+    },
+    {
       files: ['src/processor.ts'],
       rules: {
         'no-undef': 'off',
+      },
+    },
+    {
+      files: ['test/syntax.spec.ts'],
+      rules: {
+        'no-magic-numbers': 'off',
       },
     },
     {

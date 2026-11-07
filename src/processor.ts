@@ -85,8 +85,8 @@ const supportedVariants = new Set<LangVariant>([
   LangVariant.LangZsh,
 ])
 
-let encoder: TextEncoder | undefined
-let decoder: TextDecoder | undefined
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
@@ -108,16 +108,12 @@ const invoke = (
     binaryNextLine = true,
     switchCaseIndent = true,
     spaceRedirects = true,
-    // eslint-disable-next-line sonarjs/deprecation -- still supported by mvdan/sh
     keepPadding = false,
     minify = false,
     singleLine = false,
     functionNextLine = false,
   }: InternalOptions = {},
 ): File | string => {
-  encoder ??= new TextEncoder()
-  decoder ??= new TextDecoder()
-
   if (!supportedVariants.has(variant)) {
     throw new TypeError(`Unsupported shell variant: ${variant}`)
   }
@@ -143,12 +139,15 @@ const invoke = (
   const stopAtBytes = encoder.encode(stopAt)
 
   const filePathPointer = wasmAlloc(filePath.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(filePath, filePathPointer)
 
   const textPointer = wasmAlloc(textBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(textBytes, textPointer)
 
   const stopAtPointer = wasmAlloc(stopAtBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
 
   const resultPointer = process(
@@ -184,6 +183,7 @@ const invoke = (
   wasmFree(textPointer)
   wasmFree(stopAtPointer)
 
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer)
   const end = result.indexOf(0)
   const string = decoder.decode(result.subarray(0, end))
@@ -247,7 +247,7 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
       if (
         typeof WebAssembly.compileStreaming === 'function' &&
         source instanceof Response &&
-        source.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ===
+        source.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ===
           'application/wasm'
       ) {
         return WebAssembly.compileStreaming(source)

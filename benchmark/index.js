@@ -1,6 +1,7 @@
 // @ts-check
 
 import fs from 'node:fs'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { bench, run, summary } from 'mitata'

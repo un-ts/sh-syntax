@@ -32,10 +32,16 @@ export function print(
   return processor(textOrAst, options as ShPrintOptions)
 }
 
-let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
+const getSyncProcessor = (() => {
+  let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
-const getSyncProcessor = () =>
-  (syncProcessor ??= getProcessorSync(readFileSync(path.resolve(moduleDir, '../main.wasm'))))
+  return () => {
+    if (!syncProcessor) {
+      syncProcessor = getProcessorSync(readFileSync(path.resolve(moduleDir, '../main.wasm')))
+    }
+    return syncProcessor
+  }
+})()
 
 export const parseSync = (text: string, options?: ShOptions) => getSyncProcessor()(text, options)
 

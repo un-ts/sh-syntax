@@ -131,7 +131,6 @@ test('unsupported variants are rejected', () => {
 test('lang variants are exported', () => {
   expect(LangVariant.LangBash).toBe(1)
   expect(LangVariant.LangPOSIX).toBe(2)
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- public enum value
   expect(LangVariant.LangMirBSDKorn).toBe(4)
 })
 

@@ -24,7 +24,9 @@ export const testFixtures = (parse: typeof parse_, print: Print) =>
     const fixtures = path.resolve(import.meta.dirname, 'fixtures')
 
     // Keep this sequential so snapshots are recorded in fixture order.
-    for (const filepath of await fs.readdir(fixtures)) {
+    const files = await fs.readdir(fixtures)
+
+    for (const filepath of files) {
       const input = await fs.readFile(path.resolve(fixtures, filepath), 'utf8')
 
       try {
