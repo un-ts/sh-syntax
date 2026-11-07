@@ -9,7 +9,6 @@ import {
   processor,
   walk,
 } from 'sh-syntax'
-import type { Word } from 'sh-syntax'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -23,9 +22,15 @@ test('sync parser returns the full typed tree', () => {
   expect(ast.stmts[0].position.offset).toBe(0)
   expect(ast.stmts[0].comments[0].text).toBe(' note')
 
-  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
-  const literal = call.args[0].parts[0] as unknown as {
-    value?: string
+  const call = ast.stmts[0].cmd
+  expect(call?.type).toBe('CallExpr')
+  if (call?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const literal = call.args[0].parts[0]
+  expect(literal.type).toBe('Lit')
+  if (literal.type !== 'Lit') {
+    throw new Error('expected a literal')
   }
   expect(literal.value).toBe('echo')
   expect(call.args[0].start).toBe(0)
@@ -46,8 +51,14 @@ test('rejects non-text input', () => {
 
 test('print(ast, { originalText }) ignores the AST', async () => {
   const ast = parseSync('echo old\n')
-  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
-  const literal = call.args[0].parts[0] as unknown as { value: string }
+  const call = ast.stmts[0].cmd
+  if (call?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const literal = call.args[0].parts[0]
+  if (literal.type !== 'Lit') {
+    throw new Error('expected a literal')
+  }
   literal.value = 'new'
 
   expect(printSync(ast, { originalText: 'echo  old\n' })).toBe('echo old\n')

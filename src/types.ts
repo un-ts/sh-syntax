@@ -188,64 +188,14 @@ export interface ShPrintOptions extends ShOptions {
   originalText: string
 }
 
+export type * from './ast-types.js'
+
 export interface Pos {
   offset: number
   line: number
   column: number
   /** Set when the parser recovered this position due to recoverErrors. */
   recovered?: boolean
-}
-
-export interface Node {
-  type: string
-  start: number
-  end: number
-}
-
-export interface Comment extends Node {
-  hash: Pos
-  text: string
-}
-
-export interface Word extends Node {
-  parts: Node[]
-}
-
-export interface CallExpr extends Node {
-  assigns: Node[]
-  args: Word[]
-}
-
-export interface Lit extends Node {
-  valuePos: Pos
-  valueEnd: Pos
-  value: string
-}
-
-export interface Redirect extends Node {
-  opPos: Pos
-  op: number
-  n: Lit | null
-  word: Word | null
-  hdoc: Word | null
-}
-
-export interface Stmt extends Node {
-  comments: Comment[]
-  cmd: Node | null
-  position: Pos
-  semicolon: Pos
-  negated: boolean
-  background: boolean
-  coprocess: boolean
-  disown: boolean
-  redirs: Redirect[]
-}
-
-export interface File extends Node {
-  name: string
-  stmts: Stmt[]
-  lastComments: Comment[]
 }
 
 export interface IParseError {
