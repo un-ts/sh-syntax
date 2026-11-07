@@ -6,6 +6,8 @@ Return the full shell syntax tree and keep printing source text.
 
 ### Breaking changes
 
+- Node.js >=18 is required.
+
 - The AST is no longer Go-shaped. Fields are lowerCamelCase and node
   positions are explicit: use `node.type`, `start`/`end`, and
   `{ offset, line, column }` objects instead of `Pos`/`End`, `Stmts`,

@@ -5,56 +5,36 @@ const isNode = (value: unknown): value is Node =>
   value !== null &&
   typeof (value as { type?: unknown }).type === 'string'
 
-const childrenOf = (node: Node): Node[] => {
-  const children: Node[] = []
-
-  const object = node as unknown as Record<string, unknown>
-
-  for (const key in object) {
-    const value = object[key]
-
-    if (Array.isArray(value)) {
-      children.push(...(value as Node[]))
-    } else if (isNode(value)) {
-      children.push(value)
-    }
-  }
-
-  if (node.type === 'ParamExp') {
-    if (node.exp?.word) {
-      children.push(node.exp.word)
-    }
-    if (node.slice?.offset) {
-      children.push(node.slice.offset)
-    }
-    if (node.slice?.length) {
-      children.push(node.slice.length)
-    }
-    if (node.repl?.orig) {
-      children.push(node.repl.orig)
-    }
-    if (node.repl?.with) {
-      children.push(node.repl.with)
-    }
-  }
-
-  return children
-}
-
 /**
  * Walks the syntax tree in depth-first order. Returning `false` from the
  * callback skips the node's children.
  */
 export const walk = (
-  node: Node,
+  value: unknown,
   walker: (node: Node) => boolean | void,
 ): void => {
-  if (walker(node) === false) {
+  if (Array.isArray(value)) {
+    for (const child of value as unknown[]) {
+      walk(child, walker)
+    }
     return
   }
 
-  for (const child of childrenOf(node)) {
-    walk(child, walker)
+  if (value === null || typeof value !== 'object') {
+    return
+  }
+
+  if (isNode(value) && walker(value) === false) {
+    return
+  }
+
+  const object = value as Record<string, unknown>
+
+  for (const key in object) {
+    if (!Object.hasOwn(object, key)) {
+      continue
+    }
+    walk(object[key], walker)
   }
 }
 

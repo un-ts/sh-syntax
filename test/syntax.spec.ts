@@ -157,6 +157,20 @@ test('walk visits parameter expansion helper nodes', () => {
   )
 })
 
+test('walk ignores inherited properties', () => {
+  const inherited = { inheritedNode: { type: 'Comment' } }
+  const value = Object.create(inherited) as Record<string, unknown>
+  value.ownNode = { type: 'Comment' }
+  let count = 0
+
+  walk(value, () => {
+    count++
+    return true
+  })
+
+  expect(count).toBe(1)
+})
+
 test('tree helpers handle edge cases', () => {
   const ast = parseSync('echo hi\n')
   const types: string[] = []
