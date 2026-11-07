@@ -37,5 +37,5 @@ Return the full shell syntax tree and keep printing source text.
   compatibility, but the AST is deliberately ignored and `originalText` is
   formatted.
 - Add `parseSync()` and `printSync()` for synchronous consumers, plus
-  `createSyncProcessor()` for preloaded WASM.
+  `getProcessorSync()` for preloaded WASM.
 - Positions recovered by `recoverErrors` now expose `recovered: true`.

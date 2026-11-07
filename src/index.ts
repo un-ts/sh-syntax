@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import './shim.js'
 import '../vendors/wasm_exec.cjs'
 
-import { createSyncProcessor, getProcessor } from './processor.js'
+import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
 const importMetaUrl = import.meta.url
@@ -38,10 +38,10 @@ export function print(
   return processor(textOrAst, options as ShPrintOptions)
 }
 
-let syncProcessor: ReturnType<typeof createSyncProcessor> | undefined
+let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
 const getSyncProcessor = () =>
-  (syncProcessor ??= createSyncProcessor(
+  (syncProcessor ??= getProcessorSync(
     readFileSync(path.resolve(_dirname, '../main.wasm')),
   ))
 

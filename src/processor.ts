@@ -219,7 +219,7 @@ const invoke = (
  * This is useful for Node.js and for callers that preload the WASM file. The
  * asynchronous [getProcessor] remains the recommended browser entry point.
  */
-export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
+export const getProcessorSync = (wasmBufferSource: BufferSource) => {
   const module = new WebAssembly.Module(wasmBufferSource)
 
   function processor(text: string, options?: ShOptions): File
