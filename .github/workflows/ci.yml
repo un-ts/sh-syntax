@@ -71,7 +71,8 @@ jobs:
           cache: yarn
 
       - name: Install root dependencies
-        run: YARN_ENABLE_SCRIPTS=false yarn --immutable
+        # Yarn 4 defaults enableScripts to false.
+        run: yarn --immutable
 
       - name: Build root package
         run: yarn build
