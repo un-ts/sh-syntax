@@ -92,7 +92,7 @@ describe('processor', () => {
     const responseLike = {
       arrayBuffer: () => Promise.resolve(wasm.buffer),
     }
-    const processor = getProcessor(() => responseLike)
+    const processor = getProcessor(() => responseLike as Response)
 
     await expect(processor('echo hi\n')).resolves.toMatchObject({
       type: 'File',

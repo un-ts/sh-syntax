@@ -21,19 +21,12 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-export type WebAssemblySource = Buffer | BufferSource
-
-export interface WebAssemblyResponseLike {
-  headers?: { get(name: string): string | null }
-  arrayBuffer(): Promise<ArrayBuffer>
-}
-
-type WebAssemblySourceInput = WebAssemblyResponseLike | WebAssemblySource
+export type WebAssemblySource = Buffer | BufferSource | Response
 
 export type GetWebAssemblySource = () =>
-  Promise<WebAssemblySourceInput> | WebAssemblySourceInput
+  Promise<WebAssemblySource> | WebAssemblySource
 
-export type GetWebAssemblySourceSync = () => WebAssemblySource
+export type GetWebAssemblySourceSync = () => Buffer | BufferSource
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -231,7 +224,7 @@ const invoke = (
  * asynchronous [getProcessor] remains the recommended browser entry point.
  */
 export const getProcessorSync = (
-  getWasm: GetWebAssemblySourceSync | WebAssemblySource,
+  getWasm: Buffer | BufferSource | GetWebAssemblySourceSync,
 ) => {
   const module = new WebAssembly.Module(
     typeof getWasm === 'function' ? getWasm() : getWasm,
@@ -277,6 +270,7 @@ export const getProcessor = (
 
     if ('arrayBuffer' in source) {
       const contentType = source.headers
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- response-like sources may omit headers
         ?.get('content-type')
         ?.split(';')[0]
         .trim()
