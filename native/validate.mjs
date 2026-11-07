@@ -30,8 +30,8 @@ for (const [name, parse] of [
   ['native', () => nativeParse(text, 'install.sh')],
   ['wasm', () => parseSync(text, { keepComments: true, filepath: 'install.sh' })],
 ]) {
-  for (let i = 0; i < 5; i++) parse()
+  for (let i = 0; i < 5; i++) {parse()}
   const start = performance.now()
-  for (let i = 0; i < 20; i++) parse()
+  for (let i = 0; i < 20; i++) {parse()}
   console.log(`${name} parse: ${((performance.now() - start) / 20).toFixed(1)}ms`)
 }
