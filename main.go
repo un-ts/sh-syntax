@@ -41,7 +41,7 @@ func wasmFree(ptr *[]byte) {
 
 // process processes the input file path and text by performing either
 // formatting (printing) or parsing based on the print flag.
-
+//
 // The result is a JSON envelope with a null terminator appended, and a pointer
 // to its first byte is returned.
 //

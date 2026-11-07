@@ -84,9 +84,8 @@ const ast = parseSync("echo 'Hello World!'", {
 
 walk(ast, node => {
   if (node.type === 'Lit') {
-    node.value = 'printf'
+    console.log(node.value)
   }
-  return true
 })
 
 const command = ast.stmts[0].cmd // { type: 'CallExpr', args: [...], ... }
@@ -124,6 +123,7 @@ const print = (text, options) =>
 // just like node again
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
+console.log(ast.stmts[0].cmd)
 const formatted = await print(text)
 ```
 

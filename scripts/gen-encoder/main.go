@@ -61,7 +61,6 @@ func main() {
 
 	structs := make(map[string]*typeInfo)
 	var order []string
-	interfaces := make(map[string][]string)
 	implementors := make(map[string][]string)
 
 	for _, decl := range file.Decls {
@@ -83,12 +82,6 @@ func main() {
 					}
 					structs[ts.Name.Name] = info
 					order = append(order, ts.Name.Name)
-				case *ast.InterfaceType:
-					for _, method := range typ.Methods.List {
-						if len(method.Names) > 0 {
-							interfaces[ts.Name.Name] = append(interfaces[ts.Name.Name], method.Names[0].Name)
-						}
-					}
 				}
 			}
 		case *ast.FuncDecl:

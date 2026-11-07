@@ -10,8 +10,9 @@ Return the full shell syntax tree and keep printing source text.
   position fields are `{ offset, line, column }` objects.
 - Add a `walk()` helper for the typed tree; use `node.type` instead of a node-type helper.
 - `print()` continues to format source text. `print(ast, { originalText })`
-  remains accepted for compatibility, but the AST is deliberately ignored and
-  `originalText` is formatted. Printing an edited AST is deferred to a
-  follow-up; the AST is currently a parse result, not a second input format.
+  and `processor(ast, { originalText })` remain accepted for tooling
+  compatibility, but the AST is deliberately ignored and `originalText` is
+  formatted. Printing an edited AST is deferred to a follow-up; the AST is
+  currently a parse result, not a second input format.
 - Add `parseSync()` and `printSync()` for synchronous consumers, plus
   `createSyncProcessor()` for preloaded WASM.

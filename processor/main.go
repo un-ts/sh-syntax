@@ -57,28 +57,23 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		return "", err
 	}
 
-	return PrintNode(file, syntaxOptions.PrinterOptions)
-}
-
-// PrintNode formats an already parsed syntax node.
-func PrintNode(node syntax.Node, printerOptions PrinterOptions) (string, error) {
-	if printerOptions.Simplify || printerOptions.Minify {
-		syntax.Simplify(node)
+	if syntaxOptions.Simplify || syntaxOptions.Minify {
+		syntax.Simplify(file)
 	}
 
 	printer := syntax.NewPrinter(
-		syntax.Indent(printerOptions.Indent),
-		syntax.BinaryNextLine(printerOptions.BinaryNextLine),
-		syntax.SwitchCaseIndent(printerOptions.SwitchCaseIndent),
-		syntax.SpaceRedirects(printerOptions.SpaceRedirects),
-		syntax.KeepPadding(printerOptions.KeepPadding),
-		syntax.Minify(printerOptions.Minify),
-		syntax.SingleLine(printerOptions.SingleLine),
-		syntax.FunctionNextLine(printerOptions.FunctionNextLine),
+		syntax.Indent(syntaxOptions.Indent),
+		syntax.BinaryNextLine(syntaxOptions.BinaryNextLine),
+		syntax.SwitchCaseIndent(syntaxOptions.SwitchCaseIndent),
+		syntax.SpaceRedirects(syntaxOptions.SpaceRedirects),
+		syntax.KeepPadding(syntaxOptions.KeepPadding),
+		syntax.Minify(syntaxOptions.Minify),
+		syntax.SingleLine(syntaxOptions.SingleLine),
+		syntax.FunctionNextLine(syntaxOptions.FunctionNextLine),
 	)
 
 	var buf bytes.Buffer
-	if err := printer.Print(&buf, node); err != nil {
+	if err := printer.Print(&buf, file); err != nil {
 		return "", err
 	}
 
