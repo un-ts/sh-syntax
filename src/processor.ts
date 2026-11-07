@@ -263,9 +263,6 @@ export const getProcessor = (
   let wasmModule: WebAssembly.Module | undefined
   let wasmModulePromise: Promise<WebAssembly.Module> | undefined
 
-  encoder ??= new TextEncoder()
-  decoder ??= new TextDecoder()
-
   const loadModule = async (): Promise<WebAssembly.Module> => {
     const source = await (getWasm as GetWebAssemblySource)()
 
