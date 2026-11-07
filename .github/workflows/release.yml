@@ -45,5 +45,3 @@ jobs:
           commit: 'chore: release sh-syntax'
           title: 'chore: release sh-syntax'
           publish: yarn release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

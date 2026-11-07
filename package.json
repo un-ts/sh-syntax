@@ -1,6 +1,6 @@
 {
   "name": "sh-syntax",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "description": "A WASM shell parser and formatter with bash support, based on mvdan/sh",
   "repository": "git+https://github.com/un-ts/sh-syntax.git",
@@ -50,8 +50,9 @@
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:tsc": "tsc --noEmit",
+    "prepack": "clean-pkg-json",
     "prepare": "simple-git-hooks && yarn-berry-deduplicate || exit 0",
-    "release": "clean-pkg-json && changeset publish",
+    "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
     "wasm": "yarn gen:encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
@@ -91,6 +92,9 @@
     "prettier": "^3.9.4",
     "sh-syntax": "link:."
   },
+  "publishConfig": {
+    "provenance": true
+  },
   "sideEffects": [
     "lib/browser.js",
     "lib/index.cjs",
@@ -105,7 +109,7 @@
     },
     {
       "path": "lib/index.js",
-      "limit": "400B"
+      "limit": "450B"
     }
   ],
   "typeCoverage": {
