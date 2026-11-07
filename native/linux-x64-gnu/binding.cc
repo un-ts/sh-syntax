@@ -16,15 +16,15 @@ napi_value Parse(napi_env env, napi_callback_info info) {
 
   size_t textLength = 0;
   napi_get_value_string_utf8(env, argv[0], nullptr, 0, &textLength);
-  std::string text(textLength, '\0');
-  napi_get_value_string_utf8(env, argv[0], text.data(), textLength + 1, &textLength);
+  std::string text(textLength + 1, '\0');
+  napi_get_value_string_utf8(env, argv[0], text.data(), text.size(), &textLength);
 
   std::string filepath = "<input>";
   if (argc > 1) {
     size_t filepathLength = 0;
     napi_get_value_string_utf8(env, argv[1], nullptr, 0, &filepathLength);
-    filepath.resize(filepathLength);
-    napi_get_value_string_utf8(env, argv[1], filepath.data(), filepathLength + 1, &filepathLength);
+    filepath.assign(filepathLength + 1, '\0');
+    napi_get_value_string_utf8(env, argv[1], filepath.data(), filepath.size(), &filepathLength);
   }
 
   char* result = sh_syntax_parse(text.c_str(), filepath.c_str());

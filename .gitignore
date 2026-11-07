@@ -1,3 +1,12 @@
+.*cache
+.type-coverage
+coverage
+lib
+node_modules
+.yarn/*
+!.yarn/plugins
+!.yarn/releases
+
 # Native validation build outputs
 native/build/
 native/linux-x64-gnu/build/

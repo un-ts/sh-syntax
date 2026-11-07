@@ -16,6 +16,7 @@
   "scripts": {
     "build:addon": "node-gyp rebuild",
     "build:go": "go build -buildmode=c-shared -o ../../build/libshsyntax.so ../shsyntax.go",
-    "test": "node test.mjs"
+    "test": "node test.mjs",
+    "validate": "node ../validate.mjs"
   }
 }
