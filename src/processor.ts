@@ -28,8 +28,6 @@ export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
 ) => Promise<WebAssembly.Instance> | WebAssembly.Instance
 
-type ProcessMode = 0 | 1
-
 interface InternalOptions extends ShOptions {
   print?: boolean
   originalText?: string
@@ -48,7 +46,7 @@ interface ProcessExports extends WebAssembly.Exports {
     text0: number,
     text1: number,
 
-    mode: ProcessMode,
+    print: boolean,
 
     keepComments: boolean,
     variant: LangVariant,
@@ -110,11 +108,11 @@ const invoke = (
   decoder ??= new TextDecoder()
 
   let text: string
-  let mode: ProcessMode
+  let printOutput: boolean
 
   if (typeof textOrAst === 'string') {
     text = textOrAst
-    mode = print ? 1 : 0
+    printOutput = print
   } else {
     if (originalText == null) {
       throw new TypeError(
@@ -122,7 +120,7 @@ const invoke = (
       )
     }
     text = originalText
-    mode = 1
+    printOutput = true
   }
 
   const filePath = encoder.encode(filepath)
@@ -147,7 +145,7 @@ const invoke = (
     textBytes.byteLength,
     textBytes.byteLength,
 
-    mode,
+    printOutput,
 
     keepComments,
     variant,
@@ -198,7 +196,7 @@ const invoke = (
       : new ParseError(parseError)
   }
 
-  return mode === 0 ? file : processedText
+  return printOutput ? processedText : file
 }
 
 /**

@@ -3,7 +3,6 @@ package processor
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -87,18 +86,13 @@ func PrintNode(node syntax.Node, printerOptions PrinterOptions) (string, error) 
 }
 
 // Process processes the input file path and text by performing either
-// formatting or parsing, based on the mode.
-//
-// Modes:
-//   - 0: parse text into a full typed syntax tree
-//   - 1: format text
-//
-// The result is a JSON envelope.
+// formatting or parsing, based on the print flag. The result is a JSON
+// envelope.
 func Process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	mode int,
+	print bool,
 
 	parserOptions ParserOptions,
 	printerOptions PrinterOptions,
@@ -112,8 +106,12 @@ func Process(
 
 	var err error
 
-	switch mode {
-	case 0:
+	if print {
+		textOut, err = Print(text, filepath, SyntaxOptions{
+			ParserOptions:  parserOptions,
+			PrinterOptions: printerOptions,
+		})
+	} else {
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
 		if file == nil {
@@ -123,16 +121,9 @@ func Process(
 		encoded.Grow(min(len(textBytes)*64, 64<<20))
 		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
 			err = encodeErr
-			break
+		} else {
+			fileJSON = encoded.Bytes()
 		}
-		fileJSON = encoded.Bytes()
-	case 1:
-		textOut, err = Print(text, filepath, SyntaxOptions{
-			ParserOptions:  parserOptions,
-			PrinterOptions: printerOptions,
-		})
-	default:
-		err = fmt.Errorf("unknown process mode: %d", mode)
 	}
 
 	if err != nil {

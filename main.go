@@ -40,13 +40,8 @@ func wasmFree(ptr *[]byte) {
 }
 
 // process processes the input file path and text by performing either
-// formatting (printing) or parsing based on the mode.
-//
-// Modes:
-//   - 0: parse text into a full typed syntax tree
-//   - 1: format text
-//   - 2: format an already parsed syntax tree supplied as JSON
-//
+// formatting (printing) or parsing based on the print flag.
+
 // The result is a JSON envelope with a null terminator appended, and a pointer
 // to its first byte is returned.
 //
@@ -55,7 +50,7 @@ func process(
 	filepathBytes []byte,
 	textBytes []byte,
 
-	mode int,
+	print bool,
 
 	// parser
 	keepComments bool,
@@ -96,7 +91,7 @@ func process(
 	bytes := processor.Process(
 		filepathBytes,
 		textBytes,
-		mode,
+		print,
 		parserOptions,
 		printerOptions,
 	)
