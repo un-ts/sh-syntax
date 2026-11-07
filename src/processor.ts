@@ -21,8 +21,12 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
+export type WebAssemblySource = Buffer | BufferSource
+
 export type GetWebAssemblySource = () =>
-  Buffer | BufferSource | Promise<Buffer | BufferSource | Response> | Response
+  Promise<Response | WebAssemblySource> | Response | WebAssemblySource
+
+export type GetWebAssemblySourceSync = () => WebAssemblySource
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -219,8 +223,12 @@ const invoke = (
  * This is useful for Node.js and for callers that preload the WASM file. The
  * asynchronous [getProcessor] remains the recommended browser entry point.
  */
-export const getProcessorSync = (wasmBufferSource: BufferSource) => {
-  const module = new WebAssembly.Module(wasmBufferSource)
+export const getProcessorSync = (
+  getWasm: GetWebAssemblySourceSync | WebAssemblySource,
+) => {
+  const module = new WebAssembly.Module(
+    typeof getWasm === 'function' ? getWasm() : getWasm,
+  )
 
   function processor(text: string, options?: ShOptions): File
   function processor(

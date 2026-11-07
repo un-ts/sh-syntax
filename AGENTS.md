@@ -52,7 +52,7 @@ yarn wasm        # gen:encoder + TinyGo build of main.wasm
 - `print(text)` formats source text.
 - `print(ast, { originalText })` is accepted for compatibility, but the AST is deliberately ignored and `originalText` is formatted.
 - `print(ast)` without `originalText` throws a clear `TypeError`.
-- `processor(ast, { originalText })` and `getProcessorSync` have the same compatibility path; `prettier-plugin-sh` relies on it.
+- `processor(ast, { originalText })` and `getProcessorSync` have the same compatibility path; `prettier-plugin-sh` relies on it. `getProcessorSync` accepts either bytes or a synchronous loader.
 - There is no AST decoder in this branch. Do not add a reflective decoder; `print(ast)` with edits is a planned follow-up with a non-reflective wire format.
 
 ## Generated files

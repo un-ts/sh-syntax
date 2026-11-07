@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -7,6 +8,7 @@ import {
   type GetWebAssemblyInstance,
   type ShOptions,
   getProcessor,
+  getProcessorSync,
 } from 'sh-syntax'
 
 describe('processor', () => {
@@ -33,4 +35,12 @@ describe('processor', () => {
     })
 
   testFixtures(parse, print)
+
+  test('getProcessorSync accepts a synchronous loader', () => {
+    const sync = getProcessorSync(() =>
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+
+    expect(sync('echo hi\n').type).toBe('File')
+  })
 })
