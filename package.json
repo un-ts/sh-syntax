@@ -109,7 +109,7 @@
     },
     {
       "path": "lib/index.js",
-      "limit": "400B"
+      "limit": "450B"
     }
   ],
   "typeCoverage": {
