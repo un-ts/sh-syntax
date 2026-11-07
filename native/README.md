@@ -24,10 +24,21 @@ zig c++ -shared -fPIC -I"$NODE_HEADERS/include/node" \
   -Wl,-rpath,"$PWD/build" -o native/linux-x64-gnu/build/Release/sh_syntax_binding.node
 ```
 
-Validation observed on Linux x64 (Go 1.27.3, Node 26):
+Run the comparison with:
+
+```sh
+CGO_ENABLED=0 go build -trimpath -o native/sh-syntax-native ./native/cli
+node native/benchmark.mjs
+```
+
+Validation observed on Linux x64 (Go 1.27.3, Node 26, latest run):
+
+| case | N-API addon | WASM | native CLI + spawnSync |
+|---|---:|---:|---:|
+| `echo hi` | <0.1ms | 2.2ms | 3.9ms |
+| `install.sh` (140KB) | 151ms | 172ms | 161ms |
 
 - AST parity: 11/11 parseable fixtures matched the WASM AST
-- `install.sh` parse: native ~190ms vs WASM ~230ms in the latest local run (including JSON parsing; earlier runs ranged 141–190ms vs 230–247ms)
-- 50,000 `parse('echo hi')` calls: RSS +14MB native vs multi-GB/OOM on the current leaking-WASM sync path
+- 50,000 `parse('echo hi')` calls: RSS +14MB for the addon vs multi-GB/OOM on the current leaking-WASM sync path
 
-These numbers are a spike, not a release guarantee.
+The CLI is the conservative esbuild-style sync case: one process per call. A long-lived child process would avoid startup cost but needs a different synchronous protocol. These numbers are a spike, not a release guarantee.
