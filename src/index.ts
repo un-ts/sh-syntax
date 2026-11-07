@@ -12,16 +12,11 @@ import type { File, ShOptions, ShPrintOptions } from './types.js'
 const importMetaUrl = import.meta.url
 
 /* istanbul ignore next -- @preserve */
-const _dirname = importMetaUrl
-  ? path.dirname(fileURLToPath(importMetaUrl))
-  : __dirname
+const _dirname = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : __dirname
 
-export const processor = getProcessor(() =>
-  fs.readFile(path.resolve(_dirname, '../main.wasm')),
-)
+export const processor = getProcessor(() => fs.readFile(path.resolve(_dirname, '../main.wasm')))
 
-export const parse = (text: string, options?: ShOptions) =>
-  processor(text, options)
+export const parse = (text: string, options?: ShOptions) => processor(text, options)
 
 export function print(text: string, options?: ShOptions): Promise<string>
 export function print(ast: File, options: ShPrintOptions): Promise<string>
@@ -41,12 +36,9 @@ export function print(
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
 const getSyncProcessor = () =>
-  (syncProcessor ??= getProcessorSync(
-    readFileSync(path.resolve(_dirname, '../main.wasm')),
-  ))
+  (syncProcessor ??= getProcessorSync(readFileSync(path.resolve(_dirname, '../main.wasm'))))
 
-export const parseSync = (text: string, options?: ShOptions) =>
-  getSyncProcessor()(text, options)
+export const parseSync = (text: string, options?: ShOptions) => getSyncProcessor()(text, options)
 
 export function printSync(text: string, options?: ShOptions): string
 export function printSync(ast: File, options: ShPrintOptions): string

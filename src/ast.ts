@@ -4,10 +4,7 @@ import type { Node } from './types.js'
  * Walks the syntax tree in depth-first order. Returning `false` from the
  * callback skips the node's children.
  */
-export const walk = (
-  value: unknown,
-  walker: (node: Node) => boolean | void,
-): void => {
+export const walk = (value: unknown, walker: (node: Node) => boolean | void): void => {
   if (Array.isArray(value)) {
     for (const child of value as unknown[]) {
       walk(child, walker)
@@ -19,10 +16,7 @@ export const walk = (
     return
   }
 
-  if (
-    typeof (value as { type?: unknown }).type === 'string' &&
-    walker(value as Node) === false
-  ) {
+  if (typeof (value as { type?: unknown }).type === 'string' && walker(value as Node) === false) {
     return
   }
 

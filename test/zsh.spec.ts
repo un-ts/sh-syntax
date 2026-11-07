@@ -16,20 +16,18 @@ const ZSH_SNIPPET = 'REPO="${0:A:h:h}"'
 
 test('parses zsh parameter-expansion modifiers under LangZsh', async () => {
   // Must not throw when the zsh dialect is selected.
-  await expect(
-    parse(ZSH_SNIPPET, { variant: LangVariant.LangZsh }),
-  ).resolves.toBeDefined()
+  await expect(parse(ZSH_SNIPPET, { variant: LangVariant.LangZsh })).resolves.toBeDefined()
 })
 
 test('prints zsh parameter-expansion modifiers under LangZsh', async () => {
-  await expect(
-    print(ZSH_SNIPPET, { variant: LangVariant.LangZsh }),
-  ).resolves.toBe(`${ZSH_SNIPPET}\n`)
+  await expect(print(ZSH_SNIPPET, { variant: LangVariant.LangZsh })).resolves.toBe(
+    `${ZSH_SNIPPET}\n`,
+  )
 })
 
 test('rejects zsh parameter-expansion modifiers under LangBash', async () => {
   // Documents that the same input is (correctly) invalid bash.
-  await expect(
-    parse(ZSH_SNIPPET, { variant: LangVariant.LangBash }),
-  ).rejects.toThrow(/ternary operator missing/)
+  await expect(parse(ZSH_SNIPPET, { variant: LangVariant.LangBash })).rejects.toThrow(
+    /ternary operator missing/,
+  )
 })

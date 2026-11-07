@@ -1,10 +1,4 @@
-import {
-  type IParseError,
-  type File,
-  type Pos,
-  type ShOptions,
-  LangVariant,
-} from './types.js'
+import { type IParseError, type File, type Pos, type ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
   filename?: string
@@ -29,8 +23,7 @@ export type WebAssemblySource =
       arrayBuffer(): Promise<ArrayBuffer>
     }
 
-export type GetWebAssemblySource = () =>
-  Promise<WebAssemblySource> | WebAssemblySource
+export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
 export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
 
@@ -205,12 +198,7 @@ const invoke = (
     })
   }
 
-  const {
-    file,
-    text: processedText,
-    parseError,
-    message,
-  } = JSON.parse(string) as RawResult
+  const { file, text: processedText, parseError, message } = JSON.parse(string) as RawResult
 
   if (parseError) {
     throw new ParseError(parseError)
@@ -230,25 +218,12 @@ const invoke = (
  * long-running synchronous loop will accumulate memory; use [getProcessor]
  * for long-lived processes.
  */
-export const getProcessorSync = (
-  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource,
-) => {
-  const module = new WebAssembly.Module(
-    typeof getWasm === 'function' ? getWasm() : getWasm,
-  )
+export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
+  const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
   function processor(text: string, options?: ShOptions): File
-  function processor(
-    text: string,
-    options?: ShOptions & { print: true },
-  ): string
-  function processor(
-    ast: File,
-    options: ShOptions & { originalText: string },
-  ): string
-  function processor(
-    textOrAst: File | string,
-    options?: InternalOptions,
-  ): File | string {
+  function processor(text: string, options?: ShOptions & { print: true }): string
+  function processor(ast: File, options: ShOptions & { originalText: string }): string
+  function processor(textOrAst: File | string, options?: InternalOptions): File | string {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
     void go.run(instance)
@@ -258,9 +233,7 @@ export const getProcessorSync = (
   return processor
 }
 
-export const getProcessor = (
-  getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
-) => {
+export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource) => {
   let wasmModule: WebAssembly.Module | undefined
   let wasmModulePromise: Promise<WebAssembly.Module> | undefined
 
@@ -275,11 +248,8 @@ export const getProcessor = (
       if (
         typeof WebAssembly.compileStreaming === 'function' &&
         source instanceof Response &&
-        source.headers
-          .get('content-type')
-          ?.split(';')[0]
-          .trim()
-          .toLowerCase() === 'application/wasm'
+        source.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ===
+          'application/wasm'
       ) {
         return WebAssembly.compileStreaming(source)
       }
@@ -291,14 +261,8 @@ export const getProcessor = (
   }
 
   function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(
-    text: string,
-    options?: ShOptions & { print: true },
-  ): Promise<string>
-  function processor(
-    ast: File,
-    options: ShOptions & { originalText: string },
-  ): Promise<string>
+  function processor(text: string, options?: ShOptions & { print: true }): Promise<string>
+  function processor(ast: File, options: ShOptions & { originalText: string }): Promise<string>
   async function processor(
     textOrAst: File | string,
     options: InternalOptions = {},
@@ -319,10 +283,7 @@ export const getProcessor = (
 
     const instance =
       getWasm.length === 0
-        ? await WebAssembly.instantiate(
-            wasmModule as WebAssembly.Module,
-            go.importObject,
-          )
+        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
         : await (getWasm as GetWebAssemblyInstance)(go.importObject)
 
     /**

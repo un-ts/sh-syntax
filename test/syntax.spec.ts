@@ -64,17 +64,13 @@ test('print(ast, { originalText }) ignores the AST', async () => {
   literal.value = 'new'
 
   expect(printSync(ast, { originalText: 'echo  old\n' })).toBe('echo old\n')
-  await expect(print(ast, { originalText: 'echo  old\n' })).resolves.toBe(
-    'echo old\n',
-  )
+  await expect(print(ast, { originalText: 'echo  old\n' })).resolves.toBe('echo old\n')
   expect(() => printSync(ast, {} as never)).toThrow(TypeError)
 })
 
 test('processor(ast, { originalText }) ignores the AST', async () => {
   const ast = parseSync('echo old\n')
-  await expect(processor(ast, { originalText: 'echo  old\n' })).resolves.toBe(
-    'echo old\n',
-  )
+  await expect(processor(ast, { originalText: 'echo  old\n' })).resolves.toBe('echo old\n')
   await expect(processor(ast, {} as never)).rejects.toThrow(TypeError)
 })
 
@@ -117,9 +113,9 @@ test('parse errors expose position and incompleteness', () => {
 })
 
 test('language errors become SyntaxError', async () => {
-  await expect(
-    parse('foo <<<input', { variant: LangVariant.LangPOSIX }),
-  ).rejects.toBeInstanceOf(SyntaxError)
+  await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toBeInstanceOf(
+    SyntaxError,
+  )
 })
 
 test('recoverErrors marks recovered positions', () => {
@@ -128,9 +124,7 @@ test('recoverErrors marks recovered positions', () => {
 })
 
 test('unsupported variants are rejected', () => {
-  expect(() => parseSync('echo hi', { variant: LangVariant.LangAuto })).toThrow(
-    TypeError,
-  )
+  expect(() => parseSync('echo hi', { variant: LangVariant.LangAuto })).toThrow(TypeError)
   expect(() => parseSync('echo hi', { variant: 0 })).toThrow(TypeError)
 })
 
@@ -152,9 +146,7 @@ test('walk visits parameter expansion helper nodes', () => {
     return true
   })
 
-  expect(literals).toEqual(
-    expect.arrayContaining(['foo', '1', '2', 'bar', 'a', 'b', 'baz', 'qux']),
-  )
+  expect(literals).toEqual(expect.arrayContaining(['foo', '1', '2', 'bar', 'a', 'b', 'baz', 'qux']))
 })
 
 test('walk ignores inherited properties', () => {
@@ -180,8 +172,6 @@ test('tree helpers handle edge cases', () => {
   })
   expect(types).toEqual(['File'])
 
-  expect(isIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(
-    true,
-  )
+  expect(isIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(true)
   expect(isIncomplete(null)).toBe(false)
 })
