@@ -1,0 +1,21 @@
+{
+  "name": "@ungo/sh-syntax-binding-linux-x64-gnu",
+  "version": "0.0.0",
+  "description": "Validation-only native binding for sh-syntax",
+  "private": true,
+  "cpu": [
+    "x64"
+  ],
+  "os": [
+    "linux"
+  ],
+  "libc": [
+    "glibc"
+  ],
+  "main": "build/Release/sh_syntax_binding.node",
+  "scripts": {
+    "build:addon": "node-gyp rebuild",
+    "build:go": "go build -buildmode=c-shared -o ../../build/libshsyntax.so ../shsyntax.go",
+    "test": "node test.mjs"
+  }
+}
