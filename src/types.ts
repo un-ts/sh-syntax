@@ -184,64 +184,61 @@ export interface ShOptions extends ShSyntaxOptions {
 }
 
 export interface Pos {
-  Offset: number
-  Line: number
-  Col: number
+  offset: number
+  line: number
+  column: number
 }
 
 export interface Node {
-  /** The mvdan/sh type name on nodes stored in interface fields. */
-  Type?: string
-  /** The node type, available on every node. */
-  __type?: string
-  Pos: Pos
-  End: Pos
+  type: string
+  start: number
+  end: number
 }
 
 export interface Comment extends Node {
-  Hash: Pos
-  Text: string
+  hash: Pos
+  text: string
 }
 
 export interface Word extends Node {
-  Parts: Node[]
+  parts: Node[]
 }
 
 export interface Lit extends Node {
-  ValuePos: Pos
-  ValueEnd: Pos
-  Value: string
+  valuePos: Pos
+  valueEnd: Pos
+  value: string
 }
 
 export interface Redirect extends Node {
-  OpPos: Pos
-  Op: number
-  N: Lit | null
-  Word: Word | null
-  Hdoc: Word | null
+  opPos: Pos
+  op: number
+  n: Lit | null
+  word: Word | null
+  hdoc: Word | null
 }
 
 export interface Stmt extends Node {
-  Comments: Comment[]
-  Cmd: Node | null
-  Position: Pos
-  Semicolon: Pos
-  Negated: boolean
-  Background: boolean
-  Coprocess: boolean
-  Disown: boolean
-  Redirs: Redirect[]
+  comments: Comment[]
+  cmd: Node | null
+  position: Pos
+  semicolon: Pos
+  negated: boolean
+  background: boolean
+  coprocess: boolean
+  disown: boolean
+  redirs: Redirect[]
 }
 
 export interface File extends Node {
-  Name: string
-  Stmts: Stmt[]
-  Last: Comment[]
+  name: string
+  stmts: Stmt[]
+  lastComments: Comment[]
 }
 
 export interface IParseError {
-  Filename?: string
-  Incomplete: boolean
-  Text: string
-  Pos?: Pos
+  filename?: string
+  incomplete: boolean
+  text: string
+  pos?: Pos
 }

@@ -51,7 +51,7 @@ const text = "echo 'Hello World!'"
 const ast = await parse(text)
 
 // The parsed tree is printed directly, including any edits made to it.
-ast.Stmts[0].Cmd.Args[0].Parts[0].Value = 'printf'
+ast.stmts[0].cmd.args[0].parts[0].value = 'printf'
 const newText = await print(ast)
 ```
 
@@ -67,8 +67,8 @@ const newText = printSync(ast)
 #### syntax tree
 
 `parse` returns the complete shell syntax tree as plain, JSON-friendly data.
-Every node has a `__type` name, and every node stored in an interface field
-also has a `Type` name. Positions are data:
+Every node has a `type` plus `start`/`end` byte offsets, and fields use
+lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
 import { LangVariant, NodeType, Walk, parseSync, printSync } from 'sh-syntax'
@@ -81,19 +81,19 @@ const ast = parseSync("echo 'Hello World!'", {
 
 Walk(ast, node => {
   if (NodeType(node) === 'Lit') {
-    node.Value = 'printf'
+    node.value = 'printf'
   }
   return true
 })
 
-const command = ast.Stmts[0].Cmd // { __type: 'CallExpr', Args: [...], ... }
-const firstArg = command.Args[0] // { __type: 'Word', Parts: [...], ... }
-console.log(firstArg.Pos.Offset) // 0
+const command = ast.stmts[0].cmd // { type: 'CallExpr', args: [...], ... }
+const firstArg = command.args[0] // { type: 'Word', parts: [...], ... }
+console.log(firstArg.start) // 0
 console.log(printSync(ast)) // printf 'Hello World!'
 ```
 
-Node positions use byte offsets; `Pos.Offset`, `Pos.Line`, and `Pos.Col` are
-the raw values.
+Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
+expose `offset`, `line` (1-based), and `column` (0-based).
 
 #### browser
 

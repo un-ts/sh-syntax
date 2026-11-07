@@ -7,17 +7,17 @@ import {
 } from './types.js'
 
 export class ParseError extends Error implements IParseError {
-  Filename?: string
-  Incomplete: boolean
-  Text: string
-  Pos?: Pos
+  filename?: string
+  incomplete: boolean
+  text: string
+  pos?: Pos
 
-  constructor({ Filename, Incomplete, Text, Pos }: IParseError) {
-    super(Text)
-    this.Filename = Filename
-    this.Incomplete = Incomplete
-    this.Text = Text
-    this.Pos = Pos
+  constructor({ filename, incomplete, text, pos }: IParseError) {
+    super(text)
+    this.filename = filename
+    this.incomplete = incomplete
+    this.text = text
+    this.pos = pos
   }
 }
 
@@ -80,21 +80,6 @@ interface RawResult {
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
 
-const stringifyAst = (textOrAst: File): string => {
-  const ast = textOrAst as File & { __type?: string }
-
-  /*
-   * The root needs a Type for the Go decoder. Files have one; other roots,
-   * such as a Stmt or Word, only carry __type.
-   */
-  if (ast.Type || !ast.__type) {
-    return JSON.stringify(textOrAst)
-  }
-
-  const { __type, ...rest } = ast
-  return JSON.stringify({ ...rest, Type: __type })
-}
-
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
   textOrAst: File | string,
@@ -142,7 +127,7 @@ const invoke = (
     text = textOrAst
     mode = print ? 1 : 0
   } else {
-    text = stringifyAst(textOrAst)
+    text = JSON.stringify(textOrAst)
     mode = 2
   }
 
@@ -200,9 +185,9 @@ const invoke = (
   /* istanbul ignore if -- @preserve */
   if (!string.startsWith('{"') || !string.endsWith('}')) {
     throw new ParseError({
-      Filename: filepath,
-      Incomplete: true,
-      Text: string,
+      filename: filepath,
+      incomplete: true,
+      text: string,
     })
   }
 

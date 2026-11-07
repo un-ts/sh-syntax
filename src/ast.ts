@@ -1,7 +1,7 @@
 import type { Node } from './types.js'
 
 const isNode = (value: Record<string, unknown>): boolean =>
-  typeof value.__type === 'string' || typeof value.Type === 'string'
+  typeof value.type === 'string'
 
 /**
  * Returns the mvdan/sh type name of a node, e.g. `"CallExpr"`.
@@ -10,7 +10,8 @@ export const NodeType = (node: Node | null | undefined): string => {
   if (node == null) {
     return 'nil'
   }
-  return node.__type ?? node.Type ?? ''
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- tolerate malformed ASTs
+  return node.type ?? ''
 }
 
 /**
@@ -39,7 +40,7 @@ export const Walk = (
   }
 
   for (const [key, child] of Object.entries(object)) {
-    if (key === 'Pos' || key === 'End' || key === '__type' || key === 'Type') {
+    if (key === 'type' || key === 'start' || key === 'end') {
       continue
     }
     Walk(child, walker)
@@ -53,4 +54,4 @@ export const DebugPrint = (node: Node): void => {
 
 /** Reports whether an error was caused by incomplete shell source. */
 export const IsIncomplete = (error: unknown): boolean =>
-  Boolean((error as { Incomplete?: boolean } | null)?.Incomplete)
+  Boolean((error as { incomplete?: boolean } | null)?.incomplete)

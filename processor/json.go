@@ -21,6 +21,7 @@ import (
 	"io"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -75,12 +76,16 @@ func writeUint(buf *bytes.Buffer, value uint64) {
 }
 
 func writePos(buf *bytes.Buffer, pos syntax.Pos) {
-	buf.WriteString(`{"Offset":`)
+	if !pos.IsValid() {
+		buf.WriteString(`{"offset":0,"line":0,"column":0}`)
+		return
+	}
+	buf.WriteString(`{"offset":`)
 	writeUint(buf, uint64(pos.Offset()))
-	buf.WriteString(`,"Line":`)
+	buf.WriteString(`,"line":`)
 	writeUint(buf, uint64(pos.Line()))
-	buf.WriteString(`,"Col":`)
-	writeUint(buf, uint64(pos.Col()))
+	buf.WriteString(`,"column":`)
+	writeUint(buf, uint64(pos.Col()-1))
 	buf.WriteByte('}')
 }
 
@@ -129,6 +134,7 @@ var nodeByName = map[string]reflect.Type{
 	"ForClause":    reflect.TypeFor[syntax.ForClause](),
 	"WhileClause":  reflect.TypeFor[syntax.WhileClause](),
 	"CaseClause":   reflect.TypeFor[syntax.CaseClause](),
+	"CaseItem":     reflect.TypeFor[syntax.CaseItem](),
 	"Block":        reflect.TypeFor[syntax.Block](),
 	"Subshell":     reflect.TypeFor[syntax.Subshell](),
 	"FuncDecl":     reflect.TypeFor[syntax.FuncDecl](),
@@ -158,7 +164,8 @@ func decodeValue(val reflect.Value, encoded any) error {
 		if val.Kind() == reflect.Pointer && val.IsNil() {
 			val.Set(reflect.New(val.Type().Elem()))
 		}
-		if typeName, _ := encoded["Type"].(string); typeName != "" {
+		if typeName, _ := encoded["type"].(string); typeName != "" &&
+			(val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface) {
 			typ := nodeByName[typeName]
 			if typ == nil {
 				return fmt.Errorf("unknown type: %q", typeName)
@@ -169,12 +176,11 @@ func decodeValue(val reflect.Value, encoded any) error {
 			val = val.Elem()
 		}
 		for name, fieldValue := range encoded {
-			field := val.FieldByName(name)
 			switch name {
-			case "Type", "Pos", "End", "__type":
-				// Type was handled above. Pos and End are derived from methods.
+			case "type", "start", "end":
 				continue
 			}
+			field := val.FieldByName(goFieldName(name))
 			if !field.IsValid() {
 				return fmt.Errorf("unknown field for %s: %q", val.Type(), name)
 			}
@@ -211,25 +217,40 @@ func decodeValue(val reflect.Value, encoded any) error {
 }
 
 func decodePos(val reflect.Value, encoded map[string]any) {
-	offset, _ := encoded["Offset"].(float64)
-	line, _ := encoded["Line"].(float64)
-	column, _ := encoded["Col"].(float64)
-	val.Set(reflect.ValueOf(syntax.NewPos(uint(offset), uint(line), uint(column))))
+	offset, _ := encoded["offset"].(float64)
+	line, _ := encoded["line"].(float64)
+	column, _ := encoded["column"].(float64)
+	val.Set(reflect.ValueOf(syntax.NewPos(uint(offset), uint(line), uint(column)+1)))
+}
+
+func goFieldName(name string) string {
+	switch name {
+	case "lastComments":
+		return "Last"
+	case "condComments":
+		return "CondLast"
+	case "thenComments":
+		return "ThenLast"
+	case "doComments":
+		return "DoLast"
+	default:
+		return strings.ToUpper(name[:1]) + name[1:]
+	}
 }
 
 // ErrorPos is the JSON representation of a syntax position in a parse error.
 type ErrorPos struct {
-	Offset uint `json:"Offset"`
-	Line   uint `json:"Line"`
-	Col    uint `json:"Col"`
+	Offset uint `json:"offset"`
+	Line   uint `json:"line"`
+	Column uint `json:"column"`
 }
 
 // ParseError is the JSON representation of a shell syntax error.
 type ParseError struct {
-	Filename   string    `json:"Filename,omitempty"`
-	Incomplete bool      `json:"Incomplete"`
-	Text       string    `json:"Text"`
-	Pos        *ErrorPos `json:"Pos,omitempty"`
+	Filename   string    `json:"filename,omitempty"`
+	Incomplete bool      `json:"incomplete"`
+	Text       string    `json:"text"`
+	Pos        *ErrorPos `json:"pos,omitempty"`
 }
 
 // MapParseError converts a Go parse error into its JSON representation and a
@@ -261,7 +282,7 @@ func newParseError(parseError syntax.ParseError) *ParseError {
 		Pos: &ErrorPos{
 			Offset: pos.Offset(),
 			Line:   pos.Line(),
-			Col:    pos.Col(),
+			Column: pos.Col() - 1,
 		},
 	}
 }

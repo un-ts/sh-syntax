@@ -18,20 +18,18 @@ test('sync parser returns the full typed tree', () => {
   })
 
   expect(NodeType(ast)).toBe('File')
-  expect(ast.Pos.Offset).toBe(0)
-  expect(ast.Pos.Line).toBe(1)
-  expect(ast.Stmts).toHaveLength(1)
-  expect(ast.Stmts[0].Position.Offset).toBe(0)
-  expect(ast.Stmts[0].Comments[0].Text).toBe(' note')
+  expect(ast.start).toBe(0)
+  expect(ast.type).toBe('File')
+  expect(ast.stmts).toHaveLength(1)
+  expect(ast.stmts[0].position.offset).toBe(0)
+  expect(ast.stmts[0].comments[0].text).toBe(' note')
 
-  const call = ast.Stmts[0].Cmd as unknown as { Args: Word[] }
-  const literal = call.Args[0].Parts[0] as unknown as {
-    __type?: string
-    Value?: string
+  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
+  const literal = call.args[0].parts[0] as unknown as {
+    value?: string
   }
-  expect(literal.__type).toBe('Lit')
-  expect(literal.Value).toBe('echo')
-  expect(call.Args[0].Pos.Offset).toBe(0)
+  expect(literal.value).toBe('echo')
+  expect(call.args[0].start).toBe(0)
 
   const types: string[] = []
   Walk(ast, node => {
@@ -45,9 +43,9 @@ test('sync parser returns the full typed tree', () => {
 
 test('sync printer prints a mutated AST', () => {
   const ast = parseSync('echo old\n')
-  const call = ast.Stmts[0].Cmd as unknown as { Args: Word[] }
-  const literal = call.Args[1].Parts[0] as unknown as { Value: string }
-  literal.Value = 'new'
+  const call = ast.stmts[0].cmd as unknown as { args: Word[] }
+  const literal = call.args[1].parts[0] as unknown as { value: string }
+  literal.value = 'new'
 
   expect(printSync(ast)).toBe('echo new\n')
   expect(printSync('echo  old\n')).toBe('echo old\n')
@@ -79,8 +77,8 @@ test('parse errors expose position and incompleteness', () => {
 
   expect(parseError).toBeInstanceOf(ParseError)
   expect(parseError.message.length).toBeGreaterThan(0)
-  expect(parseError.Pos?.Offset).toBe(5)
-  expect(parseError.Incomplete).toBe(false)
+  expect(parseError.pos?.offset).toBe(5)
+  expect(parseError.incomplete).toBe(false)
 })
 
 test('lang variants are exported', () => {
@@ -93,7 +91,7 @@ test('lang variants are exported', () => {
 test('tree helpers handle edge cases', () => {
   expect(NodeType(null)).toBe('nil')
   expect(
-    NodeType({ Type: 'File' } as unknown as Parameters<typeof NodeType>[0]),
+    NodeType({ type: 'File' } as unknown as Parameters<typeof NodeType>[0]),
   ).toBe('File')
   expect(NodeType({} as unknown as Parameters<typeof NodeType>[0])).toBe('')
 
@@ -110,7 +108,7 @@ test('tree helpers handle edge cases', () => {
   expect(log).toHaveBeenCalled()
   log.mockRestore()
 
-  expect(IsIncomplete(new ParseError({ Incomplete: true, Text: 'x' }))).toBe(
+  expect(IsIncomplete(new ParseError({ incomplete: true, text: 'x' }))).toBe(
     true,
   )
   expect(IsIncomplete(null)).toBe(false)
@@ -118,7 +116,7 @@ test('tree helpers handle edge cases', () => {
 
 test('prints non-File roots and rejects originalText', async () => {
   const ast = parseSync('echo old\n')
-  const stmt = ast.Stmts[0] as unknown as File
+  const stmt = ast.stmts[0] as unknown as File
   expect(printSync(stmt)).toBe('echo old')
 
   expect(() => printSync({} as File)).toThrow(SyntaxError)
