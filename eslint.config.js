@@ -1,8 +1,10 @@
 import base from '@1stg/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
 
+const baseConfig = await base
+
 export default [
-  ...base,
+  ...baseConfig,
   {
     ignores: ['vendors', 'shell'],
   },

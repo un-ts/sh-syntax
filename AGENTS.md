@@ -6,9 +6,9 @@
 
 ## Toolchain
 
-- Node.js >=18 (CI tests 20–26), Yarn 4 (`yarn@4.17.0`)
-- Go 1.25.14 for the Go packages and the encoder generator
-- TinyGo 0.41.1 for `main.wasm`
+- Node.js >=18 (CI tests 22–26), Yarn 4 (`yarn@4.18.1`)
+- Go 1.27.3 for the Go packages and the encoder generator
+- TinyGo 0.44.0 for `main.wasm`
 - CI uses `actions/setup-go` and `acifani/setup-tinygo`, pinned by commit SHA
 
 Run `yarn install` once on a fresh clone. The `prepare` script installs `simple-git-hooks` (`nano-staged` + `commitlint`).
@@ -61,7 +61,7 @@ yarn wasm        # gen:encoder + TinyGo build of main.wasm
 - `main.wasm` is built by `yarn wasm`. All generated files are committed.
 - The generator reads `syntax/nodes.go` from `mvdan.cc/sh/v3`; it runs `go mod download mvdan.cc/sh/v3` first so it works with an empty module cache.
 - Builds are byte-for-byte reproducible with the pinned Go/TinyGo versions. CI rebuilds the generated sources and WASM and runs `git diff --exit-code`; keep them in sync in every commit that changes their inputs.
-- `-gc=leaking` is required for the WASM build; the default TinyGo GC/reflect combination corrupts larger trees.
+- `-trimpath -scheduler=none -gc=leaking` is required for the WASM build; the default TinyGo GC/reflect combination corrupts larger trees.
 
 ## Tests and snapshots
 

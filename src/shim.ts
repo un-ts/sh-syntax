@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable unicorn/no-global-object-property-assignment -- wasm_exec needs browser globals in Node */
 
 import { randomFillSync } from 'node:crypto'
 import _fs from 'node:fs'

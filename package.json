@@ -7,7 +7,7 @@
   "author": "JounQin <admin@1stg.me> (https://www.1stG.me)",
   "funding": "https://opencollective.com/sh-syntax",
   "license": "MIT",
-  "packageManager": "yarn@4.17.0",
+  "packageManager": "yarn@4.18.1",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -44,49 +44,60 @@
     "benchmark": "sudo env NO_COLOR=1 node benchmark > benchmark/benchmark.txt",
     "build": "run-p 'build:*'",
     "build:tsc": "tsc -p src --declaration false && tsc -p src --removeComments false --emitDeclarationOnly",
-    "build:tsdown": "tsdown --no-clean -d lib --format cjs --external '../vendors/wasm_exec.cjs' src/index.ts",
+    "build:tsdown": "tsdown",
+    "fix": "concurrently 'yarn:lint:*(!tsc) --fix'",
     "format": "prettier --write .",
-    "gen:encoder": "go run ./scripts/gen-encoder && prettier --write src/ast-types.ts src/operators.ts",
+    "format:ox": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore .",
+    "format:prettier": "prettier --write .",
+    "gen:encoder": "go run ./scripts/gen-encoder && oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore src",
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
+    "lint:ox": "oxlint .",
     "lint:tsc": "tsc --noEmit",
     "prepack": "clean-pkg-json",
     "prepare": "simple-git-hooks && yarn-berry-deduplicate || exit 0",
     "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
+    "wasm": "yarn gen:encoder && tinygo build -trimpath -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug"
   },
   "devDependencies": {
-    "@1stg/common-config": "^15.0.0",
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.31.0",
+    "@1stg/common-config": "^17.0.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
     "@commitlint/cli": "^21.2.0",
     "@mitata/counters": "^0.0.8",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
     "@types/node": "^26.1.0",
-    "@types/web": "^0.0.352",
-    "@vitest/coverage-istanbul": "^4.1.10",
+    "@types/web": "^0.0.361",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitest/coverage-istanbul": "^5.0.0",
     "@vitest/eslint-plugin": "^1.6.21",
     "clean-pkg-json": "^2.0.0",
+    "concurrently": "^10.0.0",
     "eslint": "^10.6.0",
+    "eslint-plugin-unicorn": "^79.0.0",
     "mitata": "^1.0.34",
     "mvdan-sh": "^0.10.1",
     "nano-staged": "^1.0.2",
     "npm-run-all2": "^9.0.2",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "prettier": "^3.9.4",
     "sh-syntax": "link:.",
     "simple-git-hooks": "^2.13.1",
-    "size-limit": "^12.1.0",
-    "size-limit-preset-node-lib": "^0.4.0",
-    "synckit": "^0.11.13",
-    "tsdown": "^0.22.3",
+    "size-limit": "^14.0.0",
+    "size-limit-preset-node-lib": "^0.5.0",
+    "synckit": "^0.12.0",
+    "tsdown": "^0.23.0",
     "type-coverage": "^2.29.7",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.10",
-    "yarn-berry-deduplicate": "^6.1.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^7.0.0",
+    "vitest": "^5.1.0",
+    "yarn-berry-deduplicate": "^8.0.0"
   },
   "resolutions": {
     "prettier": "^3.9.4",
@@ -105,11 +116,11 @@
   "size-limit": [
     {
       "path": "lib/browser.js",
-      "limit": "150B"
+      "limit": "3 kB"
     },
     {
       "path": "lib/index.js",
-      "limit": "450B"
+      "limit": "3 kB"
     }
   ],
   "typeCoverage": {

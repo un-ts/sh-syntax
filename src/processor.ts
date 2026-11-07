@@ -1,10 +1,4 @@
-import {
-  type IParseError,
-  type File,
-  type Pos,
-  type ShOptions,
-  LangVariant,
-} from './types.js'
+import { type IParseError, type File, type Pos, type ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
   filename?: string
@@ -29,8 +23,7 @@ export type WebAssemblySource =
       arrayBuffer(): Promise<ArrayBuffer>
     }
 
-export type GetWebAssemblySource = () =>
-  Promise<WebAssemblySource> | WebAssemblySource
+export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
 export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
 
@@ -115,14 +108,15 @@ const invoke = (
     binaryNextLine = true,
     switchCaseIndent = true,
     spaceRedirects = true,
-    // eslint-disable-next-line sonarjs/deprecation -- still supported by mvdan/sh
     keepPadding = false,
     minify = false,
     singleLine = false,
     functionNextLine = false,
   }: InternalOptions = {},
 ): File | string => {
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
   encoder ??= new TextEncoder()
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
   decoder ??= new TextDecoder()
 
   if (!supportedVariants.has(variant)) {
@@ -150,12 +144,15 @@ const invoke = (
   const stopAtBytes = encoder.encode(stopAt)
 
   const filePathPointer = wasmAlloc(filePath.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(filePath, filePathPointer)
 
   const textPointer = wasmAlloc(textBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(textBytes, textPointer)
 
   const stopAtPointer = wasmAlloc(stopAtBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
 
   const resultPointer = process(
@@ -191,6 +188,7 @@ const invoke = (
   wasmFree(textPointer)
   wasmFree(stopAtPointer)
 
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer)
   const end = result.indexOf(0)
   const string = decoder.decode(result.subarray(0, end))
@@ -205,12 +203,7 @@ const invoke = (
     })
   }
 
-  const {
-    file,
-    text: processedText,
-    parseError,
-    message,
-  } = JSON.parse(string) as RawResult
+  const { file, text: processedText, parseError, message } = JSON.parse(string) as RawResult
 
   if (parseError) {
     throw new ParseError(parseError)
@@ -226,29 +219,15 @@ const invoke = (
 /**
  * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
- * This is intended for bounded, one-off work. TinyGo's leaking GC means a
- * long-running synchronous loop will accumulate memory; use [getProcessor]
- * for long-lived processes.
+ * This is intended for bounded, one-off work. TinyGo's leaking GC means a long-running synchronous
+ * loop will accumulate memory; use [getProcessor] for long-lived processes.
  */
-export const getProcessorSync = (
-  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource,
-) => {
-  const module = new WebAssembly.Module(
-    typeof getWasm === 'function' ? getWasm() : getWasm,
-  )
+export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
+  const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
   function processor(text: string, options?: ShOptions): File
-  function processor(
-    text: string,
-    options?: ShOptions & { print: true },
-  ): string
-  function processor(
-    ast: File,
-    options: ShOptions & { originalText: string },
-  ): string
-  function processor(
-    textOrAst: File | string,
-    options?: InternalOptions,
-  ): File | string {
+  function processor(text: string, options?: ShOptions & { print: true }): string
+  function processor(ast: File, options: ShOptions & { originalText: string }): string
+  function processor(textOrAst: File | string, options?: InternalOptions): File | string {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
     void go.run(instance)
@@ -258,9 +237,7 @@ export const getProcessorSync = (
   return processor
 }
 
-export const getProcessor = (
-  getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
-) => {
+export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource) => {
   let wasmModule: WebAssembly.Module | undefined
   let wasmModulePromise: Promise<WebAssembly.Module> | undefined
 
@@ -275,11 +252,8 @@ export const getProcessor = (
       if (
         typeof WebAssembly.compileStreaming === 'function' &&
         source instanceof Response &&
-        source.headers
-          .get('content-type')
-          ?.split(';')[0]
-          .trim()
-          .toLowerCase() === 'application/wasm'
+        source.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ===
+          'application/wasm'
       ) {
         return WebAssembly.compileStreaming(source)
       }
@@ -291,14 +265,8 @@ export const getProcessor = (
   }
 
   function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(
-    text: string,
-    options?: ShOptions & { print: true },
-  ): Promise<string>
-  function processor(
-    ast: File,
-    options: ShOptions & { originalText: string },
-  ): Promise<string>
+  function processor(text: string, options?: ShOptions & { print: true }): Promise<string>
+  function processor(ast: File, options: ShOptions & { originalText: string }): Promise<string>
   async function processor(
     textOrAst: File | string,
     options: InternalOptions = {},
@@ -319,16 +287,12 @@ export const getProcessor = (
 
     const instance =
       getWasm.length === 0
-        ? await WebAssembly.instantiate(
-            wasmModule as WebAssembly.Module,
-            go.importObject,
-          )
+        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
         : await (getWasm as GetWebAssemblyInstance)(go.importObject)
 
     /**
-     * Do not await this promise, because it only resolves once the Go main()
-     * function has exited. But we need the main function to stay alive to be
-     * able to call the `process` function.
+     * Do not await this promise, because it only resolves once the Go main() function has exited.
+     * But we need the main function to stay alive to be able to call the `process` function.
      */
     void go.run(instance)
 

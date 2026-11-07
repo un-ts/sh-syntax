@@ -207,6 +207,9 @@ export interface ParamExp extends BaseNode {
   length: boolean
   width: boolean
   isSet: boolean
+  split: number
+  globSubst: number
+  rcExpand: number
   param: Lit | null
   nestedParam: WordPart | null
   index: ArithmExpr | null
@@ -430,8 +433,7 @@ export type WordPart =
 
 export type Loop = CStyleLoop | WordIter
 
-export type ArithmExpr =
-  BinaryArithm | FlagsArithm | ParenArithm | UnaryArithm | Word
+export type ArithmExpr = BinaryArithm | FlagsArithm | ParenArithm | UnaryArithm | Word
 
 export type TestExpr = BinaryTest | ParenTest | UnaryTest | Word
 

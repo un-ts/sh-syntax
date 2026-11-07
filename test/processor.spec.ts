@@ -17,19 +17,17 @@ describe('processor', () => {
    * {@link https://github.com/vitest-dev/vitest/issues/6723}
    */
   const initWasm: GetWebAssemblyInstance = async imports => {
-    const buffer = await fs.readFile(
-      path.resolve(import.meta.dirname, '../main.wasm'),
-    )
+    const buffer = await fs.readFile(path.resolve(import.meta.dirname, '../main.wasm'))
     const { instance } = await WebAssembly.instantiate(buffer, imports)
     return instance
   }
 
-  const processor = getProcessor(initWasm)
+  const processShell = getProcessor(initWasm)
 
-  const parse = (text: string, options?: ShOptions) => processor(text, options)
+  const parse = (text: string, options?: ShOptions) => processShell(text, options)
 
   const print = (text: string, options?: ShOptions) =>
-    processor(text, {
+    processShell(text, {
       ...options,
       print: true,
     })
@@ -37,9 +35,7 @@ describe('processor', () => {
   testFixtures(parse, print)
 
   test('getProcessor streams a WASM response', async () => {
-    const wasm = new Uint8Array(
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const streaming = getProcessor(() =>
       Promise.resolve(
         new Response(wasm, {
@@ -54,13 +50,8 @@ describe('processor', () => {
   })
 
   test('getProcessor falls back without compileStreaming', async () => {
-    const wasm = new Uint8Array(
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
-    const descriptor = Object.getOwnPropertyDescriptor(
-      WebAssembly,
-      'compileStreaming',
-    )
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
+    const descriptor = Object.getOwnPropertyDescriptor(WebAssembly, 'compileStreaming')
     Object.defineProperty(WebAssembly, 'compileStreaming', {
       configurable: true,
       value: undefined,
@@ -86,15 +77,11 @@ describe('processor', () => {
   })
 
   test('getProcessor retries module loading after a failure', async () => {
-    const wasm = new Uint8Array(
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     let attempts = 0
     const processor = getProcessor(() => {
       attempts++
-      return attempts === 1
-        ? Promise.reject(new Error('load failed'))
-        : Promise.resolve(wasm)
+      return attempts === 1 ? Promise.reject(new Error('load failed')) : Promise.resolve(wasm)
     })
 
     await expect(processor('echo hi\n')).rejects.toThrow('load failed')
@@ -105,9 +92,7 @@ describe('processor', () => {
   })
 
   test('getProcessor accepts response-like sources', async () => {
-    const wasm = new Uint8Array(
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const responseLike = {
       arrayBuffer: () => Promise.resolve(wasm.buffer),
     }
@@ -119,9 +104,7 @@ describe('processor', () => {
   })
 
   test('getProcessor falls back for a non-WASM response', async () => {
-    const wasm = new Uint8Array(
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const fallback = getProcessor(() =>
       Promise.resolve(
         new Response(wasm, {

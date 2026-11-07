@@ -1,6 +1,7 @@
 // @ts-check
 
 import fs from 'node:fs'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { bench, run, summary } from 'mitata'
@@ -24,9 +25,7 @@ const keepPadding = false
 const minify = false
 const functionNextLine = false
 
-const filePath = fileURLToPath(
-  new URL('../test/fixtures/install.sh', import.meta.url),
-)
+const filePath = fileURLToPath(new URL('../test/fixtures/install.sh', import.meta.url))
 
 const text = fs.readFileSync(filePath, 'utf8')
 
@@ -66,17 +65,12 @@ summary(() => {
       )
       .Print(
         syntax
-          .NewParser(
-            syntax.KeepComments(keepComments),
-            syntax.Variant(mvdanVariant),
-          )
+          .NewParser(syntax.KeepComments(keepComments), syntax.Variant(mvdanVariant))
           .Parse(text, filePath),
       )
   })
 })
 
 await run({
-  colors: !['1', 'true'].includes(
-    /** @type {string} */ (process.env.NO_COLOR?.toLowerCase()),
-  ),
+  colors: !['1', 'true'].includes(/** @type {string} */ (process.env.NO_COLOR?.toLowerCase())),
 })
