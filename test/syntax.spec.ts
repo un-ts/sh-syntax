@@ -121,6 +121,7 @@ test('prints non-File roots and legacy AST objects', () => {
   expect(printSync(stmt)).toBe('echo old')
 
   const legacy = { Name: '', Stmts: [] } as unknown as File
+  expect(() => printSync({} as File)).toThrow(SyntaxError)
   expect(printSync(legacy, { originalText: 'echo legacy\n' })).toBe(
     'echo legacy\n',
   )
