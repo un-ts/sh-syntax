@@ -7,7 +7,7 @@
   "author": "JounQin <admin@1stg.me> (https://www.1stG.me)",
   "funding": "https://opencollective.com/sh-syntax",
   "license": "MIT",
-  "packageManager": "yarn@4.17.0",
+  "packageManager": "yarn@4.18.1",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -58,17 +58,17 @@
     "wasm": "yarn gen:encoder && tinygo build -gc=leaking -o main.wasm -target ./target.json --no-debug"
   },
   "devDependencies": {
-    "@1stg/common-config": "^15.0.0",
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.31.0",
+    "@1stg/common-config": "^17.0.0",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
     "@commitlint/cli": "^21.2.0",
     "@mitata/counters": "^0.0.8",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/golang-wasm-exec": "^1.15.2",
     "@types/mvdan-sh": "^0.10.9",
     "@types/node": "^26.1.0",
-    "@types/web": "^0.0.352",
-    "@vitest/coverage-istanbul": "^4.1.10",
+    "@types/web": "^0.0.361",
+    "@vitest/coverage-istanbul": "^5.0.0",
     "@vitest/eslint-plugin": "^1.6.21",
     "clean-pkg-json": "^2.0.0",
     "eslint": "^10.6.0",
@@ -79,14 +79,14 @@
     "prettier": "^3.9.4",
     "sh-syntax": "link:.",
     "simple-git-hooks": "^2.13.1",
-    "size-limit": "^12.1.0",
-    "size-limit-preset-node-lib": "^0.4.0",
-    "synckit": "^0.11.13",
-    "tsdown": "^0.22.3",
+    "size-limit": "^14.0.0",
+    "size-limit-preset-node-lib": "^0.5.0",
+    "synckit": "^0.12.0",
+    "tsdown": "^0.23.0",
     "type-coverage": "^2.29.7",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "vitest": "^4.1.10",
-    "yarn-berry-deduplicate": "^6.1.3"
+    "yarn-berry-deduplicate": "^8.0.0"
   },
   "resolutions": {
     "prettier": "^3.9.4",
