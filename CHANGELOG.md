@@ -1,5 +1,12 @@
 # sh-syntax
 
+## 0.8.1
+
+### Patch Changes
+
+- [#148](https://github.com/un-ts/sh-syntax/pull/148) [`84a41e5`](https://github.com/un-ts/sh-syntax/commit/84a41e518afaff0f95fba3f6414d2c548ffb0ffc) Thanks [@renovate](https://github.com/apps/renovate)! - Update `mvdan.cc/sh/v3` to 3.14.1 and expose the new `ParamExp` fields
+  `globSubst`, `rcExpand`, and `split`, and refresh the Go/TinyGo toolchain.
+
 ## 0.8.0
 
 ### Minor Changes
