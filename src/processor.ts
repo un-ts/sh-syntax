@@ -269,14 +269,19 @@ export const getProcessor = (
     const source = await (getWasm as GetWebAssemblySource)()
 
     if (typeof Response !== 'undefined' && source instanceof Response) {
-      if (typeof WebAssembly.compileStreaming === 'function') {
-        try {
-          return await WebAssembly.compileStreaming(source.clone())
-        } catch {
-          // Fall back for responses without the application/wasm MIME type.
-          return WebAssembly.compile(await source.arrayBuffer())
-        }
+      const contentType = source.headers
+        .get('content-type')
+        ?.split(';')[0]
+        .trim()
+        .toLowerCase()
+
+      if (
+        contentType === 'application/wasm' &&
+        typeof WebAssembly.compileStreaming === 'function'
+      ) {
+        return WebAssembly.compileStreaming(source)
       }
+
       return WebAssembly.compile(await source.arrayBuffer())
     }
 
