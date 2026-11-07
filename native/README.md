@@ -43,13 +43,13 @@ Validation observed on Linux x64 (Go 1.27.3, Node 26, latest run):
 
 Memory growth for repeated synchronous `parse('echo hi')` calls (separate processes, `global.gc()` between measurements):
 
-| calls | N-API addon RSS delta | WASM RSS delta |
-|---:|---:|---:|
-| 2,000 | +6.3MB | +452.2MB |
-| 5,000 | +7.0MB | +1,097.6MB |
-| 10,000 | — | +2,156.8MB |
-| 50,000 | +11.9MB | OOM |
+| calls | N-API addon RSS delta | WASM RSS delta | daemon parent + child |
+|---:|---:|---:|---:|
+| 2,000 | +6.3MB | +452.2MB | +10.8MB |
+| 5,000 | +7.0MB | +1,097.6MB | +11.7MB |
+| 10,000 | +7.0MB | +2,156.8MB | +15.9MB |
+| 50,000 | +11.9MB | OOM | +16.1MB |
 
-The N-API addon plateaus because Go's GC reclaims the temporary ASTs. The current leaking-WASM sync path retains one instance per call until the event loop yields, so it grows linearly.
+The N-API addon plateaus because Go's GC reclaims the temporary ASTs. The daemon column is the Node parent plus the native child RSS; both are stable. The current leaking-WASM sync path retains one instance per call until the event loop yields, so it grows linearly.
 
 The CLI daemon is the persistent esbuild-style case: one long-lived child process and a line-delimited JSON protocol. It is measured asynchronously here; a synchronous API would need an additional worker + `Atomics.wait` bridge. The pure `spawnSync` case is the conservative one-process-per-call upper bound. These numbers are a spike, not a release guarantee.
