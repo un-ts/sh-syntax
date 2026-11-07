@@ -1,10 +1,5 @@
 import type { Node } from './types.js'
 
-const isNode = (value: unknown): value is Node =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as { type?: unknown }).type === 'string'
-
 /**
  * Walks the syntax tree in depth-first order. Returning `false` from the
  * callback skips the node's children.
@@ -20,21 +15,22 @@ export const walk = (
     return
   }
 
-  if (value === null || typeof value !== 'object') {
+  if (value == null || typeof value !== 'object') {
     return
   }
 
-  if (isNode(value) && walker(value) === false) {
+  if (
+    typeof (value as { type?: unknown }).type === 'string' &&
+    walker(value as Node) === false
+  ) {
     return
   }
 
-  const object = value as Record<string, unknown>
-
-  for (const key in object) {
-    if (!Object.hasOwn(object, key)) {
+  for (const key in value) {
+    if (!Object.hasOwn(value, key)) {
       continue
     }
-    walk(object[key], walker)
+    walk((value as Record<string, unknown>)[key], walker)
   }
 }
 
