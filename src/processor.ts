@@ -259,11 +259,29 @@ export const getProcessorSync = (
 export const getProcessor = (
   getWasm: GetWebAssemblyInstance | GetWebAssemblySource,
 ) => {
-  let wasmBufferSource: Buffer | BufferSource | undefined
-  let wasmBufferSourcePromise: Promise<Buffer | BufferSource> | undefined
+  let wasmModule: WebAssembly.Module | undefined
+  let wasmModulePromise: Promise<WebAssembly.Module> | undefined
 
   encoder ??= new TextEncoder()
   decoder ??= new TextDecoder()
+
+  const loadModule = async (): Promise<WebAssembly.Module> => {
+    const source = await (getWasm as GetWebAssemblySource)()
+
+    if (typeof Response !== 'undefined' && source instanceof Response) {
+      if (typeof WebAssembly.compileStreaming === 'function') {
+        try {
+          return await WebAssembly.compileStreaming(source.clone())
+        } catch {
+          // Fall back for responses without the application/wasm MIME type.
+          return WebAssembly.compile(await source.arrayBuffer())
+        }
+      }
+      return WebAssembly.compile(await source.arrayBuffer())
+    }
+
+    return WebAssembly.compile(source as BufferSource)
+  }
 
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(
@@ -278,41 +296,32 @@ export const getProcessor = (
     textOrAst: File | string,
     options: InternalOptions = {},
   ): Promise<File | string> {
-    if (!wasmBufferSource && !wasmBufferSourcePromise && getWasm.length === 0) {
-      wasmBufferSourcePromise = Promise.resolve(
-        (getWasm as GetWebAssemblySource)(),
-      ).then(
-        /* istanbul ignore next */ source =>
-          'arrayBuffer' in source ? source.arrayBuffer() : source,
-      )
+    if (!wasmModule && !wasmModulePromise && getWasm.length === 0) {
+      wasmModulePromise = loadModule()
     }
 
-    if (wasmBufferSourcePromise) {
-      wasmBufferSource = await wasmBufferSourcePromise
+    if (wasmModulePromise) {
+      wasmModule = await wasmModulePromise
     }
 
     const go = new Go()
 
-    const wasm =
+    const instance =
       getWasm.length === 0
         ? await WebAssembly.instantiate(
-            wasmBufferSource as BufferSource,
+            wasmModule as WebAssembly.Module,
             go.importObject,
           )
-        : {
-            instance: await (getWasm as GetWebAssemblyInstance)(
-              go.importObject,
-            ),
-          }
+        : await (getWasm as GetWebAssemblyInstance)(go.importObject)
 
     /**
      * Do not await this promise, because it only resolves once the Go main()
      * function has exited. But we need the main function to stay alive to be
      * able to call the `process` function.
      */
-    void go.run(wasm.instance)
+    void go.run(instance)
 
-    return invoke(wasm.instance.exports as ProcessExports, textOrAst, options)
+    return invoke(instance.exports as ProcessExports, textOrAst, options)
   }
 
   return processor

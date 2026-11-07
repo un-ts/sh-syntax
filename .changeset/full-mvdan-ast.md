@@ -36,6 +36,9 @@ Return the full shell syntax tree and keep printing source text.
   and `processor(ast, { originalText })` remain accepted for tooling
   compatibility, but the AST is deliberately ignored and `originalText` is
   formatted.
+- `getProcessor()` caches the compiled WebAssembly module, uses
+  `compileStreaming()` for `Response` inputs when available, and instantiates a
+  fresh runtime per call.
 - Add `parseSync()` and `printSync()` for synchronous consumers, plus
   `getProcessorSync()` for preloaded WASM bytes or a synchronous loader.
 - Positions recovered by `recoverErrors` now expose `recovered: true`.
