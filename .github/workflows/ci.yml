@@ -55,6 +55,9 @@ jobs:
       - name: Install root dependencies
         run: yarn --immutable
 
+      - name: Build root package
+        run: yarn build
+
       - name: Regenerate sources
         run: yarn gen:encoder
 
