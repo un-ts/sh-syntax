@@ -226,8 +226,9 @@ const invoke = (
 /**
  * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
- * This is useful for Node.js and for callers that preload the WASM file. The
- * asynchronous [getProcessor] remains the recommended browser entry point.
+ * This is intended for bounded, one-off work. TinyGo's leaking GC means a
+ * long-running synchronous loop will accumulate memory; use [getProcessor]
+ * for long-lived processes.
  */
 export const getProcessorSync = (
   getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource,
@@ -235,16 +236,6 @@ export const getProcessorSync = (
   const module = new WebAssembly.Module(
     typeof getWasm === 'function' ? getWasm() : getWasm,
   )
-  const go = new Go()
-  const instance = new WebAssembly.Instance(module, go.importObject)
-  /*
-   * Synchronous calls are serial. Keep one runtime alive instead of creating a
-   * new instance per call; the pending go.run promise would otherwise retain
-   * every instance until the event loop yields.
-   */
-  void go.run(instance)
-  const exports = instance.exports as ProcessExports
-
   function processor(text: string, options?: ShOptions): File
   function processor(
     text: string,
@@ -258,7 +249,10 @@ export const getProcessorSync = (
     textOrAst: File | string,
     options?: InternalOptions,
   ): File | string {
-    return invoke(exports, textOrAst, options)
+    const go = new Go()
+    const instance = new WebAssembly.Instance(module, go.importObject)
+    void go.run(instance)
+    return invoke(instance.exports as ProcessExports, textOrAst, options)
   }
 
   return processor

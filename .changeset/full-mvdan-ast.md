@@ -42,6 +42,8 @@ Return the full shell syntax tree and keep printing source text.
   `compileStreaming()` for `application/wasm` responses, accepts
   `Buffer`/`BufferSource`/`Response`/response-like sources, and instantiates a
   fresh runtime per call.
-- Add `parseSync()` and `printSync()` for synchronous consumers, plus
+- Add `parseSync()` and `printSync()` for bounded synchronous work, plus
   `getProcessorSync()` for preloaded WASM bytes or a synchronous loader.
+  Long-lived processes should use the async APIs; the TinyGo leaking GC means
+  unbounded synchronous loops accumulate memory.
 - Positions recovered by `recoverErrors` now expose `recovered: true`.

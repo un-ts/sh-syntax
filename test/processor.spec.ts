@@ -135,6 +135,16 @@ describe('processor', () => {
     })
   })
 
+  test('getProcessorSync handles repeated calls', () => {
+    const sync = getProcessorSync(() =>
+      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
+    )
+
+    for (let i = 0; i < 1000; i++) {
+      expect(sync('echo hi\n').type).toBe('File')
+    }
+  })
+
   test('getProcessorSync accepts a synchronous loader', () => {
     const sync = getProcessorSync(() =>
       readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
