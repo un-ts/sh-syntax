@@ -13,6 +13,9 @@ Return the full shell syntax tree and keep printing source text.
 - `ParseError` / `IParseError` fields are renamed from Go style:
   `Filename` → `filename`, `Incomplete` → `incomplete`, `Text` → `text`,
   and `Pos` → `pos`.
+- Operator-valued fields (`op`) now use the upstream numeric enum values instead
+  of display strings. Typed operator constants are not exported yet.
+- `Word.Lit` is gone; use `parts`. `File.Last` is now `lastComments`.
 - `print(ast)` without `originalText` is no longer supported and throws a
   `TypeError`. Printing an edited AST is deferred to a follow-up; the AST is
   currently a parse result, not a second input format.
