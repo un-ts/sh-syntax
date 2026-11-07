@@ -6,7 +6,7 @@
 
 ## Toolchain
 
-- Node.js 20–26, Yarn 4 (`yarn@4.17.0`)
+- Node.js >=18 (CI tests 20–26), Yarn 4 (`yarn@4.17.0`)
 - Go 1.25.14 for the Go packages and the encoder generator
 - TinyGo 0.41.1 for `main.wasm`
 - CI uses `actions/setup-go` and `acifani/setup-tinygo`, pinned by commit SHA

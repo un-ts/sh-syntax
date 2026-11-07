@@ -235,6 +235,15 @@ export const getProcessorSync = (
   const module = new WebAssembly.Module(
     typeof getWasm === 'function' ? getWasm() : getWasm,
   )
+  const go = new Go()
+  const instance = new WebAssembly.Instance(module, go.importObject)
+  /*
+   * Synchronous calls are serial. Keep one runtime alive instead of creating a
+   * new instance per call; the pending go.run promise would otherwise retain
+   * every instance until the event loop yields.
+   */
+  void go.run(instance)
+  const exports = instance.exports as ProcessExports
 
   function processor(text: string, options?: ShOptions): File
   function processor(
@@ -249,14 +258,7 @@ export const getProcessorSync = (
     textOrAst: File | string,
     options?: InternalOptions,
   ): File | string {
-    const go = new Go()
-    const instance = new WebAssembly.Instance(module, go.importObject)
-    /*
-     * `go.run` only resolves when the Go program exits. The exported `process`
-     * function is available synchronously after `_start` has run.
-     */
-    void go.run(instance)
-    return invoke(instance.exports as ProcessExports, textOrAst, options)
+    return invoke(exports, textOrAst, options)
   }
 
   return processor
