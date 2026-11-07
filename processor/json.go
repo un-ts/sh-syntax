@@ -42,8 +42,43 @@ func EncodeNode(w io.Writer, node syntax.Node) error {
 }
 
 func writeString(buf *bytes.Buffer, value string) {
-	encoded, _ := json.Marshal(value)
-	buf.Write(encoded)
+	buf.WriteByte('"')
+	start := 0
+	for i := 0; i < len(value); i++ {
+		char := value[i]
+		if char >= 0x20 && char != '"' && char != '\\' {
+			continue
+		}
+		if start < i {
+			buf.WriteString(value[start:i])
+		}
+		switch char {
+		case '"':
+			buf.WriteString("\\\"")
+		case '\\':
+			buf.WriteString("\\\\")
+		case '\n':
+			buf.WriteString("\\n")
+		case '\r':
+			buf.WriteString("\\r")
+		case '\t':
+			buf.WriteString("\\t")
+		case '\b':
+			buf.WriteString("\\b")
+		case '\f':
+			buf.WriteString("\\f")
+		default:
+			buf.WriteString("\\u00")
+			const hex = "0123456789abcdef"
+			buf.WriteByte(hex[char>>4])
+			buf.WriteByte(hex[char&0x0f])
+		}
+		start = i + 1
+	}
+	if start < len(value) {
+		buf.WriteString(value[start:])
+	}
+	buf.WriteByte('"')
 }
 
 func writeField(buf *bytes.Buffer, name string, first *bool) {
@@ -51,17 +86,23 @@ func writeField(buf *bytes.Buffer, name string, first *bool) {
 		buf.WriteByte(',')
 	}
 	*first = false
-	writeString(buf, name)
-	buf.WriteByte(':')
+	buf.WriteByte('"')
+	buf.WriteString(name)
+	buf.WriteString("\":")
+}
+
+func writeUint(buf *bytes.Buffer, value uint64) {
+	var scratch [24]byte
+	buf.Write(strconv.AppendUint(scratch[:0], value, 10))
 }
 
 func writePos(buf *bytes.Buffer, pos syntax.Pos) {
 	buf.WriteString(`{"Offset":`)
-	buf.WriteString(strconv.FormatUint(uint64(pos.Offset()), 10))
+	writeUint(buf, uint64(pos.Offset()))
 	buf.WriteString(`,"Line":`)
-	buf.WriteString(strconv.FormatUint(uint64(pos.Line()), 10))
+	writeUint(buf, uint64(pos.Line()))
 	buf.WriteString(`,"Col":`)
-	buf.WriteString(strconv.FormatUint(uint64(pos.Col()), 10))
+	writeUint(buf, uint64(pos.Col()))
 	buf.WriteByte('}')
 }
 
