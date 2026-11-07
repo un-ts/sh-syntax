@@ -59,12 +59,21 @@ Memory growth for repeated synchronous `parse('echo hi')` calls, measured in iso
 
 Both native paths plateau; the addon avoids the extra process.
 
-## `print(ast)` requirement
+## `print(ast)` and the patch fast path
 
-Text print is validated. Printing an AST after JS-side mutations is the remaining Phase 2 design problem:
+The generated non-reflective decoder makes full-AST `printAst` correct, but serializing the whole tree is not the performance path. The POC adds:
 
-- N-API can accept the JS AST directly, but Go still needs a generated, non-reflective decoder.
-- A daemon needs the same AST representation on the wire.
-- The decoder must handle added/removed nodes, comments, and positions; it cannot be a reflective `encoding/json` decode of the existing output alone.
+- `parseHandle(text)` → native AST handle + JS AST
+- shared-prototype `BaseNode.patch('value', value)` (POC covers `Lit.value`)
+- `printHandle(handle)` → native printer without JSON serialization
+
+Latest `install.sh` print benchmark:
+
+| path | time |
+|---|---:|
+| full `printAst(JSON.stringify(ast))` | 1494ms |
+| `patch('value') + print(handle)` | 4.4ms |
+
+`native/patch.mjs` decorates the returned AST with a shared prototype; node mutations are sent as `(handle, start, end, field, value)` and applied directly to the Go AST. This is a POC: only `Lit.value` is supported, and the daemon patch adapter is not implemented yet.
 
 The native API can diverge from the WASM API here; the priority is the native parse/print performance path, not API symmetry.
