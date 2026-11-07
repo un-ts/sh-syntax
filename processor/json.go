@@ -79,7 +79,11 @@ func writePos(buf *bytes.Buffer, pos syntax.Pos) {
 	buf.WriteString(`,"line":`)
 	writeUint(buf, uint64(pos.Line()))
 	buf.WriteString(`,"column":`)
-	writeUint(buf, uint64(pos.Col()-1))
+	var column uint
+	if pos.Col() > 0 {
+		column = pos.Col() - 1
+	}
+	writeUint(buf, uint64(column))
 	buf.WriteByte('}')
 }
 
@@ -124,7 +128,9 @@ func newParseError(parseError syntax.ParseError) *ParseError {
 	if pos.IsValid() {
 		errorPos.Offset = pos.Offset()
 		errorPos.Line = pos.Line()
-		errorPos.Column = pos.Col() - 1
+		if pos.Col() > 0 {
+			errorPos.Column = pos.Col() - 1
+		}
 	}
 	return &ParseError{
 		Filename:   parseError.Filename,

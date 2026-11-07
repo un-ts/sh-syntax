@@ -113,7 +113,12 @@ func Process(
 			file = &syntax.File{}
 		}
 		var encoded bytes.Buffer
-		encoded.Grow(min(len(textBytes)*64, 64<<20))
+		const maxGrow = 64 << 20
+		grow := maxGrow
+		if len(textBytes) < maxGrow/64 {
+			grow = len(textBytes) * 64
+		}
+		encoded.Grow(grow)
 		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
 			err = encodeErr
 		} else {

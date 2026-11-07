@@ -71,7 +71,7 @@ jobs:
           cache: yarn
 
       - name: Install root dependencies
-        run: yarn --immutable
+        run: YARN_ENABLE_SCRIPTS=false yarn --immutable
 
       - name: Build root package
         run: yarn build
@@ -79,7 +79,7 @@ jobs:
       - name: Install and test the shell submodule
         run: |
           cd shell
-          npm install
+          npm ci --ignore-scripts
           npm run build
           npm test
 
