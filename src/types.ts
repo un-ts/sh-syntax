@@ -183,16 +183,6 @@ export interface ShOptions extends ShSyntaxOptions {
   tabWidth?: number
 }
 
-export interface ShPrintOptions extends ShOptions {
-  /**
-   * The source text the AST was parsed from.
-   *
-   * @deprecated ASTs returned by this package can be printed directly, so this
-   * option is only needed for legacy or hand-written AST objects.
-   */
-  originalText?: string
-}
-
 export interface Pos {
   Offset: number
   Line: number

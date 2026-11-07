@@ -7,7 +7,7 @@ import './shim.js'
 import '../vendors/wasm_exec.cjs'
 
 import { createSyncProcessor, getProcessor } from './processor.js'
-import type { File, ShOptions, ShPrintOptions } from './types.js'
+import type { File, ShOptions } from './types.js'
 
 const importMetaUrl = import.meta.url
 
@@ -23,21 +23,32 @@ export const processor = getProcessor(() =>
 export const parse = (text: string, options?: ShOptions) =>
   processor(text, options)
 
-export function print(text: string, options?: ShOptions): Promise<string>
-export function print(ast: File, options?: ShPrintOptions): Promise<string>
-export function print(
+const rejectOriginalText = (options: unknown): void => {
+  if (
+    options != null &&
+    typeof options === 'object' &&
+    'originalText' in options &&
+    (options as { originalText?: unknown }).originalText !== undefined
+  ) {
+    throw new TypeError(
+      '`originalText` is no longer supported; pass the source text to print() instead',
+    )
+  }
+}
+
+export const print = (
   textOrAst: File | string,
-  options?: ShOptions & {
-    originalText?: string
-  },
-) {
+  options?: ShOptions,
+): Promise<string> => {
+  rejectOriginalText(options)
+
   if (typeof textOrAst === 'string') {
     return processor(textOrAst, {
       ...options,
       print: true,
     })
   }
-  return processor(textOrAst, options as ShPrintOptions)
+  return processor(textOrAst, options)
 }
 
 let syncProcessor: ReturnType<typeof createSyncProcessor> | undefined
@@ -50,21 +61,19 @@ const getSyncProcessor = () =>
 export const parseSync = (text: string, options?: ShOptions) =>
   getSyncProcessor()(text, options)
 
-export function printSync(text: string, options?: ShOptions): string
-export function printSync(ast: File, options?: ShPrintOptions): string
-export function printSync(
+export const printSync = (
   textOrAst: File | string,
-  options?: ShOptions & {
-    originalText?: string
-  },
-): string {
+  options?: ShOptions,
+): string => {
+  rejectOriginalText(options)
+
   if (typeof textOrAst === 'string') {
     return getSyncProcessor()(textOrAst, {
       ...options,
       print: true,
     })
   }
-  return getSyncProcessor()(textOrAst, options as ShPrintOptions)
+  return getSyncProcessor()(textOrAst, options)
 }
 
 export { DebugPrint, IsIncomplete, NodeType, Walk } from './ast.js'

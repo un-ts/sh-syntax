@@ -6,7 +6,6 @@ import { testFixtures } from './fixtures.ts'
 import {
   type GetWebAssemblyInstance,
   type ShOptions,
-  type ShPrintOptions,
   getProcessor,
   print as print_,
 } from 'sh-syntax'
@@ -35,7 +34,7 @@ describe('processor', () => {
         print: true,
       })
     }
-    return processor(textOrAst, options as ShPrintOptions)
+    return processor(textOrAst, options as ShOptions)
   }
 
   testFixtures(parse, print)

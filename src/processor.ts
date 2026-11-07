@@ -3,7 +3,6 @@ import {
   type File,
   type Pos,
   type ShOptions,
-  type ShPrintOptions,
   LangVariant,
 } from './types.js'
 
@@ -33,6 +32,7 @@ type ProcessMode = 0 | 1 | 2
 
 interface InternalOptions extends ShOptions {
   print?: boolean
+  /** Only present so the public wrappers can reject the legacy combination. */
   originalText?: string
 }
 
@@ -101,7 +101,7 @@ const invoke = (
   {
     filepath = '',
     print = false,
-    originalText,
+    originalText: legacyText,
 
     keepComments = true,
     variant = LangVariant.LangBash,
@@ -129,23 +129,18 @@ const invoke = (
     throw new TypeError('Expected shell source text or a syntax tree')
   }
 
+  if (typeof textOrAst !== 'string' && legacyText != null) {
+    throw new TypeError(
+      '`originalText` cannot be combined with an AST; pass the source text to print() instead',
+    )
+  }
+
   let mode: ProcessMode
   let text: string
 
   if (typeof textOrAst === 'string') {
     text = textOrAst
     mode = print ? 1 : 0
-  } else if (
-    originalText != null &&
-    (textOrAst as { __type?: string; Type?: string }).__type == null &&
-    (textOrAst as { __type?: string; Type?: string }).Type == null
-  ) {
-    /*
-     * Older, minimal AST objects have neither tag and still need their
-     * original source text.
-     */
-    text = originalText
-    mode = 1
   } else {
     text = stringifyAst(textOrAst)
     mode = 2
@@ -241,7 +236,7 @@ export const createSyncProcessor = (wasmBufferSource: BufferSource) => {
     text: string,
     options?: ShOptions & { print: true },
   ): string
-  function processor(ast: File, options?: ShPrintOptions): string
+  function processor(ast: File, options?: ShOptions): string
   function processor(
     textOrAst: File | string,
     options?: InternalOptions,
@@ -273,7 +268,7 @@ export const getProcessor = (
     text: string,
     options?: ShOptions & { print: true },
   ): Promise<string>
-  function processor(ast: File, options?: ShPrintOptions): Promise<string>
+  function processor(ast: File, options?: ShOptions): Promise<string>
   async function processor(
     textOrAst: File | string,
     options: InternalOptions = {},
