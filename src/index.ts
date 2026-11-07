@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 
 import './shim.js'
 import '../vendors/wasm_exec.cjs'
-
 import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 

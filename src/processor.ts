@@ -214,9 +214,8 @@ const invoke = (
 /**
  * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
- * This is intended for bounded, one-off work. TinyGo's leaking GC means a
- * long-running synchronous loop will accumulate memory; use [getProcessor]
- * for long-lived processes.
+ * This is intended for bounded, one-off work. TinyGo's leaking GC means a long-running synchronous
+ * loop will accumulate memory; use [getProcessor] for long-lived processes.
  */
 export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
   const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
@@ -287,9 +286,8 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
         : await (getWasm as GetWebAssemblyInstance)(go.importObject)
 
     /**
-     * Do not await this promise, because it only resolves once the Go main()
-     * function has exited. But we need the main function to stay alive to be
-     * able to call the `process` function.
+     * Do not await this promise, because it only resolves once the Go main() function has exited.
+     * But we need the main function to stay alive to be able to call the `process` function.
      */
     void go.run(instance)
 

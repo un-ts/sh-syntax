@@ -1,8 +1,8 @@
 import type { Node } from './types.js'
 
 /**
- * Walks the syntax tree in depth-first order. Returning `false` from the
- * callback skips the node's children.
+ * Walks the syntax tree in depth-first order. Returning `false` from the callback skips the node's
+ * children.
  */
 export const walk = (value: unknown, walker: (node: Node) => boolean | void): void => {
   if (Array.isArray(value)) {

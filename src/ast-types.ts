@@ -421,7 +421,15 @@ export type Command =
   | WhileClause
 
 export type WordPart =
-  ArithmExp | BraceExp | CmdSubst | DblQuoted | ExtGlob | Lit | ParamExp | ProcSubst | SglQuoted
+  | ArithmExp
+  | BraceExp
+  | CmdSubst
+  | DblQuoted
+  | ExtGlob
+  | Lit
+  | ParamExp
+  | ProcSubst
+  | SglQuoted
 
 export type Loop = CStyleLoop | WordIter
 
