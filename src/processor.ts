@@ -36,37 +36,18 @@ interface InternalOptions extends ShOptions {
   originalText?: string
 }
 
-interface ProcessExports extends WebAssembly.Exports {
+interface ProcessExports {
   memory: WebAssembly.Memory
+  mem?: WebAssembly.Memory
   wasmAlloc: (size: number) => number
   wasmFree: (pointer: number) => void
   process: (
     filePathPointer: number,
-    filePath0: number,
-    filePath1: number,
-
+    filePathLength: number,
     textPointer: number,
-    text0: number,
-    text1: number,
-
-    print: boolean,
-
-    keepComments: boolean,
-    variant: LangVariant,
-    stopAtPointer: number,
-    stopAt0: number,
-    stopAt1: number,
-    recoverErrors: number,
-
-    simplify: boolean,
-    indent: number,
-    binaryNextLine: boolean,
-    switchCaseIndent: boolean,
-    spaceRedirects: boolean,
-    keepPadding: boolean,
-    minify: boolean,
-    singleLine: boolean,
-    functionNextLine: boolean,
+    textLength: number,
+    optionsPointer: number,
+    optionsLength: number,
   ) => number
 }
 
@@ -87,6 +68,12 @@ const supportedVariants = new Set<LangVariant>([
 
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
+
+const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
+  const memory = (exports.memory ?? exports.mem) as WebAssembly.Memory
+
+  return { ...exports, memory } as ProcessExports
+}
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
@@ -155,38 +142,41 @@ const invoke = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
 
+  const options = encoder.encode(
+    JSON.stringify({
+      print: printOutput,
+      keepComments,
+      variant,
+      stopAt,
+      recoverErrors,
+      simplify,
+      indent,
+      binaryNextLine,
+      switchCaseIndent,
+      spaceRedirects,
+      keepPadding,
+      minify,
+      singleLine,
+      functionNextLine,
+    }),
+  )
+  const optionsPointer = wasmAlloc(options.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(options, optionsPointer)
+
   const resultPointer = process(
     filePathPointer,
     filePath.byteLength,
-    filePath.byteLength,
-
     textPointer,
     textBytes.byteLength,
-    textBytes.byteLength,
-
-    printOutput,
-
-    keepComments,
-    variant,
-    stopAtPointer,
-    stopAtBytes.byteLength,
-    stopAtBytes.byteLength,
-    recoverErrors,
-
-    simplify,
-    indent,
-    binaryNextLine,
-    switchCaseIndent,
-    spaceRedirects,
-    keepPadding,
-    minify,
-    singleLine,
-    functionNextLine,
+    optionsPointer,
+    options.byteLength,
   )
 
   wasmFree(filePathPointer)
   wasmFree(textPointer)
   wasmFree(stopAtPointer)
+  wasmFree(optionsPointer)
 
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer)
@@ -219,19 +209,21 @@ const invoke = (
 /**
  * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
- * This is intended for bounded, one-off work. TinyGo's leaking GC means a long-running synchronous
- * loop will accumulate memory; use [getProcessor] for long-lived processes.
+ * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so
+ * the instance can serve repeated synchronous calls.
  */
 export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
   const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
+  const go = new Go()
+  const instance = new WebAssembly.Instance(module, go.importObject)
+  void go.run(instance)
+  const exports = normalizeExports(instance.exports)
+
   function processor(text: string, options?: ShOptions): File
   function processor(text: string, options?: ShOptions & { print: true }): string
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
-    const go = new Go()
-    const instance = new WebAssembly.Instance(module, go.importObject)
-    void go.run(instance)
-    return invoke(instance.exports as ProcessExports, textOrAst, options)
+    return invoke(exports, textOrAst, options)
   }
 
   return processor
@@ -296,7 +288,7 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
      */
     void go.run(instance)
 
-    return invoke(instance.exports as ProcessExports, textOrAst, options)
+    return invoke(normalizeExports(instance.exports), textOrAst, options)
   }
 
   return processor

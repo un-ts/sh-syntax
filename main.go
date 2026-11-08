@@ -1,105 +1,107 @@
 //go:build js || wasm
-// +build js wasm
+// +build js || wasm
 
 package main
 
 import (
-	"container/list"
+	"encoding/json"
+	"unsafe"
 
 	"github.com/un-ts/sh-syntax/processor"
 	"mvdan.cc/sh/v3/syntax"
 )
 
-var memory = list.New()
+var (
+	buffers    = map[uint32][]byte{}
+	lastResult []byte
+)
 
-type Block struct {
-	ptr   *[]byte
-	value []byte
+type processOptions struct {
+	Print            bool   `json:"print"`
+	KeepComments     bool   `json:"keepComments"`
+	Variant          uint32 `json:"variant"`
+	StopAt           string `json:"stopAt"`
+	RecoverErrors    int    `json:"recoverErrors"`
+	Simplify         bool   `json:"simplify"`
+	Indent           uint   `json:"indent"`
+	BinaryNextLine   bool   `json:"binaryNextLine"`
+	SwitchCaseIndent bool   `json:"switchCaseIndent"`
+	SpaceRedirects   bool   `json:"spaceRedirects"`
+	KeepPadding      bool   `json:"keepPadding"`
+	Minify           bool   `json:"minify"`
+	SingleLine       bool   `json:"singleLine"`
+	FunctionNextLine bool   `json:"functionNextLine"`
 }
 
-//export wasmAlloc
-func wasmAlloc(size int) *[]byte {
-	slice := make([]byte, size)
-	block := Block{
-		ptr:   &slice,
-		value: slice,
+//go:wasmexport wasmAlloc
+func wasmAlloc(size uint32) uint32 {
+	if size == 0 {
+		return 0
 	}
-	memory.PushBack(block)
-	return block.ptr
+	value := make([]byte, size)
+	pointer := uint32(uintptr(unsafe.Pointer(&value[0])))
+	buffers[pointer] = value
+	return pointer
 }
 
-//export wasmFree
-func wasmFree(ptr *[]byte) {
-	for e := memory.Front(); e != nil; e = e.Next() {
-		block := e.Value.(Block)
-		if block.ptr == ptr {
-			memory.Remove(e)
-			break
-		}
+//go:wasmexport wasmFree
+func wasmFree(pointer uint32) {
+	delete(buffers, pointer)
+}
+
+func bytesAt(pointer uint32, length uint32) []byte {
+	if pointer == 0 || length == 0 {
+		return nil
 	}
+	return unsafe.Slice((*byte)(unsafe.Pointer(uintptr(pointer))), length)
 }
 
-// process processes the input file path and text by performing either
-// formatting (printing) or parsing based on the print flag.
-//
-// The result is a JSON envelope with a null terminator appended, and a pointer
-// to its first byte is returned.
-//
-//export process
+//go:wasmexport process
 func process(
-	filepathBytes []byte,
-	textBytes []byte,
+	filepathPointer uint32,
+	filepathLength uint32,
+	textPointer uint32,
+	textLength uint32,
+	optionsPointer uint32,
+	optionsLength uint32,
+) uint32 {
+	var options processOptions
+	if err := json.Unmarshal(bytesAt(optionsPointer, optionsLength), &options); err != nil {
+		lastResult = []byte(err.Error() + "\x00")
+		return uint32(uintptr(unsafe.Pointer(&lastResult[0])))
+	}
 
-	printOutput bool,
-
-	// parser
-	keepComments bool,
-	variant int,
-	stopAt []byte,
-	recoverErrors int,
-
-	// printer
-	simplify bool,
-	indent int,
-	binaryNextLine,
-	switchCaseIndent,
-	spaceRedirects,
-	keepPadding,
-	minify,
-	singleLine bool,
-	functionNextLine bool,
-) *byte {
 	parserOptions := processor.ParserOptions{
-		KeepComments:  keepComments,
-		Variant:       syntax.LangVariant(variant),
-		StopAt:        string(stopAt),
-		RecoverErrors: recoverErrors,
+		KeepComments:  options.KeepComments,
+		Variant:       syntax.LangVariant(options.Variant),
+		StopAt:        options.StopAt,
+		RecoverErrors: options.RecoverErrors,
 	}
 
 	printerOptions := processor.PrinterOptions{
-		Simplify:         simplify,
-		Indent:           uint(indent),
-		BinaryNextLine:   binaryNextLine,
-		SwitchCaseIndent: switchCaseIndent,
-		SpaceRedirects:   spaceRedirects,
-		KeepPadding:      keepPadding,
-		Minify:           minify,
-		SingleLine:       singleLine,
-		FunctionNextLine: functionNextLine,
+		Simplify:         options.Simplify,
+		Indent:           options.Indent,
+		BinaryNextLine:   options.BinaryNextLine,
+		SwitchCaseIndent: options.SwitchCaseIndent,
+		SpaceRedirects:   options.SpaceRedirects,
+		KeepPadding:      options.KeepPadding,
+		Minify:           options.Minify,
+		SingleLine:       options.SingleLine,
+		FunctionNextLine: options.FunctionNextLine,
 	}
 
-	bytes := processor.Process(
-		filepathBytes,
-		textBytes,
-		printOutput,
+	result := processor.Process(
+		bytesAt(filepathPointer, filepathLength),
+		bytesAt(textPointer, textLength),
+		options.Print,
 		parserOptions,
 		printerOptions,
 	)
 
-	bytes = append(bytes, 0)
-
-	return &bytes[0]
+	lastResult = append(result, 0)
+	return uint32(uintptr(unsafe.Pointer(&lastResult[0])))
 }
 
 func main() {
+	select {}
 }
