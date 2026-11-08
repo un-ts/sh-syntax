@@ -102,7 +102,6 @@
     "yarn-berry-deduplicate": "^8.0.0"
   },
   "resolutions": {
-    "prettier": "^3.9.4",
     "sh-syntax": "link:."
   },
   "publishConfig": {
