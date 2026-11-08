@@ -50,7 +50,7 @@ func wasmFree(pointer uint32) {
 	delete(buffers, pointer)
 }
 
-func bytesAt(pointer uint32, length uint32) []byte {
+func bytesAt(pointer, length uint32) []byte {
 	if pointer == 0 || length == 0 {
 		return nil
 	}
@@ -59,11 +59,7 @@ func bytesAt(pointer uint32, length uint32) []byte {
 
 //go:wasmexport process
 func process(
-	filepathPointer uint32,
-	filepathLength uint32,
-	textPointer uint32,
-	textLength uint32,
-	optionsPointer uint32,
+	filepathPointer, filepathLength, textPointer, textLength, optionsPointer uint32,
 ) uint32 {
 	options := (*processOptions)(unsafe.Pointer(uintptr(optionsPointer)))
 
