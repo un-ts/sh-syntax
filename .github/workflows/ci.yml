@@ -56,7 +56,7 @@ jobs:
         run: yarn gen:encoder
 
       - name: Build Wasm
-        run: GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags="-s -w" -o main.wasm . && chmod 644 main.wasm
+        run: GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags="-s -w" -o main.wasm .
 
       - name: Verify generated artifacts are committed
         run: git diff --exit-code -- main.wasm processor/encode_generated.go src/ast-types.ts src/operators.ts
