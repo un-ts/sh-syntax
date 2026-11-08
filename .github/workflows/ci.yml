@@ -41,9 +41,6 @@ jobs:
         with:
           go-version: '1.27.3'
 
-      - name: Show toolchain versions
-        run: |
-          go version
 
       - name: Install root dependencies
         run: yarn --immutable
