@@ -1,4 +1,3 @@
-/* eslint-disable no-magic-numbers -- explicit wasm options layout */
 import { type IParseError, type File, type Pos, type ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
