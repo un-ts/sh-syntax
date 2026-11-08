@@ -61,15 +61,20 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		syntax.Simplify(file)
 	}
 
+	return PrintFile(file, syntaxOptions.PrinterOptions)
+}
+
+// PrintFile formats an already parsed file with the supplied printer options.
+func PrintFile(file *syntax.File, printerOptions PrinterOptions) (string, error) {
 	printer := syntax.NewPrinter(
-		syntax.Indent(syntaxOptions.Indent),
-		syntax.BinaryNextLine(syntaxOptions.BinaryNextLine),
-		syntax.SwitchCaseIndent(syntaxOptions.SwitchCaseIndent),
-		syntax.SpaceRedirects(syntaxOptions.SpaceRedirects),
-		syntax.KeepPadding(syntaxOptions.KeepPadding),
-		syntax.Minify(syntaxOptions.Minify),
-		syntax.SingleLine(syntaxOptions.SingleLine),
-		syntax.FunctionNextLine(syntaxOptions.FunctionNextLine),
+		syntax.Indent(printerOptions.Indent),
+		syntax.BinaryNextLine(printerOptions.BinaryNextLine),
+		syntax.SwitchCaseIndent(printerOptions.SwitchCaseIndent),
+		syntax.SpaceRedirects(printerOptions.SpaceRedirects),
+		syntax.KeepPadding(printerOptions.KeepPadding),
+		syntax.Minify(printerOptions.Minify),
+		syntax.SingleLine(printerOptions.SingleLine),
+		syntax.FunctionNextLine(printerOptions.FunctionNextLine),
 	)
 
 	var buf bytes.Buffer

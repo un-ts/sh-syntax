@@ -65,7 +65,7 @@ jobs:
         run: tinygo build -trimpath -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug
 
       - name: Verify generated artifacts are committed
-        run: git diff --exit-code -- main.wasm processor/encode_generated.go src/ast-types.ts src/operators.ts
+        run: git diff --exit-code -- main.wasm processor/encode_generated.go processor/decode_generated.go processor/patch_generated.go src/ast-types.ts src/operators.ts
 
   shell:
     name: Integration with @eslint/shell
