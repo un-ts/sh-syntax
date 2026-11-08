@@ -105,6 +105,15 @@ describe('processor', () => {
     ])
 
     expect(results).toHaveLength(3)
+    expect(results[0]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'one' }] }] } }],
+    })
+    expect(results[1]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'two' }] }] } }],
+    })
+    expect(results[2]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'three' }] }] } }],
+    })
     expect(calls).toBe(1)
   })
 

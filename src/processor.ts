@@ -227,6 +227,7 @@ export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssembly
   const createRuntime = () => {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
+    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
     void go.run(instance)
     return { go, exports: normalizeExports(instance.exports) }
   }
@@ -281,6 +282,7 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
       getWasm.length === 0
         ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
         : await (getWasm as GetWebAssemblyInstance)(go.importObject)
+    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
     void go.run(instance)
     return { go, exports: normalizeExports(instance.exports) }
   }
