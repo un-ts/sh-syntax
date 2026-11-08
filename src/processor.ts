@@ -57,6 +57,8 @@ interface RawResult {
   message: string
 }
 
+const MAX_STOP_AT_BYTES = 4
+
 const supportedVariants = new Set<LangVariant>([
   LangVariant.LangBash,
   LangVariant.LangPOSIX,
@@ -128,6 +130,9 @@ const invoke = (
   const filePath = encoder.encode(filepath)
   const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
+  if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
+    throw new TypeError('stopAt must be at most 4 bytes')
+  }
 
   const filePathPointer = wasmAlloc(filePath.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
@@ -159,7 +164,11 @@ const invoke = (
     functionNextLine,
   ]
   const optionsPointer = wasmAlloc(optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
-  const options = new DataView(memory.buffer, optionsPointer, optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
+  const options = new DataView(
+    memory.buffer,
+    optionsPointer,
+    optionValues.length * Uint32Array.BYTES_PER_ELEMENT,
+  )
   let optionOffset = 0
   for (const value of optionValues) {
     options.setUint32(optionOffset, Number(value), true)
@@ -210,8 +219,8 @@ const invoke = (
 /**
  * Creates a synchronous processor from WASM bytes or a synchronous loader.
  *
- * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so
- * the instance can serve repeated synchronous calls.
+ * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so the
+ * instance can serve repeated synchronous calls.
  */
 export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
   const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
@@ -228,7 +237,7 @@ export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssembly
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
     /* istanbul ignore if -- @preserve */
-    if ((runtime.go as { exited?: boolean }).exited) {
+    if (runtime.go.exited) {
       runtime = createRuntime()
     }
     return invoke(runtime.exports, textOrAst, options)

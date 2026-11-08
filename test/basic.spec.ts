@@ -18,6 +18,11 @@ test('parse', async () => {
   )
 })
 
+test('parse rejects an overlong stopAt', async () => {
+  await expect(parse('echo hi', { stopAt: 'longer' })).rejects.toThrow(TypeError)
+  expect((await parse('echo hi')).type).toBe('File')
+})
+
 test('print', async () => {
   expect(await print('  Hello   World ! d', { filepath: 'bar.sh' })).toMatchSnapshot()
 

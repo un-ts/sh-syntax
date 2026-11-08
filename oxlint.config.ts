@@ -18,7 +18,6 @@ export default defineConfig({
     {
       files: ['src/processor.ts'],
       rules: {
-        'no-magic-numbers': 'off',
         'no-undef': 'off',
       },
     },
