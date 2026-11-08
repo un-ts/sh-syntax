@@ -2550,6 +2550,41 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wasm-opt/darwin-arm64@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@wasm-opt/darwin-arm64@npm:2.0.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@wasm-opt/linux-arm64@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@wasm-opt/linux-arm64@npm:2.0.1"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@wasm-opt/linux-x64@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@wasm-opt/linux-x64@npm:2.0.1"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@wasm-opt/win32-arm64@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@wasm-opt/win32-arm64@npm:2.0.1"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@wasm-opt/win32-x64@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@wasm-opt/win32-x64@npm:2.0.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@yarnpkg/parsers@npm:3.1.0":
   version: 3.1.0
   resolution: "@yarnpkg/parsers@npm:3.1.0"
@@ -7261,6 +7296,7 @@ __metadata:
     typescript-eslint: "npm:^8.72.1"
     vite: "npm:^8.0.0"
     vitest: "npm:^5.1.0"
+    wasm-opt: "npm:2.0.1"
     yarn-berry-deduplicate: "npm:^8.0.0"
   languageName: unknown
   linkType: soft
@@ -7543,7 +7579,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:^7.5.7":
+"tar@npm:^7.5.22, tar@npm:^7.5.7":
   version: 7.5.22
   resolution: "tar@npm:7.5.22"
   dependencies:
@@ -8216,6 +8252,33 @@ __metadata:
   version: 3.0.1
   resolution: "walk-up-path@npm:3.0.1"
   checksum: 10c0/3184738e0cf33698dd58b0ee4418285b9c811e58698f52c1f025435a85c25cbc5a63fee599f1a79cb29ca7ef09a44ec9417b16bfd906b1a37c305f7aa20ee5bc
+  languageName: node
+  linkType: hard
+
+"wasm-opt@npm:2.0.1":
+  version: 2.0.1
+  resolution: "wasm-opt@npm:2.0.1"
+  dependencies:
+    "@wasm-opt/darwin-arm64": "npm:2.0.1"
+    "@wasm-opt/linux-arm64": "npm:2.0.1"
+    "@wasm-opt/linux-x64": "npm:2.0.1"
+    "@wasm-opt/win32-arm64": "npm:2.0.1"
+    "@wasm-opt/win32-x64": "npm:2.0.1"
+    tar: "npm:^7.5.22"
+  dependenciesMeta:
+    "@wasm-opt/darwin-arm64":
+      optional: true
+    "@wasm-opt/linux-arm64":
+      optional: true
+    "@wasm-opt/linux-x64":
+      optional: true
+    "@wasm-opt/win32-arm64":
+      optional: true
+    "@wasm-opt/win32-x64":
+      optional: true
+  bin:
+    wasm-opt: dist/cli.js
+  checksum: 10c0/e3d902ba692d9420677b2940e15605f3703f011c52c71dcb88640866e2a1803c976e84754322470920c8437d902c2d2ef5f21ae608ea8a9431868d1b1407a230
   languageName: node
   linkType: hard
 
