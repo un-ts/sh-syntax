@@ -41,17 +41,6 @@ jobs:
         with:
           go-version: '1.27.3'
 
-      - name: Setup TinyGo
-        uses: acifani/setup-tinygo@f51bf108c9895381060398804ce6cf6f62692106 # v3.0.1
-        with:
-          tinygo-version: '0.44.0'
-          install-binaryen: true
-
-      - name: Show toolchain versions
-        run: |
-          go version
-          tinygo version
-
       - name: Install root dependencies
         run: yarn --immutable
 
@@ -62,7 +51,9 @@ jobs:
         run: yarn gen:encoder
 
       - name: Build Wasm
-        run: tinygo build -trimpath -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug
+        run: |
+          GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags="-s -w" -o main.wasm .
+          yarn wasm:opt
 
       - name: Verify generated artifacts are committed
         run: git diff --exit-code -- main.wasm processor/encode_generated.go src/ast-types.ts src/operators.ts

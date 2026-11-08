@@ -59,7 +59,8 @@
     "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:encoder && tinygo build -trimpath -scheduler=none -gc=leaking -o main.wasm -target ./target.json --no-debug"
+    "wasm": "yarn gen:encoder && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && yarn wasm:opt",
+    "wasm:opt": "wasm-opt --enable-bulk-memory --enable-sign-ext --enable-mutable-globals --enable-nontrapping-float-to-int -Oz main.wasm -o main.wasm"
   },
   "devDependencies": {
     "@1stg/common-config": "^17.0.0",
@@ -97,10 +98,10 @@
     "typescript-eslint": "^8.72.1",
     "vite": "^8.0.0",
     "vitest": "^5.1.0",
+    "wasm-opt": "^2.0.1",
     "yarn-berry-deduplicate": "^8.0.0"
   },
   "resolutions": {
-    "prettier": "^3.9.4",
     "sh-syntax": "link:."
   },
   "publishConfig": {

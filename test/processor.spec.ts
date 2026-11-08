@@ -91,6 +91,47 @@ describe('processor', () => {
     expect(attempts).toBe(2)
   })
 
+  test('getProcessor reuses one instance and serializes calls', async () => {
+    let calls = 0
+    const processor = getProcessor(async imports => {
+      calls++
+      return initWasm(imports)
+    })
+
+    const results = await Promise.all([
+      processor('echo one\n'),
+      processor('echo two\n'),
+      processor('echo three\n'),
+    ])
+
+    expect(results).toHaveLength(3)
+    expect(results[0]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'one' }] }] } }],
+    })
+    expect(results[1]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'two' }] }] } }],
+    })
+    expect(results[2]).toMatchObject({
+      stmts: [{ cmd: { args: [{}, { parts: [{ value: 'three' }] }] } }],
+    })
+    expect(calls).toBe(1)
+  })
+
+  test('getProcessor retries runtime creation after a failure', async () => {
+    let attempts = 0
+    const processor = getProcessor(async imports => {
+      attempts++
+      if (attempts === 1) {
+        throw new Error('init failed')
+      }
+      return initWasm(imports)
+    })
+
+    await expect(processor('echo hi\n')).rejects.toThrow('init failed')
+    await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
+    expect(attempts).toBe(2)
+  })
+
   test('getProcessor accepts response-like sources', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const responseLike = {

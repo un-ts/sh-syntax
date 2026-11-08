@@ -139,3 +139,41 @@ func newParseError(parseError syntax.ParseError) *ParseError {
 		Pos:        errorPos,
 	}
 }
+
+func writeParseError(buf *bytes.Buffer, parseError *ParseError) {
+	if parseError == nil {
+		buf.WriteString("null")
+		return
+	}
+
+	buf.WriteByte('{')
+	first := true
+	writeField := func(name string) {
+		if !first {
+			buf.WriteByte(',')
+		}
+		first = false
+		writeString(buf, name)
+		buf.WriteByte(':')
+	}
+
+	if parseError.Filename != "" {
+		writeField("filename")
+		writeString(buf, parseError.Filename)
+	}
+	writeField("incomplete")
+	writeBool(buf, parseError.Incomplete)
+	writeField("text")
+	writeString(buf, parseError.Text)
+	if parseError.Pos != nil {
+		writeField("pos")
+		buf.WriteString(`{"offset":`)
+		writeUint(buf, uint64(parseError.Pos.Offset))
+		buf.WriteString(`,"line":`)
+		writeUint(buf, uint64(parseError.Pos.Line))
+		buf.WriteString(`,"column":`)
+		writeUint(buf, uint64(parseError.Pos.Column))
+		buf.WriteByte('}')
+	}
+	buf.WriteByte('}')
+}

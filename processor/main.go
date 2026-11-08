@@ -2,7 +2,6 @@ package processor
 
 import (
 	"bytes"
-	"encoding/json"
 
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -137,19 +136,14 @@ func Process(
 		}
 	}
 
-	parseErrorJSON, marshalErr := json.Marshal(parseError)
-	if marshalErr != nil {
-		parseErrorJSON = []byte("null")
-	}
-
 	var out bytes.Buffer
-	out.Grow(len(fileJSON) + len(parseErrorJSON) + len(textOut) + len(message) + 64)
+	out.Grow(len(fileJSON) + len(textOut) + len(message) + 256)
 	out.WriteString(`{"file":`)
 	out.Write(fileJSON)
 	out.WriteString(`,"text":`)
 	writeString(&out, textOut)
 	out.WriteString(`,"parseError":`)
-	out.Write(parseErrorJSON)
+	writeParseError(&out, parseError)
 	out.WriteString(`,"message":`)
 	writeString(&out, message)
 	out.WriteByte('}')

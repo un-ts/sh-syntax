@@ -4,102 +4,98 @@
 package main
 
 import (
-	"container/list"
+	"unsafe"
 
 	"github.com/un-ts/sh-syntax/processor"
 	"mvdan.cc/sh/v3/syntax"
 )
 
-var memory = list.New()
+var (
+	buffers    = map[unsafe.Pointer][]byte{}
+	lastResult []byte
+)
 
-type Block struct {
-	ptr   *[]byte
-	value []byte
+// Keep this layout in sync with optionValues in src/processor.ts.
+type processOptions struct {
+	Print            uint32
+	KeepComments     uint32
+	Variant          uint32
+	RecoverErrors    int32
+	StopAt           [4]byte
+	StopAtLength     uint32
+	Simplify         uint32
+	Indent           uint32
+	BinaryNextLine   uint32
+	SwitchCaseIndent uint32
+	SpaceRedirects   uint32
+	KeepPadding      uint32
+	Minify           uint32
+	SingleLine       uint32
+	FunctionNextLine uint32
 }
 
-//export wasmAlloc
-func wasmAlloc(size int) *[]byte {
-	slice := make([]byte, size)
-	block := Block{
-		ptr:   &slice,
-		value: slice,
+//go:wasmexport wasmAlloc
+func wasmAlloc(size uint32) unsafe.Pointer {
+	if size == 0 {
+		return nil
 	}
-	memory.PushBack(block)
-	return block.ptr
+	value := make([]byte, size)
+	pointer := unsafe.Pointer(&value[0])
+	buffers[pointer] = value
+	return pointer
 }
 
-//export wasmFree
-func wasmFree(ptr *[]byte) {
-	for e := memory.Front(); e != nil; e = e.Next() {
-		block := e.Value.(Block)
-		if block.ptr == ptr {
-			memory.Remove(e)
-			break
-		}
+//go:wasmexport wasmFree
+func wasmFree(pointer unsafe.Pointer) {
+	delete(buffers, pointer)
+}
+
+func bytesAt(pointer unsafe.Pointer, length uint32) []byte {
+	if pointer == nil || length == 0 {
+		return nil
 	}
+	return unsafe.Slice((*byte)(pointer), length)
 }
 
-// process processes the input file path and text by performing either
-// formatting (printing) or parsing based on the print flag.
-//
-// The result is a JSON envelope with a null terminator appended, and a pointer
-// to its first byte is returned.
-//
-//export process
+//go:wasmexport process
 func process(
-	filepathBytes []byte,
-	textBytes []byte,
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	textPointer unsafe.Pointer, textLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
 
-	printOutput bool,
-
-	// parser
-	keepComments bool,
-	variant int,
-	stopAt []byte,
-	recoverErrors int,
-
-	// printer
-	simplify bool,
-	indent int,
-	binaryNextLine,
-	switchCaseIndent,
-	spaceRedirects,
-	keepPadding,
-	minify,
-	singleLine bool,
-	functionNextLine bool,
-) *byte {
 	parserOptions := processor.ParserOptions{
-		KeepComments:  keepComments,
-		Variant:       syntax.LangVariant(variant),
-		StopAt:        string(stopAt),
-		RecoverErrors: recoverErrors,
+		KeepComments:  options.KeepComments != 0,
+		Variant:       syntax.LangVariant(options.Variant),
+		StopAt:        string(options.StopAt[:options.StopAtLength]),
+		RecoverErrors: int(options.RecoverErrors),
 	}
 
 	printerOptions := processor.PrinterOptions{
-		Simplify:         simplify,
-		Indent:           uint(indent),
-		BinaryNextLine:   binaryNextLine,
-		SwitchCaseIndent: switchCaseIndent,
-		SpaceRedirects:   spaceRedirects,
-		KeepPadding:      keepPadding,
-		Minify:           minify,
-		SingleLine:       singleLine,
-		FunctionNextLine: functionNextLine,
+		Simplify:         options.Simplify != 0,
+		Indent:           uint(options.Indent),
+		BinaryNextLine:   options.BinaryNextLine != 0,
+		SwitchCaseIndent: options.SwitchCaseIndent != 0,
+		SpaceRedirects:   options.SpaceRedirects != 0,
+		KeepPadding:      options.KeepPadding != 0,
+		Minify:           options.Minify != 0,
+		SingleLine:       options.SingleLine != 0,
+		FunctionNextLine: options.FunctionNextLine != 0,
 	}
 
-	bytes := processor.Process(
-		filepathBytes,
-		textBytes,
-		printOutput,
+	result := processor.Process(
+		bytesAt(filepathPointer, filepathLength),
+		bytesAt(textPointer, textLength),
+		options.Print != 0,
 		parserOptions,
 		printerOptions,
 	)
 
-	bytes = append(bytes, 0)
-
-	return &bytes[0]
+	lastResult = append(result, 0)
+	return unsafe.Pointer(&lastResult[0])
 }
 
 func main() {
+	select {}
 }
