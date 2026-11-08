@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers -- explicit wasm options layout */
 import { type IParseError, type File, type Pos, type ShOptions, LangVariant } from './types.js'
 
 export class ParseError extends Error implements IParseError {
@@ -47,7 +48,6 @@ interface ProcessExports {
     textPointer: number,
     textLength: number,
     optionsPointer: number,
-    optionsLength: number,
   ) => number
 }
 
@@ -74,6 +74,8 @@ const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
 
   return { ...exports, memory } as ProcessExports
 }
+
+const PROCESS_OPTIONS_BYTES = 64
 
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
@@ -142,27 +144,26 @@ const invoke = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
 
-  const options = encoder.encode(
-    JSON.stringify({
-      print: printOutput,
-      keepComments,
-      variant,
-      stopAt,
-      recoverErrors,
-      simplify,
-      indent,
-      binaryNextLine,
-      switchCaseIndent,
-      spaceRedirects,
-      keepPadding,
-      minify,
-      singleLine,
-      functionNextLine,
-    }),
-  )
-  const optionsPointer = wasmAlloc(options.byteLength)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(options, optionsPointer)
+  const optionsPointer = wasmAlloc(PROCESS_OPTIONS_BYTES)
+  const options = new DataView(memory.buffer, optionsPointer, PROCESS_OPTIONS_BYTES)
+  const setOption = (offset: number, value: boolean | number) => {
+    options.setUint32(offset, Number(value), true)
+  }
+  setOption(0, printOutput)
+  setOption(4, keepComments)
+  setOption(8, variant)
+  setOption(12, recoverErrors)
+  setOption(16, stopAtPointer)
+  setOption(20, stopAtBytes.byteLength)
+  setOption(24, simplify)
+  setOption(28, indent)
+  setOption(32, binaryNextLine)
+  setOption(36, switchCaseIndent)
+  setOption(40, spaceRedirects)
+  setOption(44, keepPadding)
+  setOption(48, minify)
+  setOption(52, singleLine)
+  setOption(56, functionNextLine)
 
   const resultPointer = process(
     filePathPointer,
@@ -170,7 +171,6 @@ const invoke = (
     textPointer,
     textBytes.byteLength,
     optionsPointer,
-    options.byteLength,
   )
 
   wasmFree(filePathPointer)

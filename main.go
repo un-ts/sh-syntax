@@ -1,10 +1,9 @@
 //go:build js || wasm
-// +build js || wasm
+// +build js wasm
 
 package main
 
 import (
-	"encoding/json"
 	"unsafe"
 
 	"github.com/un-ts/sh-syntax/processor"
@@ -16,21 +15,23 @@ var (
 	lastResult []byte
 )
 
+// Keep this layout in sync with PROCESS_OPTIONS_BYTES in src/processor.ts.
 type processOptions struct {
-	Print            bool   `json:"print"`
-	KeepComments     bool   `json:"keepComments"`
-	Variant          uint32 `json:"variant"`
-	StopAt           string `json:"stopAt"`
-	RecoverErrors    int    `json:"recoverErrors"`
-	Simplify         bool   `json:"simplify"`
-	Indent           uint   `json:"indent"`
-	BinaryNextLine   bool   `json:"binaryNextLine"`
-	SwitchCaseIndent bool   `json:"switchCaseIndent"`
-	SpaceRedirects   bool   `json:"spaceRedirects"`
-	KeepPadding      bool   `json:"keepPadding"`
-	Minify           bool   `json:"minify"`
-	SingleLine       bool   `json:"singleLine"`
-	FunctionNextLine bool   `json:"functionNextLine"`
+	Print            uint32
+	KeepComments     uint32
+	Variant          uint32
+	RecoverErrors    int32
+	StopAtPointer    uint32
+	StopAtLength     uint32
+	Simplify         uint32
+	Indent           uint32
+	BinaryNextLine   uint32
+	SwitchCaseIndent uint32
+	SpaceRedirects   uint32
+	KeepPadding      uint32
+	Minify           uint32
+	SingleLine       uint32
+	FunctionNextLine uint32
 }
 
 //go:wasmexport wasmAlloc
@@ -63,37 +64,32 @@ func process(
 	textPointer uint32,
 	textLength uint32,
 	optionsPointer uint32,
-	optionsLength uint32,
 ) uint32 {
-	var options processOptions
-	if err := json.Unmarshal(bytesAt(optionsPointer, optionsLength), &options); err != nil {
-		lastResult = []byte(err.Error() + "\x00")
-		return uint32(uintptr(unsafe.Pointer(&lastResult[0])))
-	}
+	options := (*processOptions)(unsafe.Pointer(uintptr(optionsPointer)))
 
 	parserOptions := processor.ParserOptions{
-		KeepComments:  options.KeepComments,
+		KeepComments:  options.KeepComments != 0,
 		Variant:       syntax.LangVariant(options.Variant),
-		StopAt:        options.StopAt,
-		RecoverErrors: options.RecoverErrors,
+		StopAt:        string(bytesAt(options.StopAtPointer, options.StopAtLength)),
+		RecoverErrors: int(options.RecoverErrors),
 	}
 
 	printerOptions := processor.PrinterOptions{
-		Simplify:         options.Simplify,
-		Indent:           options.Indent,
-		BinaryNextLine:   options.BinaryNextLine,
-		SwitchCaseIndent: options.SwitchCaseIndent,
-		SpaceRedirects:   options.SpaceRedirects,
-		KeepPadding:      options.KeepPadding,
-		Minify:           options.Minify,
-		SingleLine:       options.SingleLine,
-		FunctionNextLine: options.FunctionNextLine,
+		Simplify:         options.Simplify != 0,
+		Indent:           uint(options.Indent),
+		BinaryNextLine:   options.BinaryNextLine != 0,
+		SwitchCaseIndent: options.SwitchCaseIndent != 0,
+		SpaceRedirects:   options.SpaceRedirects != 0,
+		KeepPadding:      options.KeepPadding != 0,
+		Minify:           options.Minify != 0,
+		SingleLine:       options.SingleLine != 0,
+		FunctionNextLine: options.FunctionNextLine != 0,
 	}
 
 	result := processor.Process(
 		bytesAt(filepathPointer, filepathLength),
 		bytesAt(textPointer, textLength),
-		options.Print,
+		options.Print != 0,
 		parserOptions,
 		printerOptions,
 	)
