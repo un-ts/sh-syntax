@@ -249,6 +249,8 @@ export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssembly
 export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource) => {
   let wasmModule: WebAssembly.Module | undefined
   let wasmModulePromise: Promise<WebAssembly.Module> | undefined
+  let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
+  let queue: Promise<unknown> = Promise.resolve()
 
   const loadModule = async (): Promise<WebAssembly.Module> => {
     const source = await (getWasm as GetWebAssemblySource)()
@@ -273,6 +275,36 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     return WebAssembly.compile(source)
   }
 
+  const createRuntime = async () => {
+    const go = new Go()
+    const instance =
+      getWasm.length === 0
+        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
+        : await (getWasm as GetWebAssemblyInstance)(go.importObject)
+    void go.run(instance)
+    return { go, exports: normalizeExports(instance.exports) }
+  }
+
+  const getRuntime = async () => {
+    if (!runtimePromise) {
+      const create = async () => {
+        try {
+          return await createRuntime()
+        } catch (error) {
+          runtimePromise = undefined
+          throw error
+        }
+      }
+      runtimePromise = create()
+    }
+    return runtimePromise
+  }
+
+  /* istanbul ignore next -- @preserve */
+  const invalidateRuntime = () => {
+    runtimePromise = undefined
+  }
+
   function processor(text: string, options?: ShOptions): Promise<File>
   function processor(text: string, options?: ShOptions & { print: true }): Promise<string>
   function processor(ast: File, options: ShOptions & { originalText: string }): Promise<string>
@@ -292,20 +324,34 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
       }
     }
 
-    const go = new Go()
+    const previous = queue
+    let release!: () => void
+    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
+    queue = new Promise<void>(resolve => {
+      release = resolve
+    })
+    await previous
 
-    const instance =
-      getWasm.length === 0
-        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
-        : await (getWasm as GetWebAssemblyInstance)(go.importObject)
+    try {
+      let runtime = await getRuntime()
+      /* istanbul ignore if -- @preserve */
+      if (runtime.go.exited) {
+        invalidateRuntime()
+        runtime = await getRuntime()
+      }
 
-    /**
-     * Do not await this promise, because it only resolves once the Go main() function has exited.
-     * But we need the main function to stay alive to be able to call the `process` function.
-     */
-    void go.run(instance)
-
-    return invoke(normalizeExports(instance.exports), textOrAst, options)
+      try {
+        return invoke(runtime.exports, textOrAst, options)
+      } catch (error) {
+        /* istanbul ignore next -- @preserve */
+        if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
+          invalidateRuntime()
+        }
+        throw error
+      }
+    } finally {
+      release()
+    }
   }
 
   return processor
