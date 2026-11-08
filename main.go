@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	buffers    = map[uint32][]byte{}
+	buffers    = map[unsafe.Pointer][]byte{}
 	lastResult []byte
 )
 
@@ -21,7 +21,7 @@ type processOptions struct {
 	KeepComments     uint32
 	Variant          uint32
 	RecoverErrors    int32
-	StopAtPointer    uint32
+	StopAt           [4]byte
 	StopAtLength     uint32
 	Simplify         uint32
 	Indent           uint32
@@ -35,38 +35,40 @@ type processOptions struct {
 }
 
 //go:wasmexport wasmAlloc
-func wasmAlloc(size uint32) uint32 {
+func wasmAlloc(size uint32) unsafe.Pointer {
 	if size == 0 {
-		return 0
+		return nil
 	}
 	value := make([]byte, size)
-	pointer := uint32(uintptr(unsafe.Pointer(&value[0])))
+	pointer := unsafe.Pointer(&value[0])
 	buffers[pointer] = value
 	return pointer
 }
 
 //go:wasmexport wasmFree
-func wasmFree(pointer uint32) {
+func wasmFree(pointer unsafe.Pointer) {
 	delete(buffers, pointer)
 }
 
-func bytesAt(pointer, length uint32) []byte {
-	if pointer == 0 || length == 0 {
+func bytesAt(pointer unsafe.Pointer, length uint32) []byte {
+	if pointer == nil || length == 0 {
 		return nil
 	}
-	return unsafe.Slice((*byte)(unsafe.Pointer(uintptr(pointer))), length)
+	return unsafe.Slice((*byte)(pointer), length)
 }
 
 //go:wasmexport process
 func process(
-	filepathPointer, filepathLength, textPointer, textLength, optionsPointer uint32,
-) uint32 {
-	options := (*processOptions)(unsafe.Pointer(uintptr(optionsPointer)))
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	textPointer unsafe.Pointer, textLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
 
 	parserOptions := processor.ParserOptions{
 		KeepComments:  options.KeepComments != 0,
 		Variant:       syntax.LangVariant(options.Variant),
-		StopAt:        string(bytesAt(options.StopAtPointer, options.StopAtLength)),
+		StopAt:        string(options.StopAt[:options.StopAtLength]),
 		RecoverErrors: int(options.RecoverErrors),
 	}
 
@@ -91,7 +93,7 @@ func process(
 	)
 
 	lastResult = append(result, 0)
-	return uint32(uintptr(unsafe.Pointer(&lastResult[0])))
+	return unsafe.Pointer(&lastResult[0])
 }
 
 func main() {

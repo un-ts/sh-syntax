@@ -58,6 +58,7 @@ interface RawResult {
 }
 
 const MAX_STOP_AT_BYTES = 4
+const STOP_AT_OPTION_OFFSET = 16
 
 const supportedVariants = new Set<LangVariant>([
   LangVariant.LangBash,
@@ -142,16 +143,12 @@ const invoke = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(textBytes, textPointer)
 
-  const stopAtPointer = wasmAlloc(stopAtBytes.byteLength)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
-
   const optionValues = [
     printOutput,
     keepComments,
     variant,
     recoverErrors,
-    stopAtPointer,
+    0,
     stopAtBytes.byteLength,
     simplify,
     indent,
@@ -174,6 +171,9 @@ const invoke = (
     options.setUint32(optionOffset, Number(value), true)
     optionOffset += Uint32Array.BYTES_PER_ELEMENT
   }
+  new Uint8Array(memory.buffer, optionsPointer + STOP_AT_OPTION_OFFSET, MAX_STOP_AT_BYTES).set(
+    stopAtBytes,
+  )
 
   const resultPointer = process(
     filePathPointer,
@@ -185,7 +185,6 @@ const invoke = (
 
   wasmFree(filePathPointer)
   wasmFree(textPointer)
-  wasmFree(stopAtPointer)
   wasmFree(optionsPointer)
 
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
