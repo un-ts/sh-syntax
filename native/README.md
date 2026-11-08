@@ -13,7 +13,7 @@ WASM is deliberately excluded from the performance matrix. It is only used to va
 On Linux x64 with Go, Node.js headers, and a C/C++ toolchain:
 
 ```sh
-go build -buildmode=c-shared -o build/libshsyntax.so native/shsyntax.go
+go build -ldflags="-s -w" -buildmode=c-shared -o build/libshsyntax.so native/shsyntax.go
 cd native/linux-x64-gnu
 node-gyp rebuild
 LD_LIBRARY_PATH=../../build npm test
@@ -22,8 +22,8 @@ LD_LIBRARY_PATH=../../build npm test
 On systems without `make`, the validation was also built with Zig:
 
 ```sh
-CC="zig cc" go build -buildmode=c-shared -o build/libshsyntax.so native/shsyntax.go
-zig c++ -shared -fPIC -I"$NODE_HEADERS/include/node" \
+CC="zig cc" go build -ldflags="-s -w" -buildmode=c-shared -o build/libshsyntax.so native/shsyntax.go
+zig c++ -s -shared -fPIC -I"$NODE_HEADERS/include/node" \
   native/linux-x64-gnu/binding.cc -Lbuild -lshsyntax \
   -Wl,-rpath,"$PWD/build" -o native/linux-x64-gnu/build/Release/sh_syntax_binding.node
 ```
@@ -79,3 +79,17 @@ Latest `install.sh` print benchmark:
 `native/patch.mjs` and `native/daemon-patch.mjs` decorate the returned AST with a shared prototype. Mutations are sent as `(handle, start, end, field, value)` and applied directly to the Go AST. The daemon client is async here; a sync bridge would need a worker + `Atomics.wait`.
 
 This is a POC: scalar fields are generated; array insert/remove and node replacement are still pending. The native API can diverge from the WASM API here; the priority is the native parse/print performance path, not API symmetry.
+
+## Binary size
+
+Built with stripped symbols (`-s -w`), Linux x64:
+
+| artifact | raw | gzip |
+|---|---:|---:|
+| N-API addon (`.node`) | 0.66MiB | 0.27MiB |
+| N-API shared library (`.so`) | 3.94MiB | 1.54MiB |
+| N-API pair total | 4.60MiB | 1.81MiB |
+| native CLI / daemon | 3.13MiB | 1.38MiB |
+| WASM fallback | 0.66MiB | 0.28MiB |
+
+Run `node native/sizes.mjs` after building to reproduce.

@@ -15,7 +15,8 @@
   "main": "build/Release/sh_syntax_binding.node",
   "scripts": {
     "build:addon": "node-gyp rebuild",
-    "build:go": "go build -buildmode=c-shared -o ../../build/libshsyntax.so ../shsyntax.go",
+    "build:go": "go build -ldflags=\"-s -w\" -buildmode=c-shared -o ../../build/libshsyntax.so ../shsyntax.go",
+    "sizes": "node ../sizes.mjs",
     "test": "node test.mjs",
     "validate": "node ../validate.mjs"
   }
