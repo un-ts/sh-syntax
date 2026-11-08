@@ -74,8 +74,6 @@ const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
   return { ...exports, memory } as ProcessExports
 }
 
-const PROCESS_OPTIONS_BYTES = 64
-
 const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
   textOrAst: File | string,
@@ -143,26 +141,30 @@ const invoke = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(stopAtBytes, stopAtPointer)
 
-  const optionsPointer = wasmAlloc(PROCESS_OPTIONS_BYTES)
-  const options = new DataView(memory.buffer, optionsPointer, PROCESS_OPTIONS_BYTES)
-  const setOption = (offset: number, value: boolean | number) => {
-    options.setUint32(offset, Number(value), true)
+  const optionValues = [
+    printOutput,
+    keepComments,
+    variant,
+    recoverErrors,
+    stopAtPointer,
+    stopAtBytes.byteLength,
+    simplify,
+    indent,
+    binaryNextLine,
+    switchCaseIndent,
+    spaceRedirects,
+    keepPadding,
+    minify,
+    singleLine,
+    functionNextLine,
+  ]
+  const optionsPointer = wasmAlloc(optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
+  const options = new DataView(memory.buffer, optionsPointer, optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
+  let optionOffset = 0
+  for (const value of optionValues) {
+    options.setUint32(optionOffset, Number(value), true)
+    optionOffset += Uint32Array.BYTES_PER_ELEMENT
   }
-  setOption(0, printOutput)
-  setOption(4, keepComments)
-  setOption(8, variant)
-  setOption(12, recoverErrors)
-  setOption(16, stopAtPointer)
-  setOption(20, stopAtBytes.byteLength)
-  setOption(24, simplify)
-  setOption(28, indent)
-  setOption(32, binaryNextLine)
-  setOption(36, switchCaseIndent)
-  setOption(40, spaceRedirects)
-  setOption(44, keepPadding)
-  setOption(48, minify)
-  setOption(52, singleLine)
-  setOption(56, functionNextLine)
 
   const resultPointer = process(
     filePathPointer,
@@ -213,16 +215,23 @@ const invoke = (
  */
 export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
   const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
-  const go = new Go()
-  const instance = new WebAssembly.Instance(module, go.importObject)
-  void go.run(instance)
-  const exports = normalizeExports(instance.exports)
+  const createRuntime = () => {
+    const go = new Go()
+    const instance = new WebAssembly.Instance(module, go.importObject)
+    void go.run(instance)
+    return { go, exports: normalizeExports(instance.exports) }
+  }
+  let runtime = createRuntime()
 
   function processor(text: string, options?: ShOptions): File
   function processor(text: string, options?: ShOptions & { print: true }): string
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
-    return invoke(exports, textOrAst, options)
+    /* istanbul ignore if -- @preserve */
+    if ((runtime.go as { exited?: boolean }).exited) {
+      runtime = createRuntime()
+    }
+    return invoke(runtime.exports, textOrAst, options)
   }
 
   return processor

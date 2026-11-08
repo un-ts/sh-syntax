@@ -59,7 +59,7 @@
     "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:encoder && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && chmod 644 main.wasm"
+    "wasm": "yarn gen:encoder && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && node -e \"require('node:fs').chmodSync('main.wasm', 0o644)\""
   },
   "devDependencies": {
     "@1stg/common-config": "^17.0.0",
