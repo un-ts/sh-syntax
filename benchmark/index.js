@@ -8,9 +8,9 @@ import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
 import { createSyncFn } from 'synckit'
 
-import { LangVariant, print } from '../lib/index.js'
+import { LangVariant, print, printSync } from '../lib/index.js'
 
-/** @import { ShOptions } from 'sh-syntax' */
+/** @import {ShOptions} from 'sh-syntax' */
 
 const keepComments = true
 
@@ -44,12 +44,14 @@ const shOptions = {
 }
 
 /** @type {(text: string, options?: ShOptions) => string} */
-const printSync = createSyncFn(new URL('worker.mjs', import.meta.url))
+const synckitPrint = createSyncFn(new URL('worker.mjs', import.meta.url))
 
 summary(() => {
   bench('sh-syntax', () => print(text, shOptions)).baseline()
 
-  bench('sh-syntax (synckit)', () => printSync(text, shOptions))
+  bench('sh-syntax (sync)', () => printSync(text, shOptions))
+
+  bench('sh-syntax (synckit)', () => synckitPrint(text, shOptions))
 
   bench('mvdan-sh', () => {
     const { syntax } = sh
