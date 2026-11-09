@@ -1,5 +1,12 @@
 # sh-syntax
 
+## 0.8.3
+
+### Patch Changes
+
+- [#157](https://github.com/un-ts/sh-syntax/pull/157) [`d326627`](https://github.com/un-ts/sh-syntax/commit/d326627425ffe78b087699bac596721b560415b6) Thanks [@JounQin](https://github.com/JounQin)! - Keep the vendored Go runtime in bundled builds by pointing `sideEffects` at
+  `vendors/wasm_exec.cjs` instead of the renamed `vendors/wasm_exec.js`.
+
 ## 0.8.2
 
 ### Patch Changes
