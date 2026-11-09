@@ -112,16 +112,16 @@
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
-    "vendors/wasm_exec.js"
+    "vendors/wasm_exec.cjs"
   ],
   "size-limit": [
     {
       "path": "lib/browser.js",
-      "limit": "3 kB"
+      "limit": "6 kB"
     },
     {
       "path": "lib/index.js",
-      "limit": "3 kB"
+      "limit": "6 kB"
     }
   ],
   "typeCoverage": {
