@@ -25,7 +25,7 @@ export type WebAssemblySource =
 
 export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
-export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
+export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource | WebAssembly.Module
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -221,8 +221,11 @@ const invoke = (
  * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so the
  * instance can serve repeated synchronous calls.
  */
-export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
-  const module = new WebAssembly.Module(typeof getWasm === 'function' ? getWasm() : getWasm)
+export const getProcessorSync = (
+  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource | WebAssembly.Module,
+) => {
+  const source = typeof getWasm === 'function' ? getWasm() : getWasm
+  const module = source instanceof WebAssembly.Module ? source : new WebAssembly.Module(source)
   const createRuntime = () => {
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)

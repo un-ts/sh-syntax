@@ -99,33 +99,27 @@ expose `offset`, `line` (1-based), and `column` (0-based).
 
 #### browser
 
+The browser entry loads and compiles `main.wasm` with top-level await, then exposes the same synchronous API:
+
 ```js
-import { getProcessor } from 'sh-syntax'
+import { parse, print } from 'sh-syntax'
 
-// choose your own way to load the WASM file
+const ast = parse("echo 'Hello World!'")
+const formatted = print("echo 'Hello World!'")
+```
 
-// with `fetch`
+The module import waits for the WASM asset; after it resolves, `parse` and `print` are synchronous. The bundler must support ESM top-level await, `import.meta.url`, and WASM assets. For example, Vite emits `main.wasm` next to the browser chunk.
+
+For a custom loader, import the low-level entry instead:
+
+```js
+import { getProcessor } from 'sh-syntax/core'
+
 const processor = getProcessor(() =>
   fetch('http://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
 )
 
-// with `wasm?init` via `vite`
-import initWasm from 'sh-syntax/wasm?init'
-const processor = getProcessor(initWasm)
-
-const parse = (text, options) => processor(text, options)
-
-const print = (text, options) =>
-  processor(text, {
-    ...options,
-    print: true,
-  })
-
-// just like node again
-const text = "echo 'Hello World!'"
-const ast = await parse(text)
-console.log(ast.stmts[0].cmd)
-const formatted = await print(text)
+const ast = await processor("echo 'Hello World!'")
 ```
 
 ## Benchmark

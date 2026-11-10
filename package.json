@@ -32,7 +32,12 @@
     "./main.wasm": "./main.wasm",
     "./package.json": "./package.json",
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
-    "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs"
+    "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs",
+    "./core": {
+      "types": "./lib/core.d.ts",
+      "import": "./lib/core.js",
+      "default": "./lib/core.js"
+    }
   },
   "files": [
     "lib",
@@ -109,16 +114,13 @@
   },
   "sideEffects": [
     "lib/browser.js",
+    "lib/core.js",
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
     "vendors/wasm_exec.cjs"
   ],
   "size-limit": [
-    {
-      "path": "lib/browser.js",
-      "limit": "6 kB"
-    },
     {
       "path": "lib/index.js",
       "limit": "6 kB"
