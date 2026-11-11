@@ -264,7 +264,9 @@ export interface Processor {
 export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
-  let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
+  let runtimePromise:
+    | Promise<{ go: Go; exports: ProcessExports; startup: Promise<void> }>
+    | undefined
   let initPromise: Promise<void> | undefined
   let queue: Promise<unknown> = Promise.resolve()
 
@@ -299,9 +301,15 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     const instance = isInstanceFactory
       ? await (getWasm as GetWebAssemblyInstance)(go.importObject)
       : await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
-    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
-    void go.run(instance)
-    return { go, exports: normalizeExports(instance.exports) }
+    /*
+     * Do not await the program itself: main blocks in select{} until the Go program exits.
+     * Surface an immediate startup rejection while treating a still-running program as ready.
+     */
+    const startup = Promise.race([
+      go.run(instance),
+      new Promise<void>(resolve => queueMicrotask(resolve)),
+    ])
+    return { go, exports: normalizeExports(instance.exports), startup }
   }
 
   const getRuntime = async () => {
@@ -316,7 +324,15 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
       }
       runtimePromise = create()
     }
-    return runtimePromise
+
+    try {
+      const runtime = await runtimePromise
+      await runtime.startup
+      return runtime
+    } catch (error) {
+      runtimePromise = undefined
+      throw error
+    }
   }
 
   const init = (): Promise<void> => {

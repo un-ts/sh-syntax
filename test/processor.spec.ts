@@ -57,6 +57,14 @@ describe('processor', () => {
     await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
   })
 
+  test('init rejects a Go startup failure', async () => {
+    const empty = new WebAssembly.Module(Buffer.from('AGFzbQEAAAA=', 'base64'))
+    const processor = getProcessor(async _imports => new WebAssembly.Instance(empty, {}))
+
+    await expect(processor.init()).rejects.toThrow(/buffer/)
+    await expect(processor('echo hi\n')).rejects.toThrow(/buffer/)
+  })
+
   test('getProcessor streams a WASM response', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const streaming = getProcessor(() =>
