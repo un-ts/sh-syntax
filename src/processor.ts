@@ -349,7 +349,6 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
         ready = true
       } catch (error) {
         initPromise = undefined
-        ready = false
         throw error
       }
     })()
