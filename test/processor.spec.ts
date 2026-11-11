@@ -2,14 +2,14 @@ import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { testFixtures } from './fixtures.ts'
-
 import {
   type GetWebAssemblyInstance,
   type ShOptions,
   getProcessor,
   getProcessorSync,
 } from 'sh-syntax'
+
+import { testFixtures } from './fixtures.ts'
 
 describe('processor', () => {
   /**
@@ -33,6 +33,45 @@ describe('processor', () => {
     })
 
   testFixtures(parse, print)
+
+  test('init loads once and the async API initializes automatically', async () => {
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
+    let loads = 0
+    const processor = getProcessor(() => {
+      loads++
+      return Promise.resolve(wasm)
+    })
+
+    await Promise.all([processor.init(), processor.init()])
+    expect(loads).toBe(1)
+    const first = processor.init()
+    expect(processor.init()).toBe(first)
+    await first
+
+    await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
+    expect(loads).toBe(1)
+  })
+
+  test('getProcessor accepts a direct WASM source', async () => {
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
+    const processor = getProcessor(wasm)
+
+    await processor.init()
+    await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
+  })
+
+  test('init rejects a Go startup failure', async () => {
+    const empty = new WebAssembly.Module(Buffer.from('AGFzbQEAAAA=', 'base64'))
+    let attempts = 0
+    const processor = getProcessor(async _imports => {
+      attempts++
+      return new WebAssembly.Instance(empty, {})
+    })
+
+    await expect(processor.init()).rejects.toThrow(/undefined|not a function/)
+    await expect(processor('echo hi\n')).rejects.toThrow(/undefined|not a function/)
+    expect(attempts).toBe(2)
+  })
 
   test('getProcessor streams a WASM response', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))

@@ -46,7 +46,10 @@ npm i sh-syntax
 #### node
 
 ```js
-import { parse, print } from 'sh-syntax'
+import { init, parse, print } from 'sh-syntax'
+
+// Optional: load and initialize the WASM runtime up front.
+await init()
 
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
@@ -137,33 +140,30 @@ offsets outside the source are clamped to its bounds.
 
 #### browser
 
+The browser entry uses the same `init()` and async API as Node. The entry has no
+top-level await, so importing it never blocks; call `init()` once when
+convenient, or let the first `parse`/`print` call initialize the runtime:
+
+```js
+import { init, parse, print } from 'sh-syntax'
+
+await init()
+
+const text = "echo 'Hello World!'"
+const ast = await parse(text)
+const formatted = await print(text)
+```
+
+The bundler must emit `main.wasm` as an asset (for example, Vite handles
+`new URL('../main.wasm', import.meta.url)`); Vite library mode instead inlines
+`new URL()` assets as base64, so libraries should supply their own loader:
+
 ```js
 import { getProcessor } from 'sh-syntax'
 
-// choose your own way to load the WASM file
-
-// with `fetch`
 const processor = getProcessor(() =>
-  fetch('http://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
+  fetch('https://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
 )
-
-// with `wasm?init` via `vite`
-import initWasm from 'sh-syntax/wasm?init'
-const processor = getProcessor(initWasm)
-
-const parse = (text, options) => processor(text, options)
-
-const print = (text, options) =>
-  processor(text, {
-    ...options,
-    print: true,
-  })
-
-// just like node again
-const text = "echo 'Hello World!'"
-const ast = await parse(text)
-console.log(ast.stmts[0].cmd)
-const formatted = await print(text)
 ```
 
 ## Benchmark
@@ -236,4 +236,4 @@ Detailed changes for each release are documented in [CHANGELOG.md](./CHANGELOG.m
 
 [1stG.me]: https://www.1stg.me
 [JounQin]: https://github.com/JounQin
-[MIT]: http://opensource.org/licenses/MIT
+[MIT]: https://opensource.org/licenses/MIT

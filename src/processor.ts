@@ -25,6 +25,8 @@ export type WebAssemblySource =
 
 export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
+export type GetWebAssembly = WebAssemblyBaseSource | GetWebAssemblySource | GetWebAssemblyInstance
+
 export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
 
 export type GetWebAssemblyInstance = (
@@ -246,14 +248,34 @@ export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssembly
   return processor
 }
 
-export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource) => {
+/** A parser bound to one WASM runtime. */
+export interface Processor {
+  (text: string, options?: ShOptions): Promise<File>
+  (text: string, options?: ShOptions & { print: true }): Promise<string>
+  (ast: File, options: ShOptions & { originalText: string }): Promise<string>
+  /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
+  init(): Promise<void>
+}
+
+/**
+ * Creates an async processor. A function with zero parameters is treated as a source loader; a
+ * function with parameters is treated as a `(imports) => WebAssembly.Instance` factory.
+ */
+export const getProcessor = (getWasm: GetWebAssembly): Processor => {
+  const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
-  let wasmModulePromise: Promise<WebAssembly.Module> | undefined
-  let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
+  let runtimePromise:
+    | Promise<{ go: Go; exports: ProcessExports; startup: Promise<void> }>
+    | undefined
+  let initPromise: Promise<void> | undefined
+  let ready = false
   let queue: Promise<unknown> = Promise.resolve()
 
   const loadModule = async (): Promise<WebAssembly.Module> => {
-    const source = await (getWasm as GetWebAssemblySource)()
+    const source =
+      typeof getWasm === 'function'
+        ? await (getWasm as GetWebAssemblySource)()
+        : (getWasm as WebAssemblyBaseSource)
 
     if ('arrayBuffer' in source) {
       /*
@@ -277,13 +299,18 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
 
   const createRuntime = async () => {
     const go = new Go()
-    const instance =
-      getWasm.length === 0
-        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
-        : await (getWasm as GetWebAssemblyInstance)(go.importObject)
-    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
-    void go.run(instance)
-    return { go, exports: normalizeExports(instance.exports) }
+    const instance = isInstanceFactory
+      ? await (getWasm as GetWebAssemblyInstance)(go.importObject)
+      : await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
+    /*
+     * Do not await the program itself: main blocks in select{} until the Go program exits.
+     * Surface an immediate startup rejection while treating a still-running program as ready.
+     */
+    const startup = Promise.race([
+      go.run(instance),
+      new Promise<void>(resolve => queueMicrotask(resolve)),
+    ])
+    return { go, exports: normalizeExports(instance.exports), startup }
   }
 
   const getRuntime = async () => {
@@ -298,7 +325,31 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
       }
       runtimePromise = create()
     }
-    return runtimePromise
+
+    try {
+      const runtime = await runtimePromise
+      await runtime.startup
+      return runtime
+    } catch (error) {
+      runtimePromise = undefined
+      throw error
+    }
+  }
+
+  const init = (): Promise<void> => {
+    initPromise ??= (async () => {
+      try {
+        if (!wasmModule && !isInstanceFactory) {
+          wasmModule = await loadModule()
+        }
+        await getRuntime()
+        ready = true
+      } catch (error) {
+        initPromise = undefined
+        throw error
+      }
+    })()
+    return initPromise
   }
 
   /* istanbul ignore next -- @preserve */
@@ -306,23 +357,12 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     runtimePromise = undefined
   }
 
-  function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(text: string, options?: ShOptions & { print: true }): Promise<string>
-  function processor(ast: File, options: ShOptions & { originalText: string }): Promise<string>
-  async function processor(
+  const processor = (async (
     textOrAst: File | string,
     options: InternalOptions = {},
-  ): Promise<File | string> {
-    if (!wasmModule && !wasmModulePromise && getWasm.length === 0) {
-      wasmModulePromise = loadModule()
-    }
-
-    if (wasmModulePromise) {
-      try {
-        wasmModule = await wasmModulePromise
-      } finally {
-        wasmModulePromise = undefined
-      }
+  ): Promise<File | string> => {
+    if (!ready) {
+      await init()
     }
 
     const previous = queue
@@ -353,7 +393,7 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     } finally {
       release()
     }
-  }
-
+  }) as Processor
+  processor.init = init
   return processor
 }
