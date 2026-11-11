@@ -31,6 +31,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - `src/index.ts` — public entry (`parse`, `print`, sync variants, config loading)
 - `src/processor.ts` — WASM lifecycle and text/AST argument compatibility
 - `src/ast.ts` — `walk()` (callback or `{ enter, exit }` visitors with `(node, parent, prop, index)`) and `isIncomplete()`
+- `src/source.ts` — `createSourceIndex()` from UTF-8 byte offsets to UTF-16 code units
 - `src/types.ts` — public AST and option types
 - `processor/` — Go parser/printer/envelope and generated encoder
 - `scripts/gen-encoder/` — Go generator for the static encoder
