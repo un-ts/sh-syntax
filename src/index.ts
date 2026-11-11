@@ -55,8 +55,7 @@ export function printSync(
   return getSyncProcessor()(textOrAst, options as ShPrintOptions)
 }
 
-export { isIncomplete, walk } from './ast.js'
-export type { WalkEnter, WalkExit, WalkVisitors } from './ast.js'
+export * from './ast.js'
 export { createSourceIndex } from './source.js'
 export * from './processor.js'
 export * from './types.js'
