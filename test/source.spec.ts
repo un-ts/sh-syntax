@@ -1,32 +1,46 @@
 import { createSourceIndex, parseSync } from 'sh-syntax'
 
 test('ASCII offsets are unchanged and clamped', () => {
-  const index = createSourceIndex('echo hi\n')
+  const text = 'echo hi\n'
+  const end = text.length
+  const index = createSourceIndex(text)
 
   expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(7)).toBe(7)
-  expect(index.toUtf16(8)).toBe(8)
-  expect(index.toUtf16(100)).toBe(8)
+  expect(index.toUtf16(end - 1)).toBe(end - 1)
+  expect(index.toUtf16(end)).toBe(end)
+  expect(index.toUtf16(end + 1)).toBe(end)
   expect(index.toUtf16(-1)).toBe(0)
 })
 
 test('BMP and astral characters convert to UTF-16 offsets', () => {
-  const text = 'é🎉x'
+  const eAcute = 'é'
+  const emoji = '🎉'
+  const text = `${eAcute}${emoji}x`
+  const encoder = new TextEncoder()
+  const eAcuteBytes = encoder.encode(eAcute).length
+  const emojiBytes = encoder.encode(emoji).length
+  const afterEmoji = eAcuteBytes + emojiBytes
+  const totalBytes = encoder.encode(text).length
+  const emojiStart = eAcute.length
+  const afterEmojiInUtf16 = emojiStart + emoji.length
   const index = createSourceIndex(text)
 
   expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(1)).toBe(0)
-  expect(index.toUtf16(2)).toBe(1)
-  expect(index.toUtf16(5)).toBe(1)
-  expect(index.toUtf16(6)).toBe(3)
-  expect(index.toUtf16(7)).toBe(4)
-  expect(index.toUtf16(8)).toBe(4)
+  expect(index.toUtf16(eAcuteBytes - 1)).toBe(0)
+  expect(index.toUtf16(eAcuteBytes)).toBe(emojiStart)
+  expect(index.toUtf16(afterEmoji - 1)).toBe(emojiStart)
+  expect(index.toUtf16(afterEmoji)).toBe(afterEmojiInUtf16)
+  expect(index.toUtf16(afterEmoji + 1)).toBe(text.length)
+  expect(index.toUtf16(totalBytes + 1)).toBe(text.length)
 })
 
 test('three-byte characters convert to UTF-16 offsets', () => {
-  const index = createSourceIndex('€')
+  const euro = '€'
+  const bytes = new TextEncoder().encode(euro).length
+  const index = createSourceIndex(euro)
+
   expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(3)).toBe(1)
+  expect(index.toUtf16(bytes)).toBe(euro.length)
 })
 
 test('parsed node offsets map back to source text', () => {
