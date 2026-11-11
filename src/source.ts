@@ -9,7 +9,7 @@ export const createSourceIndex = (text: string): ((byteOffset: number) => number
   const end = text.length
 
   if (!NON_ASCII.test(text)) {
-    return byteOffset => (byteOffset <= 0 ? 0 : byteOffset >= end ? end : byteOffset)
+    return byteOffset => Math.min(Math.max(byteOffset, 0), end)
   }
 
   const encoder = new TextEncoder()
