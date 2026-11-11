@@ -43,11 +43,8 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
   const exit = isEnter ? null : enterOrVisitors.exit
 
   const visitEntries = (container: object, parent: Node | null): boolean => {
-    for (const key in container) {
-      if (!Object.hasOwn(container, key)) {
-        continue
-      }
-      if (visit((container as Record<string, unknown>)[key], parent, key, null)) {
+    for (const [key, entry] of Object.entries(container as Record<string, unknown>)) {
+      if (visit(entry, parent, key, null)) {
         return true
       }
     }
