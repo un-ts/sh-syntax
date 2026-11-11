@@ -59,10 +59,15 @@ describe('processor', () => {
 
   test('init rejects a Go startup failure', async () => {
     const empty = new WebAssembly.Module(Buffer.from('AGFzbQEAAAA=', 'base64'))
-    const processor = getProcessor(async _imports => new WebAssembly.Instance(empty, {}))
+    let attempts = 0
+    const processor = getProcessor(async _imports => {
+      attempts++
+      return new WebAssembly.Instance(empty, {})
+    })
 
-    await expect(processor.init()).rejects.toThrow(/buffer/)
-    await expect(processor('echo hi\n')).rejects.toThrow(/buffer/)
+    await expect(processor.init()).rejects.toThrow(/undefined|not a function/)
+    await expect(processor('echo hi\n')).rejects.toThrow(/undefined|not a function/)
+    expect(attempts).toBe(2)
   })
 
   test('getProcessor streams a WASM response', async () => {
