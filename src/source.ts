@@ -1,4 +1,11 @@
 const MAX_CODE_POINT_BYTES = 4
+const ONE_BYTE_LEAD_MAX = 0x7f
+const TWO_BYTE_LEAD_MAX = 0xdf
+const THREE_BYTE_LEAD_MAX = 0xef
+const TWO_BYTES = 2
+const THREE_BYTES = 3
+const ONE_CODE_UNIT = 1
+const TWO_CODE_UNITS = 2
 
 /**
  * Builds a converter from a source string's UTF-8 byte offsets to UTF-16 code-unit offsets. Byte
@@ -7,24 +14,38 @@ const MAX_CODE_POINT_BYTES = 4
  */
 export const createSourceIndex = (text: string): ((byteOffset: number) => number) => {
   const end = text.length
-  const encoder = new TextEncoder()
+  const bytes = new TextEncoder().encode(text)
 
-  if (encoder.encode(text).length === end) {
+  if (bytes.length === end) {
     return byteOffset => Math.min(Math.max(byteOffset, 0), end)
   }
 
-  const buffer = new Uint8Array(MAX_CODE_POINT_BYTES)
-  const map: number[] = []
-  let charIndex = 0
+  const map = new Uint32Array(bytes.length + 1)
+  let codeUnit = 0
 
-  for (const char of text) {
-    const { written: byteLength } = encoder.encodeInto(char, buffer)
-    for (let i = 0; i < byteLength; i++) {
-      map.push(charIndex)
+  for (let i = 0; i < bytes.length;) {
+    const lead = bytes[i] as number
+
+    if (lead <= ONE_BYTE_LEAD_MAX) {
+      map[i] = codeUnit
+      codeUnit += ONE_CODE_UNIT
+      i += 1
+      continue
     }
-    charIndex += char.length
+
+    let byteLength = MAX_CODE_POINT_BYTES
+    if (lead <= TWO_BYTE_LEAD_MAX) {
+      byteLength = TWO_BYTES
+    } else if (lead <= THREE_BYTE_LEAD_MAX) {
+      byteLength = THREE_BYTES
+    }
+
+    map.fill(codeUnit, i, i + byteLength)
+    codeUnit += byteLength === MAX_CODE_POINT_BYTES ? TWO_CODE_UNITS : ONE_CODE_UNIT
+    i += byteLength
   }
-  map.push(charIndex)
+
+  map[bytes.length] = codeUnit
 
   return byteOffset => {
     if (byteOffset <= 0) {
