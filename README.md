@@ -83,7 +83,7 @@ const ast = parseSync("echo 'Hello World!'", {
 })
 
 // A function visitor is the enter phase.
-walk(ast, (node, index, parent) => {
+walk(ast, (node, parent, index) => {
   if (node.type === 'Lit') {
     console.log(node.value)
   }
@@ -91,10 +91,10 @@ walk(ast, (node, index, parent) => {
 
 // An object visitor can pair enter and exit; exit is required.
 walk(ast, {
-  enter(node, index, parent) {
+  enter(node, parent, index) {
     // ...
   },
-  exit(node, index, parent) {
+  exit(node, parent, index) {
     // ...
   },
 })
@@ -106,8 +106,7 @@ if (command?.type === 'CallExpr') {
 ```
 
 Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
-expose `offset`, `line` (1-based), and `column` (0-based). `walk` passes the array index and
-nearest enclosing node; returning `false` from `enter` skips a node's children, while `false` from
+expose `offset`, `line` (1-based), and `column` (0-based). `walk` passes the nearest enclosing node and the array index (both null when absent); returning `false` from `enter` skips a node's children, while `false` from
 `exit` stops the walk.
 
 #### browser

@@ -162,34 +162,34 @@ test('walk ignores inherited properties', () => {
   expect(count).toBe(1)
 })
 
-test('walk object visitors enter and exit with index and parent', () => {
+test('walk object visitors enter and exit with parent and index', () => {
   const ast = parseSync('echo hi\n')
   const events: string[] = []
 
   walk(ast, {
-    enter(node, index, parent) {
-      events.push(`+${node.type}:${index}:${parent?.type}`)
+    enter(node, parent, index) {
+      events.push(`+${node.type}:${parent?.type ?? 'null'}:${index ?? 'null'}`)
     },
-    exit(node, index, parent) {
-      events.push(`-${node.type}:${index}:${parent?.type}`)
+    exit(node, parent, index) {
+      events.push(`-${node.type}:${parent?.type ?? 'null'}:${index ?? 'null'}`)
     },
   })
 
   expect(events).toEqual([
-    '+File:undefined:undefined',
-    '+Stmt:0:File',
-    '+CallExpr:undefined:Stmt',
-    '+Word:0:CallExpr',
-    '+Lit:0:Word',
-    '-Lit:0:Word',
-    '-Word:0:CallExpr',
-    '+Word:1:CallExpr',
-    '+Lit:0:Word',
-    '-Lit:0:Word',
-    '-Word:1:CallExpr',
-    '-CallExpr:undefined:Stmt',
-    '-Stmt:0:File',
-    '-File:undefined:undefined',
+    '+File:null:null',
+    '+Stmt:File:0',
+    '+CallExpr:Stmt:null',
+    '+Word:CallExpr:0',
+    '+Lit:Word:0',
+    '-Lit:Word:0',
+    '-Word:CallExpr:0',
+    '+Word:CallExpr:1',
+    '+Lit:Word:0',
+    '-Lit:Word:0',
+    '-Word:CallExpr:1',
+    '-CallExpr:Stmt:null',
+    '-Stmt:File:0',
+    '-File:null:null',
   ])
 })
 
@@ -276,15 +276,15 @@ test('walk traverses arrays and non-node wrappers', () => {
 
 test('walk forwards the nearest node parent through non-node wrappers', () => {
   const ast = parseSync('echo ${x:-word}\n')
-  const words: Array<[number | undefined, string | undefined]> = []
+  const words: Array<[string, number | null]> = []
 
-  walk(ast, (node, index, parent) => {
+  walk(ast, (node, parent, index) => {
     if (node.type === 'Word' && parent?.type === 'ParamExp') {
-      words.push([index, parent.type])
+      words.push([parent.type, index])
     }
   })
 
-  expect(words).toEqual([[undefined, 'ParamExp']])
+  expect(words).toEqual([['ParamExp', null]])
 })
 
 test('tree helpers handle edge cases', () => {
