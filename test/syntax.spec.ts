@@ -169,9 +169,6 @@ test('walk object visitors enter and exit with index and parent', () => {
   walk(ast, {
     enter(node, index, parent) {
       events.push(`+${node.type}:${index}:${parent?.type}`)
-      if (node.type === 'Lit') {
-        return 'skip'
-      }
     },
     exit(node, index, parent) {
       events.push(`-${node.type}:${index}:${parent?.type}`)
@@ -209,7 +206,7 @@ test('walk object visitors may omit enter', () => {
   expect(exits).toEqual(['Lit', 'Word', 'Lit', 'Word', 'CallExpr', 'Stmt', 'File'])
 })
 
-test('walk stops on a false enter or exit result', () => {
+test('walk enter false skips children and exit false stops', () => {
   const ast = parseSync('echo hi\n')
   const entered: string[] = []
   walk(ast, node => {
@@ -217,6 +214,19 @@ test('walk stops on a false enter or exit result', () => {
     return node.type !== 'Stmt'
   })
   expect(entered).toEqual(['File', 'Stmt'])
+
+  const skippedExits: string[] = []
+  walk(ast, {
+    enter(node) {
+      if (node.type === 'Stmt') {
+        return false
+      }
+    },
+    exit(node) {
+      skippedExits.push(node.type)
+    },
+  })
+  expect(skippedExits).toEqual(['Stmt', 'File'])
 
   const exited: string[] = []
   walk(ast, {
@@ -253,7 +263,14 @@ test('walk traverses arrays and non-node wrappers', () => {
   walk({ nested: { type: 'Comment' } }, node => {
     types.push(node.type)
   })
-  walk({ nested: { type: 'Comment' } }, () => false)
+  walk(
+    { nested: { type: 'Comment' } },
+    {
+      exit() {
+        return false
+      },
+    },
+  )
   expect(types).toEqual(['Comment', 'Comment'])
 })
 

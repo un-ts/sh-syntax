@@ -1,7 +1,7 @@
 import type { Node } from './types.js'
 
-/** Called when entering a node. Return `false` to stop, or `'skip'` to skip its children. */
-export type WalkEnter = (node: Node, index?: number, parent?: Node) => boolean | 'skip' | void
+/** Called when entering a node. Return `false` to skip its children. */
+export type WalkEnter = (node: Node, index?: number, parent?: Node) => boolean | void
 
 /** Called after a node's children. Return `false` to stop the walk. */
 export type WalkExit = (node: Node, index?: number, parent?: Node) => boolean | void
@@ -24,8 +24,8 @@ const isNode = (value: unknown): value is Node =>
  * Walks the syntax tree in depth-first order.
  *
  * A function visitor is treated as `enter`. An object visitor may provide `enter` and must provide
- * `exit`. `enter` runs before children; `exit` runs after them. Returning `false` from either stops
- * the walk; returning `'skip'` from `enter` skips that node's children but still calls `exit`.
+ * `exit`. `enter` runs before children; `exit` runs after them. Returning `false` from `enter`
+ * skips that node's children but still calls `exit`; returning `false` from `exit` stops the walk.
  *
  * `index` is the node's index when it is an element of an array, and `parent` is its nearest
  * enclosing node.
@@ -36,6 +36,15 @@ export function walk(value: unknown, visitorOrVisitors: WalkVisitor | WalkVisito
   const enter =
     typeof visitorOrVisitors === 'function' ? visitorOrVisitors : visitorOrVisitors.enter
   const exit = typeof visitorOrVisitors === 'function' ? undefined : visitorOrVisitors.exit
+
+  const visitEntries = (container: object, parent: Node | undefined): boolean => {
+    for (const entry of Object.values(container as Record<string, unknown>)) {
+      if (visit(entry, undefined, parent)) {
+        return true
+      }
+    }
+    return false
+  }
 
   const visit = (child: unknown, index: number | undefined, parent: Node | undefined): boolean => {
     if (Array.isArray(child)) {
@@ -52,24 +61,11 @@ export function walk(value: unknown, visitorOrVisitors: WalkVisitor | WalkVisito
     }
 
     if (!isNode(child)) {
-      for (const entry of Object.values(child as unknown as Record<string, unknown>)) {
-        if (visit(entry, undefined, parent)) {
-          return true
-        }
-      }
-      return false
+      return visitEntries(child, parent)
     }
 
-    const result = enter?.(child, index, parent)
-    if (result === false) {
+    if (enter?.(child, index, parent) !== false && visitEntries(child, child)) {
       return true
-    }
-    if (result !== 'skip') {
-      for (const entry of Object.values(child as unknown as Record<string, unknown>)) {
-        if (visit(entry, undefined, child)) {
-          return true
-        }
-      }
     }
     return exit?.(child, index, parent) === false
   }
