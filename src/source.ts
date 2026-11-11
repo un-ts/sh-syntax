@@ -1,4 +1,5 @@
 const NON_ASCII = /[\u{80}-\u{10FFFF}]/u
+const MAX_CODE_POINT_BYTES = 4
 
 /**
  * Builds a converter from a source string's UTF-8 byte offsets to UTF-16 code-unit offsets. Byte
@@ -13,11 +14,12 @@ export const createSourceIndex = (text: string): ((byteOffset: number) => number
   }
 
   const encoder = new TextEncoder()
+  const buffer = new Uint8Array(MAX_CODE_POINT_BYTES)
   const map: number[] = []
   let charIndex = 0
 
   for (const char of text) {
-    const byteLength = encoder.encode(char).length
+    const { written: byteLength } = encoder.encodeInto(char, buffer)
     for (let i = 0; i < byteLength; i++) {
       map.push(charIndex)
     }
