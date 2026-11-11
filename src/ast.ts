@@ -32,8 +32,8 @@ export interface WalkVisitors {
  * `exit`. `enter` runs before children; `exit` runs after them. Returning `false` from `enter`
  * skips that node's children but still calls `exit`; returning `false` from `exit` stops the walk.
  *
- * `parent` is null at the root. `prop` is the field that reached the node, and `index` is its array
- * index; both are null when absent.
+ * `parent` is null at the root. `prop` is the key in the nearest enclosing object (which may be a
+ * non-node wrapper), and `index` is its array index; both are null when absent.
  */
 export function walk(value: unknown, enter: WalkEnter): void
 export function walk(value: unknown, visitors: WalkVisitors): void
@@ -43,8 +43,11 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
   const exit = isEnter ? null : enterOrVisitors.exit
 
   const visitEntries = (container: object, parent: Node | null): boolean => {
-    for (const [key, entry] of Object.entries(container as Record<string, unknown>)) {
-      if (visit(entry, parent, key, null)) {
+    for (const key in container) {
+      if (!Object.hasOwn(container, key)) {
+        continue
+      }
+      if (visit((container as Record<string, unknown>)[key], parent, key, null)) {
         return true
       }
     }

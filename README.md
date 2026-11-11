@@ -106,10 +106,11 @@ if (command?.type === 'CallExpr') {
 ```
 
 Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
-expose `offset`, `line` (1-based), and `column` (0-based). `walk` passes the nearest enclosing node, the field that reached it, and the
-array index; `parent`, `prop`, and `index` are null when absent. Returning
-`false` from `enter` skips a node's children, while `false` from `exit`
-stops the walk.
+expose `offset`, `line` (1-based), and `column` (0-based). `walk` passes the
+nearest enclosing node, the key in the nearest enclosing object (which may be a
+non-node wrapper), and the array index; `parent`, `prop`, and `index` are null
+when absent. Returning `false` from `enter` skips a node's children, while
+`false` from `exit` stops the walk.
 
 #### browser
 

@@ -274,6 +274,14 @@ test('walk traverses arrays and non-node wrappers', () => {
   expect(types).toEqual(['Comment', 'Comment'])
 })
 
+test('walk reports null parent and prop for a top-level array', () => {
+  const roots: Array<[string | null, string | null, number | null]> = []
+  walk([{ type: 'Comment' }], (_node, parent, prop, index) => {
+    roots.push([parent?.type ?? null, prop, index])
+  })
+  expect(roots).toEqual([[null, null, 0]])
+})
+
 test('walk forwards the nearest node parent through non-node wrappers', () => {
   const ast = parseSync('echo ${x:-word}\n')
   const words: Array<[string, string | null, number | null]> = []
