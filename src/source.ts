@@ -1,4 +1,3 @@
-const NON_ASCII = /[\u{80}-\u{10FFFF}]/u
 const MAX_CODE_POINT_BYTES = 4
 
 /**
@@ -8,12 +7,12 @@ const MAX_CODE_POINT_BYTES = 4
  */
 export const createSourceIndex = (text: string): ((byteOffset: number) => number) => {
   const end = text.length
+  const encoder = new TextEncoder()
 
-  if (!NON_ASCII.test(text)) {
+  if (encoder.encode(text).length === end) {
     return byteOffset => Math.min(Math.max(byteOffset, 0), end)
   }
 
-  const encoder = new TextEncoder()
   const buffer = new Uint8Array(MAX_CODE_POINT_BYTES)
   const map: number[] = []
   let charIndex = 0
