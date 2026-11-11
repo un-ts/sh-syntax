@@ -162,7 +162,7 @@ The bundler must emit `main.wasm` as an asset (for example, Vite handles
 import { getProcessor } from 'sh-syntax'
 
 const processor = getProcessor(() =>
-  fetch('http://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
+  fetch('https://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
 )
 ```
 
@@ -236,4 +236,4 @@ Detailed changes for each release are documented in [CHANGELOG.md](./CHANGELOG.m
 
 [1stG.me]: https://www.1stg.me
 [JounQin]: https://github.com/JounQin
-[MIT]: http://opensource.org/licenses/MIT
+[MIT]: https://opensource.org/licenses/MIT
