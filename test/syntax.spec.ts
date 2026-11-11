@@ -278,13 +278,10 @@ test('walk forwards the nearest node parent through non-node wrappers', () => {
   const ast = parseSync('echo ${x:-word}\n')
   const words: Array<[number | undefined, string | undefined]> = []
 
-  walk(ast, {
-    enter(node, index, parent) {
-      if (node.type === 'Word' && parent?.type === 'ParamExp') {
-        words.push([index, parent.type])
-      }
-    },
-    exit: () => undefined,
+  walk(ast, (node, index, parent) => {
+    if (node.type === 'Word' && parent?.type === 'ParamExp') {
+      words.push([index, parent.type])
+    }
   })
 
   expect(words).toEqual([[undefined, 'ParamExp']])
