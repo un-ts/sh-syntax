@@ -126,8 +126,8 @@ const index = createSourceIndex(text)
 const ast = parseSync(text)
 
 const word = ast.stmts[0].cmd.args.at(-1)
-const start = index.toUtf16(word.start)
-const end = index.toUtf16(word.end)
+const start = index(word.start)
+const end = index(word.end)
 
 console.log(text.slice(start, end)) // $var
 ```

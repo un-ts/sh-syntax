@@ -5,11 +5,11 @@ test('ASCII offsets are unchanged and clamped', () => {
   const end = text.length
   const index = createSourceIndex(text)
 
-  expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(end - 1)).toBe(end - 1)
-  expect(index.toUtf16(end)).toBe(end)
-  expect(index.toUtf16(end + 1)).toBe(end)
-  expect(index.toUtf16(-1)).toBe(0)
+  expect(index(0)).toBe(0)
+  expect(index(end - 1)).toBe(end - 1)
+  expect(index(end)).toBe(end)
+  expect(index(end + 1)).toBe(end)
+  expect(index(-1)).toBe(0)
 })
 
 test('BMP and astral characters convert to UTF-16 offsets', () => {
@@ -25,13 +25,13 @@ test('BMP and astral characters convert to UTF-16 offsets', () => {
   const afterEmojiInUtf16 = emojiStart + emoji.length
   const index = createSourceIndex(text)
 
-  expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(eAcuteBytes - 1)).toBe(0)
-  expect(index.toUtf16(eAcuteBytes)).toBe(emojiStart)
-  expect(index.toUtf16(afterEmoji - 1)).toBe(emojiStart)
-  expect(index.toUtf16(afterEmoji)).toBe(afterEmojiInUtf16)
-  expect(index.toUtf16(afterEmoji + 1)).toBe(text.length)
-  expect(index.toUtf16(totalBytes + 1)).toBe(text.length)
+  expect(index(0)).toBe(0)
+  expect(index(eAcuteBytes - 1)).toBe(0)
+  expect(index(eAcuteBytes)).toBe(emojiStart)
+  expect(index(afterEmoji - 1)).toBe(emojiStart)
+  expect(index(afterEmoji)).toBe(afterEmojiInUtf16)
+  expect(index(afterEmoji + 1)).toBe(text.length)
+  expect(index(totalBytes + 1)).toBe(text.length)
 })
 
 test('three-byte characters convert to UTF-16 offsets', () => {
@@ -39,8 +39,8 @@ test('three-byte characters convert to UTF-16 offsets', () => {
   const bytes = new TextEncoder().encode(euro).length
   const index = createSourceIndex(euro)
 
-  expect(index.toUtf16(0)).toBe(0)
-  expect(index.toUtf16(bytes)).toBe(euro.length)
+  expect(index(0)).toBe(0)
+  expect(index(bytes)).toBe(euro.length)
 })
 
 test('parsed node offsets map back to source text', () => {
@@ -51,5 +51,5 @@ test('parsed node offsets map back to source text', () => {
   const index = createSourceIndex(text)
 
   expect(word?.type).toBe('Word')
-  expect(text.slice(index.toUtf16(word?.start ?? 0), index.toUtf16(word?.end ?? 0))).toBe('$var')
+  expect(text.slice(index(word?.start ?? 0), index(word?.end ?? 0))).toBe('$var')
 })
