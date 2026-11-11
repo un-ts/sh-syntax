@@ -1,13 +1,23 @@
 import type { Node } from './types.js'
 
 /** Called when entering a node. Return `false` to skip its children. */
-export type WalkEnter = (node: Node, parent: Node | null, index: number | null) => boolean | void
+export type WalkEnter = (
+  node: Node,
+  parent: Node | null,
+  prop: string | null,
+  index: number | null,
+) => boolean | void
 
 /**
  * Called after a node's children, or immediately after `enter` skipped them. Return `false` to stop
  * the walk.
  */
-export type WalkExit = (node: Node, parent: Node | null, index: number | null) => boolean | void
+export type WalkExit = (
+  node: Node,
+  parent: Node | null,
+  prop: string | null,
+  index: number | null,
+) => boolean | void
 
 /** Visitor object form; `exit` is required. */
 export interface WalkVisitors {
@@ -22,7 +32,8 @@ export interface WalkVisitors {
  * `exit`. `enter` runs before children; `exit` runs after them. Returning `false` from `enter`
  * skips that node's children but still calls `exit`; returning `false` from `exit` stops the walk.
  *
- * `parent` is null at the root; `index` is null when the node is not an element of an array.
+ * `parent` is null at the root. `prop` is the field that reached the node, and `index` is its array
+ * index; both are null when absent.
  */
 export function walk(value: unknown, enter: WalkEnter): void
 export function walk(value: unknown, visitors: WalkVisitors): void
@@ -32,19 +43,24 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
   const exit = isEnter ? null : enterOrVisitors.exit
 
   const visitEntries = (container: object, parent: Node | null): boolean => {
-    for (const entry of Object.values(container as Record<string, unknown>)) {
-      if (visit(entry, parent, null)) {
+    for (const [key, entry] of Object.entries(container as Record<string, unknown>)) {
+      if (visit(entry, parent, key, null)) {
         return true
       }
     }
     return false
   }
 
-  const visit = (child: unknown, parent: Node | null, index: number | null): boolean => {
+  const visit = (
+    child: unknown,
+    parent: Node | null,
+    prop: string | null,
+    index: number | null,
+  ): boolean => {
     if (Array.isArray(child)) {
       let i = 0
       for (const item of child as unknown[]) {
-        if (visit(item, parent, i)) {
+        if (visit(item, parent, prop, i)) {
           return true
         }
         i += 1
@@ -61,13 +77,13 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
     }
 
     const node = child as Node
-    if (enter?.(node, parent, index) !== false && visitEntries(node, node)) {
+    if (enter?.(node, parent, prop, index) !== false && visitEntries(node, node)) {
       return true
     }
-    return exit?.(node, parent, index) === false
+    return exit?.(node, parent, prop, index) === false
   }
 
-  visit(value, null, null)
+  visit(value, null, null, null)
 }
 
 /** Reports whether an error was caused by incomplete shell source. */

@@ -162,34 +162,34 @@ test('walk ignores inherited properties', () => {
   expect(count).toBe(1)
 })
 
-test('walk object visitors enter and exit with parent and index', () => {
+test('walk object visitors enter and exit with parent, prop, and index', () => {
   const ast = parseSync('echo hi\n')
   const events: string[] = []
 
   walk(ast, {
-    enter(node, parent, index) {
-      events.push(`+${node.type}:${parent?.type ?? 'null'}:${index ?? 'null'}`)
+    enter(node, parent, prop, index) {
+      events.push(`+${node.type}:${parent?.type ?? 'null'}:${prop ?? 'null'}:${index ?? 'null'}`)
     },
-    exit(node, parent, index) {
-      events.push(`-${node.type}:${parent?.type ?? 'null'}:${index ?? 'null'}`)
+    exit(node, parent, prop, index) {
+      events.push(`-${node.type}:${parent?.type ?? 'null'}:${prop ?? 'null'}:${index ?? 'null'}`)
     },
   })
 
   expect(events).toEqual([
-    '+File:null:null',
-    '+Stmt:File:0',
-    '+CallExpr:Stmt:null',
-    '+Word:CallExpr:0',
-    '+Lit:Word:0',
-    '-Lit:Word:0',
-    '-Word:CallExpr:0',
-    '+Word:CallExpr:1',
-    '+Lit:Word:0',
-    '-Lit:Word:0',
-    '-Word:CallExpr:1',
-    '-CallExpr:Stmt:null',
-    '-Stmt:File:0',
-    '-File:null:null',
+    '+File:null:null:null',
+    '+Stmt:File:stmts:0',
+    '+CallExpr:Stmt:cmd:null',
+    '+Word:CallExpr:args:0',
+    '+Lit:Word:parts:0',
+    '-Lit:Word:parts:0',
+    '-Word:CallExpr:args:0',
+    '+Word:CallExpr:args:1',
+    '+Lit:Word:parts:0',
+    '-Lit:Word:parts:0',
+    '-Word:CallExpr:args:1',
+    '-CallExpr:Stmt:cmd:null',
+    '-Stmt:File:stmts:0',
+    '-File:null:null:null',
   ])
 })
 
@@ -276,15 +276,15 @@ test('walk traverses arrays and non-node wrappers', () => {
 
 test('walk forwards the nearest node parent through non-node wrappers', () => {
   const ast = parseSync('echo ${x:-word}\n')
-  const words: Array<[string, number | null]> = []
+  const words: Array<[string, string | null, number | null]> = []
 
-  walk(ast, (node, parent, index) => {
+  walk(ast, (node, parent, prop, index) => {
     if (node.type === 'Word' && parent?.type === 'ParamExp') {
-      words.push([parent.type, index])
+      words.push([parent.type, prop, index])
     }
   })
 
-  expect(words).toEqual([['ParamExp', null]])
+  expect(words).toEqual([['ParamExp', 'word', null]])
 })
 
 test('tree helpers handle edge cases', () => {
