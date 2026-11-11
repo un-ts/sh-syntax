@@ -246,10 +246,19 @@ export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssembly
   return processor
 }
 
-export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource) => {
+/** A parser bound to one WASM runtime. */
+export interface Processor {
+  (text: string, options?: ShOptions): Promise<File>
+  (text: string, options?: ShOptions & { print: true }): Promise<string>
+  (ast: File, options: ShOptions & { originalText: string }): Promise<string>
+  /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
+  init(): Promise<void>
+}
+
+export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource): Processor => {
   let wasmModule: WebAssembly.Module | undefined
-  let wasmModulePromise: Promise<WebAssembly.Module> | undefined
   let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
+  let initPromise: Promise<void> | undefined
   let queue: Promise<unknown> = Promise.resolve()
 
   const loadModule = async (): Promise<WebAssembly.Module> => {
@@ -301,29 +310,35 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     return runtimePromise
   }
 
+  const init = async (): Promise<void> => {
+    if (!initPromise) {
+      const create = async () => {
+        try {
+          if (!wasmModule && getWasm.length === 0) {
+            wasmModule = await loadModule()
+          }
+          await getRuntime()
+        } catch (error) {
+          runtimePromise = undefined
+          initPromise = undefined
+          throw error
+        }
+      }
+      initPromise = create()
+    }
+    return initPromise
+  }
+
   /* istanbul ignore next -- @preserve */
   const invalidateRuntime = () => {
     runtimePromise = undefined
   }
 
-  function processor(text: string, options?: ShOptions): Promise<File>
-  function processor(text: string, options?: ShOptions & { print: true }): Promise<string>
-  function processor(ast: File, options: ShOptions & { originalText: string }): Promise<string>
-  async function processor(
+  const processor = async (
     textOrAst: File | string,
     options: InternalOptions = {},
-  ): Promise<File | string> {
-    if (!wasmModule && !wasmModulePromise && getWasm.length === 0) {
-      wasmModulePromise = loadModule()
-    }
-
-    if (wasmModulePromise) {
-      try {
-        wasmModule = await wasmModulePromise
-      } finally {
-        wasmModulePromise = undefined
-      }
-    }
+  ): Promise<File | string> => {
+    await init()
 
     const previous = queue
     let release!: () => void
@@ -355,5 +370,5 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     }
   }
 
-  return processor
+  return Object.assign(processor, { init }) as Processor
 }

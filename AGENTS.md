@@ -28,8 +28,8 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 
 ## Layout
 
-- `src/index.ts` — public entry (`parse`, `print`, sync variants, config loading)
-- `src/processor.ts` — WASM lifecycle and text/AST argument compatibility
+- `src/index.ts` — public entry (`init`, `parse`, `print`, sync variants, config loading)
+- `src/processor.ts` — WASM lifecycle (`init()`), async processor, and text/AST argument compatibility
 - `src/ast.ts` — `walk()` (callback or `{ enter, exit }` visitors with `(node, parent, prop, index)`) and `isIncomplete()`
 - `src/source.ts` — `createSourceIndex()` from UTF-8 byte offsets to UTF-16 code units
 - `src/types.ts` — public AST and option types

@@ -14,6 +14,7 @@ const importMetaUrl = import.meta.url
 const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : __dirname
 
 export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, '../main.wasm')))
+export const init = processor.init
 
 export const parse = (text: string, options?: ShOptions) => processor(text, options)
 
