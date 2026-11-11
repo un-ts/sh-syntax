@@ -82,10 +82,21 @@ const ast = parseSync("echo 'Hello World!'", {
   filepath: 'script.sh',
 })
 
-walk(ast, node => {
+// A function visitor is the enter phase.
+walk(ast, (node, index, parent) => {
   if (node.type === 'Lit') {
     console.log(node.value)
   }
+})
+
+// An object visitor can pair enter and exit; exit is required.
+walk(ast, {
+  enter(node, index, parent) {
+    // ...
+  },
+  exit(node, index, parent) {
+    // ...
+  },
 })
 
 const command = ast.stmts[0].cmd
@@ -95,7 +106,9 @@ if (command?.type === 'CallExpr') {
 ```
 
 Node `start`/`end` and position fields use UTF-8 byte offsets; position fields
-expose `offset`, `line` (1-based), and `column` (0-based).
+expose `offset`, `line` (1-based), and `column` (0-based). `walk` passes the array index and
+nearest enclosing node; returning `false` stops the walk and returning `'skip'` skips a node's
+children.
 
 #### browser
 

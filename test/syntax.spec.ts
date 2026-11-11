@@ -162,6 +162,101 @@ test('walk ignores inherited properties', () => {
   expect(count).toBe(1)
 })
 
+test('walk object visitors enter and exit with index and parent', () => {
+  const ast = parseSync('echo hi\n')
+  const events: string[] = []
+
+  walk(ast, {
+    enter(node, index, parent) {
+      events.push(`+${node.type}:${index}:${parent?.type}`)
+      if (node.type === 'Lit') {
+        return 'skip'
+      }
+    },
+    exit(node, index, parent) {
+      events.push(`-${node.type}:${index}:${parent?.type}`)
+    },
+  })
+
+  expect(events).toEqual([
+    '+File:undefined:undefined',
+    '+Stmt:0:File',
+    '+CallExpr:undefined:Stmt',
+    '+Word:0:CallExpr',
+    '+Lit:0:Word',
+    '-Lit:0:Word',
+    '-Word:0:CallExpr',
+    '+Word:1:CallExpr',
+    '+Lit:0:Word',
+    '-Lit:0:Word',
+    '-Word:1:CallExpr',
+    '-CallExpr:undefined:Stmt',
+    '-Stmt:0:File',
+    '-File:undefined:undefined',
+  ])
+})
+
+test('walk object visitors may omit enter', () => {
+  const ast = parseSync('echo hi\n')
+  const exits: string[] = []
+
+  walk(ast, {
+    exit(node) {
+      exits.push(node.type)
+    },
+  })
+
+  expect(exits).toEqual(['Lit', 'Word', 'Lit', 'Word', 'CallExpr', 'Stmt', 'File'])
+})
+
+test('walk stops on a false enter or exit result', () => {
+  const ast = parseSync('echo hi\n')
+  const entered: string[] = []
+  walk(ast, node => {
+    entered.push(node.type)
+    return node.type !== 'Stmt'
+  })
+  expect(entered).toEqual(['File', 'Stmt'])
+
+  const exited: string[] = []
+  walk(ast, {
+    enter(node) {
+      exited.push(`+${node.type}`)
+    },
+    exit(node) {
+      exited.push(`-${node.type}`)
+      return node.type !== 'Stmt'
+    },
+  })
+  expect(exited).toEqual([
+    '+File',
+    '+Stmt',
+    '+CallExpr',
+    '+Word',
+    '+Lit',
+    '-Lit',
+    '-Word',
+    '+Word',
+    '+Lit',
+    '-Lit',
+    '-Word',
+    '-CallExpr',
+    '-Stmt',
+  ])
+})
+
+test('walk traverses arrays and non-node wrappers', () => {
+  const types: string[] = []
+  walk([{ type: 'Comment' }], node => {
+    types.push(node.type)
+  })
+  walk({ nested: { type: 'Comment' } }, node => {
+    types.push(node.type)
+  })
+  walk({ nested: { type: 'Comment' } }, () => false)
+  expect(types).toEqual(['Comment', 'Comment'])
+})
+
 test('tree helpers handle edge cases', () => {
   const ast = parseSync('echo hi\n')
   const types: string[] = []
