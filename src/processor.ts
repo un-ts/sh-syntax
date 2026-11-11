@@ -25,6 +25,8 @@ export type WebAssemblySource =
 
 export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
+export type GetWebAssembly = WebAssemblyBaseSource | GetWebAssemblySource | GetWebAssemblyInstance
+
 export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
 
 export type GetWebAssemblyInstance = (
@@ -255,14 +257,18 @@ export interface Processor {
   init(): Promise<void>
 }
 
-export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySource): Processor => {
+export const getProcessor = (getWasm: GetWebAssembly): Processor => {
+  const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
   let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
   let initPromise: Promise<void> | undefined
   let queue: Promise<unknown> = Promise.resolve()
 
   const loadModule = async (): Promise<WebAssembly.Module> => {
-    const source = await (getWasm as GetWebAssemblySource)()
+    const source =
+      typeof getWasm === 'function'
+        ? await (getWasm as GetWebAssemblySource)()
+        : (getWasm as WebAssemblyBaseSource)
 
     if ('arrayBuffer' in source) {
       /*
@@ -286,10 +292,9 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
 
   const createRuntime = async () => {
     const go = new Go()
-    const instance =
-      getWasm.length === 0
-        ? await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
-        : await (getWasm as GetWebAssemblyInstance)(go.importObject)
+    const instance = isInstanceFactory
+      ? await (getWasm as GetWebAssemblyInstance)(go.importObject)
+      : await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
     // Do not await: main blocks in select{}; this resolves only when the Go program exits.
     void go.run(instance)
     return { go, exports: normalizeExports(instance.exports) }
@@ -314,7 +319,7 @@ export const getProcessor = (getWasm: GetWebAssemblyInstance | GetWebAssemblySou
     if (!initPromise) {
       const create = async () => {
         try {
-          if (!wasmModule && getWasm.length === 0) {
+          if (!wasmModule && !isInstanceFactory) {
             wasmModule = await loadModule()
           }
           await getRuntime()

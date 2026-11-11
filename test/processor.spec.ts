@@ -49,6 +49,14 @@ describe('processor', () => {
     expect(loads).toBe(1)
   })
 
+  test('getProcessor accepts a direct WASM source', async () => {
+    const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
+    const processor = getProcessor(wasm)
+
+    await processor.init()
+    await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
+  })
+
   test('getProcessor streams a WASM response', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const streaming = getProcessor(() =>
