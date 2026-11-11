@@ -6,7 +6,7 @@ export type WalkEnter = (node: Node, index?: number, parent?: Node) => boolean |
 /** Called after a node's children. Return `false` to stop the walk. */
 export type WalkExit = (node: Node, index?: number, parent?: Node) => boolean | void
 
-/** Visitor object form; `exit` is required, matching `unist-util-visit`. */
+/** Visitor object form; `exit` is required. */
 export interface WalkVisitors {
   enter?: WalkEnter
   exit: WalkExit
