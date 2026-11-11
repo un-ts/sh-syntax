@@ -56,6 +56,6 @@ export function printSync(
 }
 
 export * from './ast.js'
-export { createSourceIndex } from './source.js'
+export * from './source.js'
 export * from './processor.js'
 export * from './types.js'
