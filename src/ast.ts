@@ -29,7 +29,7 @@ export function walk(value: unknown, visitors: WalkVisitors): void
 export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors): void {
   const isEnter = typeof enterOrVisitors === 'function'
   const enter = isEnter ? enterOrVisitors : enterOrVisitors.enter
-  const exit = isEnter ? undefined : enterOrVisitors.exit
+  const exit = isEnter ? null : enterOrVisitors.exit
 
   const visitEntries = (container: object, parent: Node | null): boolean => {
     for (const entry of Object.values(container as Record<string, unknown>)) {
