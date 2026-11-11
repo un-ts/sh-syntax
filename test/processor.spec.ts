@@ -44,7 +44,9 @@ describe('processor', () => {
 
     await Promise.all([processor.init(), processor.init()])
     expect(loads).toBe(1)
-    await processor.init()
+    const first = processor.init()
+    expect(processor.init()).toBe(first)
+    await first
 
     await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
     expect(loads).toBe(1)

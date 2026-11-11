@@ -337,9 +337,6 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   }
 
   const init = (): Promise<void> => {
-    if (ready) {
-      return Promise.resolve()
-    }
     initPromise ??= (async () => {
       try {
         if (!wasmModule && !isInstanceFactory) {
