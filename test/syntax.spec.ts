@@ -274,6 +274,22 @@ test('walk traverses arrays and non-node wrappers', () => {
   expect(types).toEqual(['Comment', 'Comment'])
 })
 
+test('walk forwards the nearest node parent through non-node wrappers', () => {
+  const ast = parseSync('echo ${x:-word}\n')
+  const words: Array<[number | undefined, string | undefined]> = []
+
+  walk(ast, {
+    enter(node, index, parent) {
+      if (node.type === 'Word' && parent?.type === 'ParamExp') {
+        words.push([index, parent.type])
+      }
+    },
+    exit: () => undefined,
+  })
+
+  expect(words).toEqual([[undefined, 'ParamExp']])
+})
+
 test('tree helpers handle edge cases', () => {
   const ast = parseSync('echo hi\n')
   const types: string[] = []

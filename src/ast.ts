@@ -3,7 +3,10 @@ import type { Node } from './types.js'
 /** Called when entering a node. Return `false` to skip its children. */
 export type WalkEnter = (node: Node, index?: number, parent?: Node) => boolean | void
 
-/** Called after a node's children. Return `false` to stop the walk. */
+/**
+ * Called after a node's children, or immediately after `enter` skipped them. Return `false` to stop
+ * the walk.
+ */
 export type WalkExit = (node: Node, index?: number, parent?: Node) => boolean | void
 
 /** Visitor object form; `exit` is required. */
