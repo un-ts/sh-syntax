@@ -56,5 +56,6 @@ export function printSync(
 }
 
 export { isIncomplete, walk } from './ast.js'
+export type { WalkEnter, WalkExit, WalkVisitors } from './ast.js'
 export * from './processor.js'
 export * from './types.js'

@@ -162,6 +162,139 @@ test('walk ignores inherited properties', () => {
   expect(count).toBe(1)
 })
 
+test('walk object visitors enter and exit with parent, prop, and index', () => {
+  const ast = parseSync('echo hi\n')
+  const events: string[] = []
+
+  walk(ast, {
+    enter(node, parent, prop, index) {
+      events.push(`+${node.type}:${parent?.type ?? 'null'}:${prop ?? 'null'}:${index ?? 'null'}`)
+    },
+    exit(node, parent, prop, index) {
+      events.push(`-${node.type}:${parent?.type ?? 'null'}:${prop ?? 'null'}:${index ?? 'null'}`)
+    },
+  })
+
+  expect(events).toEqual([
+    '+File:null:null:null',
+    '+Stmt:File:stmts:0',
+    '+CallExpr:Stmt:cmd:null',
+    '+Word:CallExpr:args:0',
+    '+Lit:Word:parts:0',
+    '-Lit:Word:parts:0',
+    '-Word:CallExpr:args:0',
+    '+Word:CallExpr:args:1',
+    '+Lit:Word:parts:0',
+    '-Lit:Word:parts:0',
+    '-Word:CallExpr:args:1',
+    '-CallExpr:Stmt:cmd:null',
+    '-Stmt:File:stmts:0',
+    '-File:null:null:null',
+  ])
+})
+
+test('walk object visitors may omit enter', () => {
+  const ast = parseSync('echo hi\n')
+  const exits: string[] = []
+
+  walk(ast, {
+    exit(node) {
+      exits.push(node.type)
+    },
+  })
+
+  expect(exits).toEqual(['Lit', 'Word', 'Lit', 'Word', 'CallExpr', 'Stmt', 'File'])
+})
+
+test('walk enter false skips children and exit false stops', () => {
+  const ast = parseSync('echo hi\n')
+  const entered: string[] = []
+  walk(ast, node => {
+    entered.push(node.type)
+    return node.type !== 'Stmt'
+  })
+  expect(entered).toEqual(['File', 'Stmt'])
+
+  const skippedExits: string[] = []
+  walk(ast, {
+    enter(node) {
+      if (node.type === 'Stmt') {
+        return false
+      }
+    },
+    exit(node) {
+      skippedExits.push(node.type)
+    },
+  })
+  expect(skippedExits).toEqual(['Stmt', 'File'])
+
+  const exited: string[] = []
+  walk(ast, {
+    enter(node) {
+      exited.push(`+${node.type}`)
+    },
+    exit(node) {
+      exited.push(`-${node.type}`)
+      return node.type !== 'Stmt'
+    },
+  })
+  expect(exited).toEqual([
+    '+File',
+    '+Stmt',
+    '+CallExpr',
+    '+Word',
+    '+Lit',
+    '-Lit',
+    '-Word',
+    '+Word',
+    '+Lit',
+    '-Lit',
+    '-Word',
+    '-CallExpr',
+    '-Stmt',
+  ])
+})
+
+test('walk traverses arrays and non-node wrappers', () => {
+  const types: string[] = []
+  walk([{ type: 'Comment' }], node => {
+    types.push(node.type)
+  })
+  walk({ nested: { type: 'Comment' } }, node => {
+    types.push(node.type)
+  })
+  walk(
+    { nested: { type: 'Comment' } },
+    {
+      exit() {
+        return false
+      },
+    },
+  )
+  expect(types).toEqual(['Comment', 'Comment'])
+})
+
+test('walk reports null parent and prop for a top-level array', () => {
+  const roots: Array<[string | null, string | null, number | null]> = []
+  walk([{ type: 'Comment' }], (_node, parent, prop, index) => {
+    roots.push([parent?.type ?? null, prop, index])
+  })
+  expect(roots).toEqual([[null, null, 0]])
+})
+
+test('walk forwards the nearest node parent through non-node wrappers', () => {
+  const ast = parseSync('echo ${x:-word}\n')
+  const words: Array<[string, string | null, number | null]> = []
+
+  walk(ast, (node, parent, prop, index) => {
+    if (node.type === 'Word' && parent?.type === 'ParamExp') {
+      words.push([parent.type, prop, index])
+    }
+  })
+
+  expect(words).toEqual([['ParamExp', 'word', null]])
+})
+
 test('tree helpers handle edge cases', () => {
   const ast = parseSync('echo hi\n')
   const types: string[] = []
