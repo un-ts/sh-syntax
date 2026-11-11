@@ -122,12 +122,12 @@ units. Build a converter once for the source text:
 import { createSourceIndex, parseSync } from 'sh-syntax'
 
 const text = 'echo "héllo 🎉" $var\n'
-const index = createSourceIndex(text)
+const sourceIndex = createSourceIndex(text)
 const ast = parseSync(text)
 
 const word = ast.stmts[0].cmd.args.at(-1)
-const start = index(word.start)
-const end = index(word.end)
+const start = sourceIndex(word.start)
+const end = sourceIndex(word.end)
 
 console.log(text.slice(start, end)) // $var
 ```
