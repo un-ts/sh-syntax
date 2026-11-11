@@ -12,9 +12,6 @@ export interface WalkVisitors {
   exit: WalkExit
 }
 
-/** Visitor function form; equivalent to `{ enter: visitor }`. */
-export type WalkVisitor = WalkEnter
-
 const isNode = (value: unknown): value is Node =>
   value != null &&
   typeof value === 'object' &&
@@ -30,12 +27,11 @@ const isNode = (value: unknown): value is Node =>
  * `index` is the node's index when it is an element of an array, and `parent` is its nearest
  * enclosing node.
  */
-export function walk(value: unknown, visitor: WalkVisitor): void
+export function walk(value: unknown, enter: WalkEnter): void
 export function walk(value: unknown, visitors: WalkVisitors): void
-export function walk(value: unknown, visitorOrVisitors: WalkVisitor | WalkVisitors): void {
-  const enter =
-    typeof visitorOrVisitors === 'function' ? visitorOrVisitors : visitorOrVisitors.enter
-  const exit = typeof visitorOrVisitors === 'function' ? undefined : visitorOrVisitors.exit
+export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors): void {
+  const enter = typeof enterOrVisitors === 'function' ? enterOrVisitors : enterOrVisitors.enter
+  const exit = typeof enterOrVisitors === 'function' ? undefined : enterOrVisitors.exit
 
   const visitEntries = (container: object, parent: Node | undefined): boolean => {
     for (const entry of Object.values(container as Record<string, unknown>)) {
