@@ -19,7 +19,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-test('browser init is cached and parse initializes automatically', async () => {
+test('browser init is cached and reused', async () => {
   stubFetch()
   const browser = await import('../src/browser.ts')
 
@@ -32,4 +32,16 @@ test('browser init is cached and parse initializes automatically', async () => {
   const fetches = vi.mocked(fetch).mock.calls.length
   await browser.parse('echo two\n')
   expect(vi.mocked(fetch).mock.calls).toHaveLength(fetches)
+})
+
+test('browser parse auto-initializes without an explicit init', async () => {
+  stubFetch()
+  vi.resetModules()
+  const browser = await import('../src/browser.ts')
+
+  expect(vi.mocked(fetch)).toHaveBeenCalledTimes(0)
+  expect((await browser.parse('echo auto\n')).type).toBe('File')
+  expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1)
+  await browser.parse('echo again\n')
+  expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1)
 })

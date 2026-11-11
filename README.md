@@ -140,9 +140,9 @@ offsets outside the source are clamped to its bounds.
 
 #### browser
 
-The browser entry uses the same `init()` and async API as Node. Import it
-without top-level await; call `init()` once when convenient, or let the first
-`parse`/`print` call initialize the runtime:
+The browser entry uses the same `init()` and async API as Node. The entry has no
+top-level await, so importing it never blocks; call `init()` once when
+convenient, or let the first `parse`/`print` call initialize the runtime:
 
 ```js
 import { init, parse, print } from 'sh-syntax'
@@ -155,8 +155,8 @@ const formatted = await print(text)
 ```
 
 The bundler must emit `main.wasm` as an asset (for example, Vite handles
-`new URL('../main.wasm', import.meta.url)`). For a custom loader, use
-`getProcessor` from `sh-syntax`:
+`new URL('../main.wasm', import.meta.url)`); Vite library mode instead inlines
+`new URL()` assets as base64, so libraries should supply their own loader:
 
 ```js
 import { getProcessor } from 'sh-syntax'

@@ -257,6 +257,10 @@ export interface Processor {
   init(): Promise<void>
 }
 
+/**
+ * Creates an async processor. A function with zero parameters is treated as a source loader; a
+ * function with parameters is treated as a `(imports) => WebAssembly.Instance` factory.
+ */
 export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
@@ -315,22 +319,18 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return runtimePromise
   }
 
-  const init = async (): Promise<void> => {
-    if (!initPromise) {
-      const create = async () => {
-        try {
-          if (!wasmModule && !isInstanceFactory) {
-            wasmModule = await loadModule()
-          }
-          await getRuntime()
-        } catch (error) {
-          runtimePromise = undefined
-          initPromise = undefined
-          throw error
+  const init = (): Promise<void> => {
+    initPromise ??= (async () => {
+      try {
+        if (!wasmModule && !isInstanceFactory) {
+          wasmModule = await loadModule()
         }
+        await getRuntime()
+      } catch (error) {
+        initPromise = undefined
+        throw error
       }
-      initPromise = create()
-    }
+    })()
     return initPromise
   }
 
