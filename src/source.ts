@@ -2,10 +2,6 @@ const MAX_CODE_POINT_BYTES = 4
 const ONE_BYTE_LEAD_MAX = 0x7f
 const TWO_BYTE_LEAD_MAX = 0xdf
 const THREE_BYTE_LEAD_MAX = 0xef
-const TWO_BYTES = 2
-const THREE_BYTES = 3
-const ONE_CODE_UNIT = 1
-const TWO_CODE_UNITS = 2
 
 /**
  * Builds a converter from a source string's UTF-8 byte offsets to UTF-16 code-unit offsets. Byte
@@ -28,20 +24,20 @@ export const createSourceIndex = (text: string): ((byteOffset: number) => number
 
     if (lead <= ONE_BYTE_LEAD_MAX) {
       map[i] = codeUnit
-      codeUnit += ONE_CODE_UNIT
+      codeUnit += 1
       i += 1
       continue
     }
 
     let byteLength = MAX_CODE_POINT_BYTES
     if (lead <= TWO_BYTE_LEAD_MAX) {
-      byteLength = TWO_BYTES
+      byteLength = 2
     } else if (lead <= THREE_BYTE_LEAD_MAX) {
-      byteLength = THREE_BYTES
+      byteLength = 3
     }
 
     map.fill(codeUnit, i, i + byteLength)
-    codeUnit += byteLength === MAX_CODE_POINT_BYTES ? TWO_CODE_UNITS : ONE_CODE_UNIT
+    codeUnit += byteLength >> 1
     i += byteLength
   }
 
