@@ -21,6 +21,7 @@ A WASM shell parser and formatter with bash support, based on [mvdan/sh](https:/
   - [Install](#install)
   - [API](#api)
     - [node](#node)
+    - [source offsets](#source-offsets)
     - [browser](#browser)
 - [Benchmark](#benchmark)
 - [Sponsors](#sponsors)
@@ -111,6 +112,28 @@ nearest enclosing node, the key in the nearest enclosing object (which may be a
 non-node wrapper), and the array index; `parent`, `prop`, and `index` are null
 when absent. Returning `false` from `enter` skips a node's children, while
 `false` from `exit` stops the walk.
+
+#### source offsets
+
+AST offsets are UTF-8 byte offsets, while JavaScript strings use UTF-16 code
+units. Build a converter once for the source text:
+
+```js
+import { createSourceIndex, parseSync } from 'sh-syntax'
+
+const text = 'echo "héllo 🎉" $var\n'
+const index = createSourceIndex(text)
+const ast = parseSync(text)
+
+const word = ast.stmts[0].cmd.args.at(-1)
+const start = index.toUtf16(word.start)
+const end = index.toUtf16(word.end)
+
+console.log(text.slice(start, end)) // $var
+```
+
+Offsets inside a multi-byte character map to the start of that character, and
+offsets outside the source are clamped to its bounds.
 
 #### browser
 

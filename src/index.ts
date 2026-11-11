@@ -57,5 +57,7 @@ export function printSync(
 
 export { isIncomplete, walk } from './ast.js'
 export type { WalkEnter, WalkExit, WalkVisitors } from './ast.js'
+export { createSourceIndex } from './source.js'
+export type { SourceIndex } from './source.js'
 export * from './processor.js'
 export * from './types.js'
