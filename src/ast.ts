@@ -15,11 +15,6 @@ export interface WalkVisitors {
   exit: WalkExit
 }
 
-const isNode = (value: unknown): value is Node =>
-  value != null &&
-  typeof value === 'object' &&
-  typeof (value as { type?: unknown }).type === 'string'
-
 /**
  * Walks the syntax tree in depth-first order.
  *
@@ -59,14 +54,15 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
       return false
     }
 
-    if (!isNode(child)) {
+    if (typeof (child as { type?: unknown }).type !== 'string') {
       return visitEntries(child, parent)
     }
 
-    if (enter?.(child, index, parent) !== false && visitEntries(child, child)) {
+    const node = child as Node
+    if (enter?.(node, index, parent) !== false && visitEntries(node, node)) {
       return true
     }
-    return exit?.(child, index, parent) === false
+    return exit?.(node, index, parent) === false
   }
 
   visit(value, undefined, undefined)
