@@ -262,6 +262,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   let wasmModule: WebAssembly.Module | undefined
   let runtimePromise: Promise<{ go: Go; exports: ProcessExports }> | undefined
   let initPromise: Promise<void> | undefined
+  let initialized = false
   let queue: Promise<unknown> = Promise.resolve()
 
   const loadModule = async (): Promise<WebAssembly.Module> => {
@@ -323,9 +324,11 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
             wasmModule = await loadModule()
           }
           await getRuntime()
+          initialized = true
         } catch (error) {
           runtimePromise = undefined
           initPromise = undefined
+          initialized = false
           throw error
         }
       }
@@ -343,7 +346,9 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     textOrAst: File | string,
     options: InternalOptions = {},
   ): Promise<File | string> => {
-    await init()
+    if (!initialized) {
+      await init()
+    }
 
     const previous = queue
     let release!: () => void
