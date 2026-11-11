@@ -361,7 +361,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     runtimePromise = undefined
   }
 
-  const processor = async (
+  const processor = (async (
     textOrAst: File | string,
     options: InternalOptions = {},
   ): Promise<File | string> => {
@@ -397,7 +397,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     } finally {
       release()
     }
-  }
-
-  return Object.assign(processor, { init }) as Processor
+  }) as Processor
+  processor.init = init
+  return processor
 }
