@@ -284,6 +284,12 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
         ? await (getWasm as GetWebAssemblySource)()
         : (getWasm as WebAssemblyBaseSource)
 
+    if (typeof source === 'string') {
+      throw new TypeError(
+        'WebAssembly source must be a buffer, Response, or WebAssembly.Module; this entry requires .wasm imports to resolve to a module',
+      )
+    }
+
     if ('arrayBuffer' in source) {
       /*
        * compileStreaming is only safe for a real, same-realm Response.

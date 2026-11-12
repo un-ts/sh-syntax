@@ -90,6 +90,12 @@ describe('processor', () => {
     expect(processor('echo hi\n')).toMatchObject({ type: 'File' })
   })
 
+  test('getProcessor explains a URL string source', async () => {
+    const processor = getProcessor(() => 'https://example.com/main.wasm' as never)
+
+    await expect(processor.init()).rejects.toThrow(/WebAssembly\.Module/)
+  })
+
   test('getProcessor streams a WASM response', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const streaming = getProcessor(() =>

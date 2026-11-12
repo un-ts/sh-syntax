@@ -187,7 +187,9 @@ Call `init()` inside the request handler: Go startup uses
 
 Wrangler and `@cloudflare/vite-plugin` already resolve `.wasm` imports as
 `WebAssembly.Module`. Other bundlers must do the same for the workerd entry;
-a URL or instantiated module is not sufficient.
+a URL or instantiated module is not sufficient. Nitro's `unwasm` turns a
+plain `.wasm` import into instantiated exports, so it needs a loader that
+returns a `WebAssembly.Module`.
 
 For TypeScript Worker builds, select the runtime declaration:
 
