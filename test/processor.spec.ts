@@ -245,47 +245,49 @@ describe('processor', () => {
       expect(syncProcessor('echo hi\n').type).toBe('File')
     }
   })
-})
 
-test('syncGetProcessor throws when Go exits during startup', () => {
-  const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } }).Go
-  const originalRun = go?.prototype.run
-  if (!go || !originalRun) {
-    throw new Error('Go runtime is unavailable')
-  }
-
-  go.prototype.run = function (this: { exited: boolean }) {
-    this.exited = true
-    return Promise.resolve()
-  } as never
-  try {
-    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
-    expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
-  } finally {
-    go.prototype.run = originalRun
-  }
-})
-
-test('syncGetProcessor preserves a falsy startup rejection', async () => {
-  const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } }).Go
-  const originalRun = go?.prototype.run
-  if (!go || !originalRun) {
-    throw new Error('Go runtime is unavailable')
-  }
-
-  go.prototype.run = () => Promise.reject(0)
-  try {
-    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
-    const syncProcessor = syncGetProcessor(bytes)
-    await Promise.resolve()
-    let thrown: unknown
-    try {
-      syncProcessor('echo hi\n')
-    } catch (error) {
-      thrown = error
+  test('syncGetProcessor throws when Go exits during startup', () => {
+    const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } })
+      .Go
+    const originalRun = go?.prototype.run
+    if (!go || !originalRun) {
+      throw new Error('Go runtime is unavailable')
     }
-    expect(thrown).toBe(0)
-  } finally {
-    go.prototype.run = originalRun
-  }
+
+    go.prototype.run = function (this: { exited: boolean }) {
+      this.exited = true
+      return Promise.resolve()
+    } as never
+    try {
+      const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+      expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
+    } finally {
+      go.prototype.run = originalRun
+    }
+  })
+
+  test('syncGetProcessor preserves a falsy startup rejection', async () => {
+    const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } })
+      .Go
+    const originalRun = go?.prototype.run
+    if (!go || !originalRun) {
+      throw new Error('Go runtime is unavailable')
+    }
+
+    go.prototype.run = () => Promise.reject(0)
+    try {
+      const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+      const syncProcessor = syncGetProcessor(bytes)
+      await Promise.resolve()
+      let thrown: unknown
+      try {
+        syncProcessor('echo hi\n')
+      } catch (error) {
+        thrown = error
+      }
+      expect(thrown).toBe(0)
+    } finally {
+      go.prototype.run = originalRun
+    }
+  })
 })
