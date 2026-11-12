@@ -4,6 +4,9 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+/*
+ * Wasm compilation and Go startup can exceed the 5s default under parallel test load.
+ */
 test('workerd entry initializes from the bundled module', async () => {
   vi.stubGlobal(
     'fetch',
