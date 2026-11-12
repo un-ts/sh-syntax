@@ -166,6 +166,39 @@ const processor = getProcessor(() =>
 )
 ```
 
+#### workerd
+
+The `workerd` export imports the bundled `main.wasm` as a compiled module, so
+Worker code does not call `getProcessor` or fetch the asset:
+
+```js
+import { init, parse } from 'sh-syntax'
+
+export default {
+  async fetch() {
+    await init()
+    return new Response(JSON.stringify(await parse("echo 'Hello World!'")))
+  },
+}
+```
+
+Call `init()` inside the request handler: Go startup uses
+`crypto.getRandomValues`, which Workers disallow outside a request context.
+
+The bundler must resolve `sh-syntax/main.wasm` as `CompiledWasm`. For Wrangler:
+
+```toml
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]
+```
+
+For TypeScript Worker builds, select the runtime declaration:
+
+```json
+{ "compilerOptions": { "customConditions": ["workerd"] } }
+```
+
 ## Benchmark
 
 ```console

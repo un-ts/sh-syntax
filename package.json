@@ -16,6 +16,10 @@
   "module": "./lib/index.js",
   "exports": {
     ".": {
+      "workerd": {
+        "types": "./lib/workerd.d.ts",
+        "default": "./lib/workerd.js"
+      },
       "browser": {
         "types": "./lib/browser.d.ts",
         "default": "./lib/browser.js"
@@ -112,7 +116,8 @@
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
-    "vendors/wasm_exec.cjs"
+    "vendors/wasm_exec.cjs",
+    "lib/workerd.js"
   ],
   "size-limit": [
     {
