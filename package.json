@@ -143,6 +143,7 @@
     "lib/sync/browser.js",
     "lib/sync/index.cjs",
     "lib/sync/index.js",
+    "lib/sync/workerd.js",
     "lib/workerd.js",
     "vendors/wasm_exec.cjs"
   ],
