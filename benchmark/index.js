@@ -8,7 +8,8 @@ import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
 import { createSyncFn } from 'synckit'
 
-import { LangVariant, print, printSync } from '../lib/index.js'
+import { LangVariant, print } from '../lib/index.js'
+import { print as printSync } from '../lib/sync/index.js'
 
 /** @import {ShOptions} from 'sh-syntax' */
 
