@@ -24,7 +24,7 @@ yarn gen:encoder # regenerate Go encoder, TS AST types, and operator constants
 yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >=24.14
 ```
 
-`yarn format` formats the root repository. `shell/` is ignored by the root Prettier config because the submodule has its own formatting setup.
+`yarn format` formats the root repository. `package.json` is owned by `prettier-plugin-pkg`; other JSON/formats go through oxfmt. `shell/` is ignored by the root Prettier config because the submodule has its own formatting setup.
 
 ## Layout
 
