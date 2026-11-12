@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import type { File, ShOptions, ShPrintOptions } from '../types.js'
+import { createSyncProcessorAPI } from './api.js'
 import { getProcessor } from './processor.js'
 
 const importMetaUrl = import.meta.url
@@ -16,22 +16,7 @@ const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : _
 
 export const processor = getProcessor(readFileSync(path.resolve(moduleDir, '../../main.wasm')))
 
-export const parse = (text: string, options?: ShOptions) => processor(text, options)
-
-export function print(text: string, options?: ShOptions): string
-export function print(ast: File, options: ShPrintOptions): string
-export function print(
-  textOrAst: File | string,
-  options?: ShOptions & { originalText?: string },
-): string {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options as ShPrintOptions)
-}
+export const { parse, print } = createSyncProcessorAPI(processor)
 
 export { ParseError } from '../processor.js'
 export { getProcessor } from './processor.js'
