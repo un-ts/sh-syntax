@@ -38,17 +38,21 @@
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
     "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs",
     "./sync": {
+      "browser": {
+        "types": "./lib/sync/browser.d.ts",
+        "default": "./lib/sync/browser.js"
+      },
       "import": {
-        "types": "./lib/sync.d.ts",
-        "default": "./lib/sync.js"
+        "types": "./lib/sync/index.d.ts",
+        "default": "./lib/sync/index.js"
       },
       "require": {
-        "types": "./lib/sync.d.cts",
-        "default": "./lib/sync.cjs"
+        "types": "./lib/sync/index.d.cts",
+        "default": "./lib/sync/index.cjs"
       },
       "default": {
-        "types": "./lib/sync.d.ts",
-        "default": "./lib/sync.js"
+        "types": "./lib/sync/index.d.ts",
+        "default": "./lib/sync/index.js"
       }
     }
   },
@@ -130,6 +134,9 @@
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
+    "lib/sync/browser.js",
+    "lib/sync/index.cjs",
+    "lib/sync/index.js",
     "lib/workerd.js",
     "vendors/wasm_exec.cjs"
   ],

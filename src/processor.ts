@@ -31,13 +31,11 @@ export type GetWebAssembly =
   | GetWebAssemblySource
   | GetWebAssemblyInstance
 
-export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource | WebAssembly.Module
-
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
 ) => Promise<WebAssembly.Instance> | WebAssembly.Instance
 
-interface InternalOptions extends ShOptions {
+export interface InternalOptions extends ShOptions {
   print?: boolean
   originalText?: string
 }
@@ -77,13 +75,13 @@ const supportedVariants = new Set<LangVariant>([
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
 
-const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
+export const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
   const memory = (exports.memory ?? exports.mem) as WebAssembly.Memory
 
   return { ...exports, memory } as ProcessExports
 }
 
-const invoke = (
+export const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
   textOrAst: File | string,
   {
@@ -219,40 +217,6 @@ const invoke = (
   }
 
   return printOutput ? processedText : file
-}
-
-/**
- * Creates a synchronous processor from WASM bytes, a synchronous loader, or a compiled module.
- *
- * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so the
- * instance can serve repeated synchronous calls.
- */
-export const getProcessorSync = (
-  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource | WebAssembly.Module,
-) => {
-  const source = typeof getWasm === 'function' ? getWasm() : getWasm
-  const module = source instanceof WebAssembly.Module ? source : new WebAssembly.Module(source)
-  const createRuntime = () => {
-    const go = new Go()
-    const instance = new WebAssembly.Instance(module, go.importObject)
-    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
-    void go.run(instance)
-    return { go, exports: normalizeExports(instance.exports) }
-  }
-  let runtime = createRuntime()
-
-  function processor(text: string, options?: ShOptions): File
-  function processor(text: string, options?: ShOptions & { print: true }): string
-  function processor(ast: File, options: ShOptions & { originalText: string }): string
-  function processor(textOrAst: File | string, options?: InternalOptions): File | string {
-    /* istanbul ignore if -- @preserve */
-    if (runtime.go.exited) {
-      runtime = createRuntime()
-    }
-    return invoke(runtime.exports, textOrAst, options)
-  }
-
-  return processor
 }
 
 /** A parser bound to one WASM runtime. */

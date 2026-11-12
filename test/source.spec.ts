@@ -1,5 +1,5 @@
 import { createSourceIndex } from 'sh-syntax'
-import { parseSync } from 'sh-syntax/sync'
+import { parse as parseSync } from 'sh-syntax/sync'
 
 test('ASCII offsets are unchanged and clamped', () => {
   const text = 'echo hi\n'
