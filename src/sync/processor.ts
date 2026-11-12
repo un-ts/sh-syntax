@@ -1,4 +1,4 @@
-import { invoke, normalizeExports, type InternalOptions } from '../internal.js'
+import { invoke, normalizeExports, type InternalOptions, type ProcessExports } from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
@@ -30,19 +30,26 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
 
     if (
       !(exports.mem instanceof WebAssembly.Memory) ||
-      typeof (instance.exports as { run?: unknown }).run !== 'function'
+      typeof (exports as ProcessExports & { run?: unknown }).run !== 'function'
     ) {
       throw new TypeError('getProcessor requires a Go WASM instance')
     }
 
-    const runtime: { go: Go; exports: ReturnType<typeof normalizeExports>; error?: unknown } = {
+    const runtime: { go: Go; exports: ProcessExports; error?: unknown } = {
       go,
       exports,
     }
 
+    /*
+     * Do not await the program itself: main blocks in select{} until the Go program exits.
+     * Startup rejections are stored and rethrown on the next call.
+     */
     void go.run(instance).catch((error: unknown) => {
       runtime.error = error
     })
+    if (go.exited) {
+      throw new Error('Go runtime exited during startup')
+    }
     return runtime
   }
 

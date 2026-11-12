@@ -211,7 +211,7 @@ describe('processor', () => {
     })
   })
 
-  test('syncGetProcessor rejects a non-Go instance', () => {
+  test('syncGetProcessor throws for a non-Go instance', () => {
     const empty = new WebAssembly.Module(Buffer.from('AGFzbQEAAAA=', 'base64'))
 
     expect(() => syncGetProcessor(empty)).toThrow(/Go WASM instance/)
@@ -245,4 +245,23 @@ describe('processor', () => {
       expect(syncProcessor('echo hi\n').type).toBe('File')
     }
   })
+})
+
+test('syncGetProcessor throws when Go exits during startup', () => {
+  const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } }).Go
+  const originalRun = go?.prototype.run
+  if (!go || !originalRun) {
+    throw new Error('Go runtime is unavailable')
+  }
+
+  go.prototype.run = function (this: { exited: boolean }) {
+    this.exited = true
+    return Promise.resolve()
+  } as never
+  try {
+    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+    expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
+  } finally {
+    go.prototype.run = originalRun
+  }
 })
