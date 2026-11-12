@@ -39,13 +39,10 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
       go,
       exports,
     }
-    void (async () => {
-      try {
-        await go.run(instance)
-      } catch (error) {
-        runtime.error = error
-      }
-    })()
+
+    void go.run(instance).catch(error => {
+      runtime.error = error
+    })
     return runtime
   }
 
