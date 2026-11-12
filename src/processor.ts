@@ -79,10 +79,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
      * Do not await the program itself: main blocks in select{} until the Go program exits.
      * Surface an immediate startup rejection while treating a still-running program as ready.
      */
-    const startup = Promise.race([
-      runtime.run,
-      new Promise<void>(resolve => queueMicrotask(resolve)),
-    ])
+    const startup = Promise.race([runtime.run, new Promise<void>(queueMicrotask)])
     return { ...runtime, startup }
   }
 
