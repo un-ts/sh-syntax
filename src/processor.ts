@@ -18,10 +18,7 @@ export class ParseError extends Error implements IParseError {
 export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
   | WebAssemblyBaseSource
-  | {
-      headers?: { get(name: string): string | null }
-      arrayBuffer(): Promise<ArrayBuffer>
-    }
+  | { headers?: { get(name: string): string | null }; arrayBuffer(): Promise<ArrayBuffer> }
 
 export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
@@ -75,9 +72,8 @@ const supportedVariants = new Set<LangVariant>([
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
 
-export const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
+export const normalizeExports = (exports: WebAssembly.Exports) => {
   const memory = (exports.memory ?? exports.mem) as WebAssembly.Memory
-
   return { ...exports, memory } as ProcessExports
 }
 
@@ -269,6 +265,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   }
 
   const createRuntime = async () => {
+    // oxlint-disable-next-line no-undef -- Go is defined globally by wasm_exec
     const go = new Go()
     const instance = isInstanceFactory
       ? await (getWasm as GetWebAssemblyInstance)(go.importObject)
