@@ -6,7 +6,7 @@ import { getProcessor } from './processor.js'
 const processor = getProcessor(wasm)
 const api = createProcessorAPI(processor)
 
-export const init = processor.init
+export const { init } = processor
 
 export const { parse, print } = api
 

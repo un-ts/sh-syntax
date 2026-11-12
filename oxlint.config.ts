@@ -4,7 +4,7 @@ export default defineConfig({
   ignorePatterns: ['shell/**', 'test/fixtures/**', 'vendors/**'],
   overrides: [
     {
-      files: ['src/api.ts', 'src/browser.ts', 'src/index.ts', 'src/workerd.ts'],
+      files: ['src/api.ts'],
       rules: {
         'import/no-unassigned-import': 'off',
       },

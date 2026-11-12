@@ -15,9 +15,9 @@ const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : _
 
 export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, '../main.wasm')))
 
-const api = createProcessorAPI(processor)
+export const { init } = processor
 
-export const init = processor.init
+const api = createProcessorAPI(processor)
 
 export const { parse, print } = api
 
