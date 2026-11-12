@@ -33,6 +33,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - `src/browser.ts` — browser entry; fetches the default WASM asset
 - `src/workerd.ts` — workerd entry, selected by the `workerd` export condition; imports the bundled WASM as a compiled module
 - `src/api.ts` — shared async `parse`/`print` factory used by the entries
+- `src/sync/api.ts` — shared sync `parse`/`print` factory used by the sync entries
 - `src/processor.ts` — WASM lifecycle (`init()`), async processor, and text/AST argument compatibility
 - `src/ast.ts` — `walk()` (callback or `{ enter, exit }` visitors with `(node, parent, prop, index)`) and `isIncomplete()`
 - `src/source.ts` — `createSourceIndex()` from UTF-8 byte offsets to UTF-16 code units
@@ -73,7 +74,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - Small cases and `test/ast.spec.ts` snapshot the full JS AST.
 - Large fixtures snapshot a node-type histogram plus formatted output because a full `install.sh` tree is far too large.
 - Update snapshots only for intentional output/AST changes, and inspect the diff.
-- Coverage is scoped to `src/**/*.ts`; do not add broad excludes. Keep `src/` flat unless a subdirectory is justified, and update the coverage glob when that changes.
+- Coverage is scoped to `src/**/*.ts`; do not add broad excludes. Keep `src/` flat except `src/sync/`, which holds the sync-only entries; update the coverage glob when the layout changes.
 
 ## CI
 

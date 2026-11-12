@@ -21,8 +21,10 @@ A WASM shell parser and formatter with bash support, based on [mvdan/sh](https:/
   - [Install](#install)
   - [API](#api)
     - [node](#node)
+    - [syntax tree](#syntax-tree)
     - [source offsets](#source-offsets)
     - [browser](#browser)
+    - [workerd](#workerd)
 - [Benchmark](#benchmark)
 - [Sponsors](#sponsors)
 - [Backers](#backers)
@@ -167,6 +169,12 @@ const processor = getProcessor(() =>
   fetch('https://cdn.jsdelivr.net/npm/sh-syntax@latest/main.wasm'),
 )
 ```
+
+The sync entry is also available in browsers as `sh-syntax/sync`; unlike the
+async entry it uses top-level await to fetch and compile `main.wasm` before
+exposing synchronous `parse`/`print`. The bundler must support TLA and emit the
+WASM asset; the same Vite library-mode caveat applies. There is no sync variant
+on workerd.
 
 #### workerd
 

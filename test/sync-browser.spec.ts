@@ -26,6 +26,7 @@ test('sync browser entry loads wasm before exposing sync parse/print', async () 
   expect(sync.print('echo   hi\n')).toBe('echo hi\n')
   expect(sync.print(ast, { originalText: 'echo   hi\n' })).toBe('echo hi\n')
   expect(vi.mocked(fetch)).toHaveBeenCalledOnce()
+  expect(vi.mocked(fetch).mock.calls[0][0].toString()).toMatch(/main\.wasm$/)
 })
 
 test('sync browser entry falls back without compileStreaming', async () => {
@@ -49,4 +50,19 @@ test('sync browser entry falls back without compileStreaming', async () => {
       Object.defineProperty(WebAssembly, 'compileStreaming', descriptor)
     }
   }
+})
+
+test('sync browser entry falls back when compileStreaming rejects', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () =>
+        new Response(wasm, {
+          headers: { 'content-type': 'text/plain' },
+        }),
+    ),
+  )
+  const sync = await import('../src/sync/browser.ts')
+
+  expect(sync.parse('echo mime\n')).toMatchObject({ type: 'File' })
 })
