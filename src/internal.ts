@@ -64,6 +64,8 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 
   const run = go.run(instance)
   if (go.exited) {
+    // Attach a handler before throwing so an already-rejected run is not unhandled.
+    void run.catch(() => undefined)
     throw new Error('Go runtime exited during startup')
   }
   return { go, exports, run }
