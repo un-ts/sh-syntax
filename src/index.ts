@@ -1,10 +1,10 @@
+// oxlint-disable-next-line import/no-unassigned-import -- shim installs the runtime shim
+import './shim.js'
 import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// oxlint-disable-next-line import/no-unassigned-import -- shim installs the runtime shim
-import './shim.js'
 import { createProcessorAPI } from './api.js'
 import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
@@ -18,9 +18,7 @@ export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, 
 
 export const { init } = processor
 
-const api = createProcessorAPI(processor)
-
-export const { parse, print } = api
+export const { parse, print } = createProcessorAPI(processor)
 
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
@@ -36,13 +34,14 @@ export function printSync(
   textOrAst: File | string,
   options?: ShOptions & { originalText?: string },
 ): string {
+  const processorSync = getSyncProcessor()
   if (typeof textOrAst === 'string') {
-    return getSyncProcessor()(textOrAst, {
+    return processorSync(textOrAst, {
       ...options,
       print: true,
     })
   }
-  return getSyncProcessor()(textOrAst, options as ShPrintOptions)
+  return processorSync(textOrAst, options as ShPrintOptions)
 }
 
 export * from './ast.js'

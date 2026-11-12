@@ -2,11 +2,10 @@ import { createProcessorAPI } from './api.js'
 import { getProcessor } from './processor.js'
 
 export const processor = getProcessor(() => fetch(new URL('../main.wasm', import.meta.url)))
-const api = createProcessorAPI(processor)
 
 export const { init } = processor
 
-export const { parse, print } = api
+export const { parse, print } = createProcessorAPI(processor)
 
 export * from './ast.js'
 export * from './processor.js'

@@ -13,8 +13,9 @@ export interface ProcessorAPI {
 }
 
 /** Binds the async parse/print surface to a processor. */
-export const createProcessorAPI = (processor: Processor): ProcessorAPI => {
-  const print = (
+export const createProcessorAPI = (processor: Processor): ProcessorAPI => ({
+  parse: (text, options) => processor(text, options),
+  print: (
     textOrAst: File | string,
     options?: ShOptions & { originalText?: string },
   ): Promise<string> => {
@@ -25,10 +26,5 @@ export const createProcessorAPI = (processor: Processor): ProcessorAPI => {
       })
     }
     return processor(textOrAst, options as ShPrintOptions)
-  }
-
-  return {
-    parse: (text, options) => processor(text, options),
-    print: print as ProcessorAPI['print'],
-  }
-}
+  },
+})
