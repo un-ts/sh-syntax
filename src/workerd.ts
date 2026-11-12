@@ -1,4 +1,3 @@
-/* istanbul ignore file -- bundler-only entry that imports a compiled wasm module */
 import wasm from '../main.wasm'
 import { createProcessorAPI } from './api.js'
 import { getProcessor } from './processor.js'

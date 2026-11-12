@@ -185,13 +185,9 @@ export default {
 Call `init()` inside the request handler: Go startup uses
 `crypto.getRandomValues`, which Workers disallow outside a request context.
 
-The bundler must resolve `sh-syntax/main.wasm` as `CompiledWasm`. For Wrangler:
-
-```toml
-[[rules]]
-type = "CompiledWasm"
-globs = ["**/*.wasm"]
-```
+Wrangler and `@cloudflare/vite-plugin` already resolve `.wasm` imports as
+`WebAssembly.Module`. Other bundlers must do the same for the workerd entry;
+a URL or instantiated module is not sufficient.
 
 For TypeScript Worker builds, select the runtime declaration:
 
