@@ -46,6 +46,15 @@ export const normalizeExports = (exports: WebAssembly.Exports) => {
   return { ...exports, memory } as ProcessExports
 }
 
+export const assertGoExports = (exports: ProcessExports): void => {
+  if (
+    !(exports.mem instanceof WebAssembly.Memory) ||
+    typeof (exports as ProcessExports & { run?: unknown }).run !== 'function'
+  ) {
+    throw new TypeError('getProcessor requires a Go WASM instance')
+  }
+}
+
 export const invoke = (
   { memory, wasmAlloc, wasmFree, process }: ProcessExports,
   textOrAst: File | string,

@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { type GetWebAssemblyInstance, type ShOptions, getProcessor } from 'sh-syntax'
 import { getProcessor as syncGetProcessor } from 'sh-syntax/sync'
+import { afterEach, vi } from 'vitest'
 
 import { testFixtures } from './fixtures.ts'
 
@@ -17,6 +18,19 @@ describe('processor', () => {
     const { instance } = await WebAssembly.instantiate(buffer, imports)
     return instance
   }
+
+  const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } }).Go
+
+  const mockGoRun = (run: (this: { exited: boolean }) => Promise<void>) => {
+    if (!go) {
+      throw new Error('Go runtime is unavailable')
+    }
+    return vi.spyOn(go.prototype, 'run').mockImplementation(run as never)
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   const processShell = getProcessor(initWasm)
 
@@ -64,9 +78,20 @@ describe('processor', () => {
       return new WebAssembly.Instance(empty, {})
     })
 
-    await expect(processor.init()).rejects.toThrow(/undefined|not a function/)
-    await expect(processor('echo hi\n')).rejects.toThrow(/undefined|not a function/)
+    await expect(processor.init()).rejects.toThrow(/Go WASM instance/)
+    await expect(processor('echo hi\n')).rejects.toThrow(/Go WASM instance/)
     expect(attempts).toBe(2)
+  })
+
+  test('init rejects when Go exits during startup', async () => {
+    mockGoRun(function (this: { exited: boolean }) {
+      this.exited = true
+      return Promise.resolve()
+    })
+    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+    const processor = getProcessor(bytes)
+
+    await expect(processor.init()).rejects.toThrow(/exited during startup/)
   })
 
   test('getProcessor accepts a compiled module', async () => {
@@ -218,22 +243,11 @@ describe('processor', () => {
   })
 
   test('syncGetProcessor surfaces a startup rejection', async () => {
-    const go = (globalThis as { Go?: { prototype: { run: (...args: never[]) => Promise<void> } } })
-      .Go
-    const originalRun = go?.prototype.run
-    if (!go || !originalRun) {
-      throw new Error('Go runtime is unavailable')
-    }
-
-    go.prototype.run = () => Promise.reject(new Error('startup failed'))
-    try {
-      const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
-      const syncProcessor = syncGetProcessor(bytes)
-      await Promise.resolve()
-      expect(() => syncProcessor('echo hi\n')).toThrow('startup failed')
-    } finally {
-      go.prototype.run = originalRun
-    }
+    mockGoRun(() => Promise.reject(new Error('startup failed')))
+    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+    const syncProcessor = syncGetProcessor(bytes)
+    await Promise.resolve()
+    expect(() => syncProcessor('echo hi\n')).toThrow('startup failed')
   })
 
   test('syncGetProcessor accepts a synchronous loader and handles repeated calls', () => {

@@ -1,4 +1,10 @@
-import { invoke, normalizeExports, type InternalOptions, type ProcessExports } from '../internal.js'
+import {
+  assertGoExports,
+  invoke,
+  normalizeExports,
+  type InternalOptions,
+  type ProcessExports,
+} from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
@@ -28,12 +34,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     const instance = new WebAssembly.Instance(module, go.importObject)
     const exports = normalizeExports(instance.exports)
 
-    if (
-      !(exports.mem instanceof WebAssembly.Memory) ||
-      typeof (exports as ProcessExports & { run?: unknown }).run !== 'function'
-    ) {
-      throw new TypeError('getProcessor requires a Go WASM instance')
-    }
+    assertGoExports(exports)
 
     const runtime: { go: Go; exports: ProcessExports; failure?: { error: unknown } } = {
       go,
