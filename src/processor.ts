@@ -1,4 +1,4 @@
-import { invoke, startGoRuntime, type InternalOptions, type ProcessExports } from './internal.js'
+import { invoke, startGoRuntime, type GoRuntime, type InternalOptions } from './internal.js'
 import { type File, type ShOptions } from './types.js'
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
@@ -34,9 +34,7 @@ export interface Processor {
 export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
-  let runtimePromise:
-    | Promise<{ go: Go; exports: ProcessExports; startup: Promise<void> }>
-    | undefined
+  let runtimePromise: Promise<GoRuntime & { startup: Promise<void> }> | undefined
   let initPromise: Promise<void> | undefined
   let ready = false
   let queue: Promise<unknown> = Promise.resolve()
