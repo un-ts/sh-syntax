@@ -51,7 +51,7 @@ jobs:
         run: yarn wasm
 
       - name: Verify generated artifacts are committed
-        run: git diff --exit-code -- main.wasm processor/encode_generated.go src/ast-types.ts src/operators.ts
+        run: git diff --exit-code
 
   shell:
     name: Integration with @eslint/shell
