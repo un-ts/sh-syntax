@@ -124,7 +124,7 @@ units. Build a converter once for the source text:
 
 ```js
 import { createSourceIndex } from 'sh-syntax'
-import { parseSync } from 'sh-syntax/sync'
+import { parse } from 'sh-syntax/sync'
 
 const text = 'echo "héllo 🎉" $var\n'
 const sourceIndex = createSourceIndex(text)

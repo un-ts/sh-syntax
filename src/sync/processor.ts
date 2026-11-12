@@ -9,8 +9,8 @@ import type { File, ShOptions } from '../types.js'
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
 
 export interface Processor {
+  (text: string, options: ShOptions & { print: true }): string
   (text: string, options?: ShOptions): File
-  (text: string, options?: ShOptions & { print: true }): string
   (ast: File, options: ShOptions & { originalText: string }): string
 }
 
@@ -37,8 +37,8 @@ export const getProcessor = (
 
   let runtime = createRuntime()
 
+  function processor(text: string, options: ShOptions & { print: true }): string
   function processor(text: string, options?: ShOptions): File
-  function processor(text: string, options?: ShOptions & { print: true }): string
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
     /* istanbul ignore if -- @preserve */
