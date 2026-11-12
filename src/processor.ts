@@ -283,7 +283,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     }
 
     if ('arrayBuffer' in source) {
-      const response = source as unknown as {
+      const response = source as {
         headers?: { get(name: string): string | null }
         arrayBuffer(): Promise<ArrayBuffer>
       }
