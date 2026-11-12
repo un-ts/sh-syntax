@@ -16,6 +16,5 @@ export class ParseError extends Error implements IParseError {
 }
 
 export * from './ast.js'
-export * from './operators.js'
 export * from './source.js'
 export * from './types.js'

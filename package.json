@@ -148,6 +148,10 @@
     {
       "path": "lib/index.js",
       "limit": "6 kB"
+    },
+    {
+      "path": "lib/sync/index.js",
+      "limit": "6 kB"
     }
   ],
   "typeCoverage": {
