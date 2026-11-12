@@ -130,10 +130,12 @@
     "provenance": true
   },
   "sideEffects": [
+    "lib/api.js",
     "lib/browser.js",
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
+    "lib/sync/api.js",
     "lib/sync/browser.js",
     "lib/sync/index.cjs",
     "lib/sync/index.js",
