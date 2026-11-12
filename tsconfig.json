@@ -4,7 +4,8 @@
     "rootDir": ".",
     "types": ["node", "web", "golang-wasm-exec"],
     "paths": {
-      "sh-syntax": ["./src/index.ts"]
+      "sh-syntax": ["./src/index.ts"],
+      "sh-syntax/sync": ["./src/sync.ts"]
     }
   },
   "include": ["src", "test", "benchmark", "vitest.config.ts"]

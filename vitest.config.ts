@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   resolve: {
     alias: {
+      'sh-syntax/sync': new URL('src/sync.ts', import.meta.url).pathname,
       'sh-syntax': new URL('src', import.meta.url).pathname,
     },
   },

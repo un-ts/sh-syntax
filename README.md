@@ -65,7 +65,7 @@ const legacyFormatted = await print(ast, { originalText: text })
 The synchronous API is available as `parseSync` and `printSync`:
 
 ```js
-import { parseSync, printSync } from 'sh-syntax'
+import { parseSync, printSync } from 'sh-syntax/sync'
 
 const ast = parseSync("echo 'Hello World!'")
 const formatted = printSync("echo 'Hello World!'")
@@ -78,7 +78,8 @@ Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
-import { LangVariant, parseSync, walk } from 'sh-syntax'
+import { LangVariant, walk } from 'sh-syntax'
+import { parseSync } from 'sh-syntax/sync'
 
 const ast = parseSync("echo 'Hello World!'", {
   keepComments: true,
@@ -122,7 +123,8 @@ AST offsets are UTF-8 byte offsets, while JavaScript strings use UTF-16 code
 units. Build a converter once for the source text:
 
 ```js
-import { createSourceIndex, parseSync } from 'sh-syntax'
+import { createSourceIndex } from 'sh-syntax'
+import { parseSync } from 'sh-syntax/sync'
 
 const text = 'echo "héllo 🎉" $var\n'
 const sourceIndex = createSourceIndex(text)
