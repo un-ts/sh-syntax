@@ -13,10 +13,11 @@ export default defineConfig({
       name: 'wasm-module',
       enforce: 'pre',
       load(id) {
-        if (!id.endsWith('.wasm')) {
+        const file = id.split('?', 1)[0]
+        if (!file.endsWith('.wasm')) {
           return
         }
-        const bytes = readFileSync(id).toString('base64')
+        const bytes = readFileSync(file).toString('base64')
         return `const bytes = Uint8Array.from(atob(${JSON.stringify(bytes)}), char => char.charCodeAt(0));\nexport default new WebAssembly.Module(bytes)`
       },
     },

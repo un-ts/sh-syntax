@@ -1,4 +1,8 @@
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 test('workerd entry initializes from the bundled module', async () => {
   vi.stubGlobal(
@@ -13,5 +17,4 @@ test('workerd entry initializes from the bundled module', async () => {
   await expect(workerd.parse('echo hi\n')).resolves.toMatchObject({ type: 'File' })
   await expect(workerd.print('echo   hi\n')).resolves.toBe('echo hi\n')
   expect(vi.mocked(fetch)).not.toHaveBeenCalled()
-  vi.unstubAllGlobals()
 })
