@@ -27,6 +27,11 @@ jobs:
           node-version: lts/*
           cache: yarn
 
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
       - name: Install dependencies
         run: yarn --no-immutable
 
@@ -35,6 +40,9 @@ jobs:
 
       - name: Format Codes
         run: yarn format
+
+      - name: Rebuild Wasm
+        run: yarn wasm
 
       - name: Apply autofix.ci
         uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # v1.3.4
