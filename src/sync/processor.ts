@@ -2,6 +2,12 @@ import { invoke, normalizeExports, type InternalOptions } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
+
+export interface SyncProcessor {
+  (text: string, options?: ShOptions): File
+  (text: string, options?: ShOptions & { print: true }): string
+  (ast: File, options: ShOptions & { originalText: string }): string
+}
 export type WebAssemblyBaseSource = Buffer | BufferSource
 
 /**
@@ -12,7 +18,7 @@ export type WebAssemblyBaseSource = Buffer | BufferSource
  */
 export const getProcessor = (
   getWasm: GetWebAssemblySource | WebAssemblyBaseSource | WebAssembly.Module,
-) => {
+): SyncProcessor => {
   const source = typeof getWasm === 'function' ? getWasm() : getWasm
   const module = source instanceof WebAssembly.Module ? source : new WebAssembly.Module(source)
   const createRuntime = () => {

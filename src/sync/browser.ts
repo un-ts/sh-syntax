@@ -1,6 +1,6 @@
 // oxlint-disable-next-line import/no-unassigned-import -- wasm_exec registers the Go runtime
 import '../../vendors/wasm_exec.cjs'
-import type { File, ShOptions, ShPrintOptions } from '../types.js'
+import { createSyncProcessorAPI } from './api.js'
 import { getProcessor } from './processor.js'
 
 const wasmUrl = new URL('../../main.wasm', import.meta.url)
@@ -22,22 +22,7 @@ const loadWasm = async (): Promise<WebAssembly.Module> => {
 const wasmModule = await loadWasm()
 export const processor = getProcessor(wasmModule)
 
-export const parse = (text: string, options?: ShOptions): File => processor(text, options)
-
-export function print(text: string, options?: ShOptions): string
-export function print(ast: File, options: ShPrintOptions): string
-export function print(
-  textOrAst: File | string,
-  options?: ShOptions & { originalText?: string },
-): string {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options as ShPrintOptions)
-}
+export const { parse, print } = createSyncProcessorAPI(processor)
 
 export { ParseError } from '../processor.js'
 export { getProcessor } from './processor.js'
