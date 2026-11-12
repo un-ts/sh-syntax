@@ -17,4 +17,5 @@ test('workerd entry initializes from the bundled module', async () => {
   await expect(workerd.parse('echo hi\n')).resolves.toMatchObject({ type: 'File' })
   await expect(workerd.print('echo   hi\n')).resolves.toBe('echo hi\n')
   expect(vi.mocked(fetch)).not.toHaveBeenCalled()
-})
+  // oxlint-disable-next-line no-magic-numbers -- slow wasm startup
+}, 15_000)

@@ -1,10 +1,4 @@
-import {
-  assertGoExports,
-  invoke,
-  normalizeExports,
-  type InternalOptions,
-  type ProcessExports,
-} from '../internal.js'
+import { invoke, startGoRuntime, type InternalOptions, type GoRuntime } from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
@@ -32,25 +26,15 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     // oxlint-disable-next-line no-undef -- Go is defined globally by wasm_exec
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
-    const exports = normalizeExports(instance.exports)
-
-    assertGoExports(exports)
-
-    const runtime: { go: Go; exports: ProcessExports; failure?: { error: unknown } } = {
-      go,
-      exports,
-    }
+    const runtime: GoRuntime & { failure?: { error: unknown } } = startGoRuntime(go, instance)
 
     /*
      * Do not await the program itself: main blocks in select{} until the Go program exits.
      * Startup rejections are stored and rethrown on the next call.
      */
-    void go.run(instance).catch((error: unknown) => {
+    void runtime.run.catch((error: unknown) => {
       runtime.failure = { error }
     })
-    if (go.exited) {
-      throw new Error('Go runtime exited during startup')
-    }
     return runtime
   }
 
