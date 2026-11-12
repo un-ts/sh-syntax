@@ -4,19 +4,7 @@ export default defineConfig({
   ignorePatterns: ['shell/**', 'test/fixtures/**', 'vendors/**'],
   overrides: [
     {
-      files: ['src/types.ts'],
-      rules: {
-        'no-magic-numbers': 'off',
-      },
-    },
-    {
-      files: ['src/processor.ts', 'src/sync/processor.ts'],
-      rules: {
-        'no-undef': 'off',
-      },
-    },
-    {
-      files: ['test/syntax.spec.ts'],
+      files: ['src/types.ts', 'test/syntax.spec.ts'],
       rules: {
         'no-magic-numbers': 'off',
       },
