@@ -3,10 +3,8 @@ import wasm from '../main.wasm'
 import { createProcessorAPI } from './api.js'
 import { getProcessor } from './processor.js'
 
-const processor = getProcessor(wasm)
+export const processor = getProcessor(wasm)
 const api = createProcessorAPI(processor)
-
-export { processor }
 
 export const { init } = processor
 
