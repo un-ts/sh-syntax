@@ -4,6 +4,8 @@ import { getProcessor } from './processor.js'
 const processor = getProcessor(() => fetch(new URL('../main.wasm', import.meta.url)))
 const api = createProcessorAPI(processor)
 
+export { processor }
+
 export const { init } = processor
 
 export const { parse, print } = api
