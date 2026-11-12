@@ -30,7 +30,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 
 - `src/index.ts` — public entry (`init`, `parse`, `print`, sync variants, config loading)
 - `src/browser.ts` — browser entry; fetches the default WASM asset
-- `src/workerd.ts` — workerd entry; imports the bundled WASM as a compiled module
+- `src/workerd.ts` — workerd entry, selected by the `workerd` export condition; imports the bundled WASM as a compiled module
 - `src/api.ts` — shared async `parse`/`print` factory used by the entries
 - `src/processor.ts` — WASM lifecycle (`init()`), async processor, and text/AST argument compatibility
 - `src/ast.ts` — `walk()` (callback or `{ enter, exit }` visitors with `(node, parent, prop, index)`) and `isIncomplete()`
