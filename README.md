@@ -75,7 +75,9 @@ const formatted = print("echo 'Hello World!'")
 
 #### syntax tree
 
-`parse` returns the complete shell syntax tree as plain, JSON-friendly data.
+`parse` returns the complete shell syntax tree as plain, JSON-friendly data. The
+same helpers are exported from the async `sh-syntax` entry; the examples below
+use `sh-syntax/sync` so `parse` is synchronous.
 Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
