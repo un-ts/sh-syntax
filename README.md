@@ -166,6 +166,37 @@ const processor = getProcessor(() =>
 )
 ```
 
+#### workerd
+
+The `workerd` export imports the bundled `main.wasm` as a compiled module, so
+Worker code does not call `getProcessor` or fetch the asset:
+
+```js
+import { init, parse } from 'sh-syntax'
+
+export default {
+  async fetch() {
+    await init()
+    return new Response(JSON.stringify(await parse("echo 'Hello World!'")))
+  },
+}
+```
+
+Call `init()` inside the request handler: Go startup uses
+`crypto.getRandomValues`, which Workers disallow outside a request context.
+
+Wrangler and `@cloudflare/vite-plugin` already resolve `.wasm` imports as
+`WebAssembly.Module`. Other bundlers must do the same for the workerd entry;
+a URL or instantiated module is not sufficient. Nitro's `unwasm` turns a
+plain `.wasm` import into instantiated exports, so it needs a loader that
+returns a `WebAssembly.Module`.
+
+For TypeScript Worker builds, select the runtime declaration:
+
+```json
+{ "compilerOptions": { "customConditions": ["workerd"] } }
+```
+
 ## Benchmark
 
 ```console

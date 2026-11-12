@@ -1,10 +1,11 @@
+// oxlint-disable-next-line import/no-unassigned-import -- shim installs the runtime shim
+import './shim.js'
 import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import './shim.js'
-import '../vendors/wasm_exec.cjs'
+import { createProcessorAPI } from './api.js'
 import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
@@ -15,24 +16,9 @@ const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : _
 
 export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, '../main.wasm')))
 
-export const init = processor.init
+export const { init } = processor
 
-export const parse = (text: string, options?: ShOptions) => processor(text, options)
-
-export function print(text: string, options?: ShOptions): Promise<string>
-export function print(ast: File, options: ShPrintOptions): Promise<string>
-export function print(
-  textOrAst: File | string,
-  options?: ShOptions & { originalText?: string },
-): Promise<string> {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options as ShPrintOptions)
-}
+export const { parse, print } = createProcessorAPI(processor)
 
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 
@@ -48,13 +34,14 @@ export function printSync(
   textOrAst: File | string,
   options?: ShOptions & { originalText?: string },
 ): string {
+  const processorSync = getSyncProcessor()
   if (typeof textOrAst === 'string') {
-    return getSyncProcessor()(textOrAst, {
+    return processorSync(textOrAst, {
       ...options,
       print: true,
     })
   }
-  return getSyncProcessor()(textOrAst, options as ShPrintOptions)
+  return processorSync(textOrAst, options as ShPrintOptions)
 }
 
 export * from './ast.js'

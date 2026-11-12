@@ -73,6 +73,23 @@ describe('processor', () => {
     expect(attempts).toBe(2)
   })
 
+  test('getProcessor accepts a compiled module', async () => {
+    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+    const module = await WebAssembly.compile(bytes)
+    const processor = getProcessor(module)
+
+    await processor.init()
+    await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
+  })
+
+  test('getProcessorSync accepts a compiled module', () => {
+    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+    const module = new WebAssembly.Module(bytes)
+    const processor = getProcessorSync(module)
+
+    expect(processor('echo hi\n')).toMatchObject({ type: 'File' })
+  })
+
   test('getProcessor streams a WASM response', async () => {
     const wasm = new Uint8Array(readFileSync(path.resolve(import.meta.dirname, '../main.wasm')))
     const streaming = getProcessor(() =>
