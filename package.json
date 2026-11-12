@@ -42,6 +42,10 @@
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
     "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs",
     "./sync": {
+      "workerd": {
+        "types": "./lib/sync/workerd.d.ts",
+        "default": "./lib/sync/workerd.js"
+      },
       "browser": {
         "types": "./lib/sync/browser.d.ts",
         "default": "./lib/sync/browser.js"
