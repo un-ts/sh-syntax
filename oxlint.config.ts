@@ -10,7 +10,7 @@ export default defineConfig({
       },
     },
     {
-      files: ['src/processor.ts'],
+      files: ['src/processor.ts', 'src/sync/processor.ts'],
       rules: {
         'no-undef': 'off',
       },

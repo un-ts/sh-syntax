@@ -29,7 +29,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 ## Layout
 
 - `src/index.ts` — async public entry (`init`, `parse`, `print`, config loading)
-- `src/sync.ts` — synchronous Node entry (`parseSync`, `printSync`)
+- `src/sync/` — synchronous entries: `index.ts` (Node) and `browser.ts` (top-level await)
 - `src/browser.ts` — browser entry; fetches the default WASM asset
 - `src/workerd.ts` — workerd entry, selected by the `workerd` export condition; imports the bundled WASM as a compiled module
 - `src/api.ts` — shared async `parse`/`print` factory used by the entries
@@ -56,7 +56,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - `print(text)` formats source text.
 - `print(ast, { originalText })` is accepted for compatibility, but the AST is deliberately ignored and `originalText` is formatted.
 - `print(ast)` without `originalText` throws a clear `TypeError`.
-- `processor(ast, { originalText })` and `getProcessorSync` have the same compatibility path. `getProcessorSync` accepts either bytes or a synchronous loader. `@eslint/shell` uses `parseSync`; `prettier-plugin-sh` uses the async `processor`.
+- `processor(ast, { originalText })` has the same compatibility path in both entries. The sync entry's `getProcessor` accepts bytes, a synchronous loader, or a compiled module. `@eslint/shell` uses `parse` from `sh-syntax/sync`; `prettier-plugin-sh` uses the async `processor`.
 - There is no AST decoder in this branch. Do not add a reflective decoder; `print(ast)` with edits is a planned follow-up with a non-reflective wire format.
 
 ## Generated files
@@ -73,7 +73,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - Small cases and `test/ast.spec.ts` snapshot the full JS AST.
 - Large fixtures snapshot a node-type histogram plus formatted output because a full `install.sh` tree is far too large.
 - Update snapshots only for intentional output/AST changes, and inspect the diff.
-- Coverage is scoped to `src/*.ts`; do not add broad excludes. Keep `src/` flat unless a subdirectory is justified, and update the coverage glob when that changes.
+- Coverage is scoped to `src/**/*.ts`; do not add broad excludes. Keep `src/` flat unless a subdirectory is justified, and update the coverage glob when that changes.
 
 ## CI
 

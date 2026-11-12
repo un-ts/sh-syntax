@@ -1,4 +1,4 @@
-import { parseSync } from 'sh-syntax/sync'
+import { parse as parseSync } from 'sh-syntax/sync'
 
 const script = `#!/usr/bin/env bash
 # top-level comment

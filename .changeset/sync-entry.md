@@ -2,4 +2,4 @@
 "sh-syntax": patch
 ---
 
-Move synchronous `parseSync` / `printSync` to the `sh-syntax/sync` entry and keep the root entry async-only.
+Move the synchronous API to the `sh-syntax/sync` entry (Node and browser top-level await variants) and keep the root entry async-only.

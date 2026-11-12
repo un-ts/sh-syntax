@@ -62,13 +62,13 @@ const formatted = await print(text)
 const legacyFormatted = await print(ast, { originalText: text })
 ```
 
-The synchronous API is available as `parseSync` and `printSync`:
+The synchronous Node API is available from `sh-syntax/sync`:
 
 ```js
-import { parseSync, printSync } from 'sh-syntax/sync'
+import { parse, print } from 'sh-syntax/sync'
 
-const ast = parseSync("echo 'Hello World!'")
-const formatted = printSync("echo 'Hello World!'")
+const ast = parse("echo 'Hello World!'")
+const formatted = print("echo 'Hello World!'")
 ```
 
 #### syntax tree
@@ -79,9 +79,9 @@ lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
 import { LangVariant, walk } from 'sh-syntax'
-import { parseSync } from 'sh-syntax/sync'
+import { parse } from 'sh-syntax/sync'
 
-const ast = parseSync("echo 'Hello World!'", {
+const ast = parse("echo 'Hello World!'", {
   keepComments: true,
   variant: LangVariant.LangBash,
   filepath: 'script.sh',
@@ -128,7 +128,7 @@ import { parseSync } from 'sh-syntax/sync'
 
 const text = 'echo "héllo 🎉" $var\n'
 const sourceIndex = createSourceIndex(text)
-const ast = parseSync(text)
+const ast = parse(text)
 
 const word = ast.stmts[0].cmd.args.at(-1)
 const start = sourceIndex(word.start)

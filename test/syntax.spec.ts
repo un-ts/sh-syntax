@@ -9,7 +9,7 @@ import {
   processor,
   walk,
 } from 'sh-syntax'
-import { parseSync, printSync } from 'sh-syntax/sync'
+import { parse as parseSync, print as printSync } from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { type GetWebAssemblyInstance, type ShOptions, getProcessor } from 'sh-syntax'
-import { getProcessorSync } from 'sh-syntax/sync'
+import { getProcessor as getProcessorSync } from 'sh-syntax/sync'
 
 import { testFixtures } from './fixtures.ts'
 
