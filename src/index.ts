@@ -4,7 +4,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import './shim.js'
-import '../vendors/wasm_exec.cjs'
 import { createProcessorAPI } from './api.js'
 import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
@@ -18,7 +17,9 @@ export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, 
 
 const api = createProcessorAPI(processor)
 
-export const { init, parse, print } = api
+export const init = processor.init
+
+export const { parse, print } = api
 
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 

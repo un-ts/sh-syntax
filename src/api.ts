@@ -1,10 +1,9 @@
+import '../vendors/wasm_exec.cjs'
 import type { Processor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
 /** Async API bound to one processor. */
 export interface ProcessorAPI {
-  processor: Processor
-  init: () => Promise<void>
   parse: (text: string, options?: ShOptions) => Promise<File>
   print: {
     (text: string, options?: ShOptions): Promise<string>
@@ -12,7 +11,7 @@ export interface ProcessorAPI {
   }
 }
 
-/** Binds the async init/parse/print surface to a processor. */
+/** Binds the async parse/print surface to a processor. */
 export const createProcessorAPI = (processor: Processor): ProcessorAPI => {
   const print = (
     textOrAst: File | string,
@@ -28,8 +27,6 @@ export const createProcessorAPI = (processor: Processor): ProcessorAPI => {
   }
 
   return {
-    processor,
-    init: processor.init,
     parse: (text, options) => processor(text, options),
     print: print as ProcessorAPI['print'],
   }
