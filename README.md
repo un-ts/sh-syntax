@@ -75,16 +75,14 @@ const formatted = print("echo 'Hello World!'")
 
 #### syntax tree
 
-`parse` returns the complete shell syntax tree as plain, JSON-friendly data. The
-same helpers are exported from the async `sh-syntax` entry; the examples below
-use `sh-syntax/sync` so `parse` is synchronous.
+`parse` returns the complete shell syntax tree as plain, JSON-friendly data.
 Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
-import { LangVariant, parse, walk } from 'sh-syntax/sync'
+import { LangVariant, parse, walk } from 'sh-syntax'
 
-const ast = parse("echo 'Hello World!'", {
+const ast = await parse("echo 'Hello World!'", {
   keepComments: true,
   variant: LangVariant.LangBash,
   filepath: 'script.sh',
@@ -126,11 +124,11 @@ AST offsets are UTF-8 byte offsets, while JavaScript strings use UTF-16 code
 units. Build a converter once for the source text:
 
 ```js
-import { createSourceIndex, parse } from 'sh-syntax/sync'
+import { createSourceIndex, parse } from 'sh-syntax'
 
 const text = 'echo "héllo 🎉" $var\n'
 const sourceIndex = createSourceIndex(text)
-const ast = parse(text)
+const ast = await parse(text)
 
 const word = ast.stmts[0].cmd.args.at(-1)
 const start = sourceIndex(word.start)
