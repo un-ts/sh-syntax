@@ -16,7 +16,6 @@ export const processor = getProcessor(readFileSync(path.resolve(moduleDir, '../.
 
 export const { parse, print } = createProcessorAPI(processor)
 
-export { ParseError } from '../processor.js'
+export * from '../common.js'
 
 export * from './processor.js'
-export * from '../types.js'

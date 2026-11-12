@@ -7,7 +7,5 @@ export const { init } = processor
 
 export const { parse, print } = createProcessorAPI(processor)
 
-export * from './ast.js'
+export * from './common.js'
 export * from './processor.js'
-export * from './source.js'
-export * from './types.js'

@@ -21,7 +21,6 @@ export const processor = getProcessor(await loadWasm())
 
 export const { parse, print } = createProcessorAPI(processor)
 
-export { ParseError } from '../processor.js'
+export * from '../common.js'
 
 export * from './processor.js'
-export * from '../types.js'
