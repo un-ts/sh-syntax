@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { type GetWebAssemblyInstance, type ShOptions, getProcessor } from 'sh-syntax'
-import { getProcessor as getProcessorSync } from 'sh-syntax/sync'
+import { getProcessor as syncGetProcessor } from 'sh-syntax/sync'
 
 import { testFixtures } from './fixtures.ts'
 
@@ -78,10 +78,10 @@ describe('processor', () => {
     await expect(processor('echo hi\n')).resolves.toMatchObject({ type: 'File' })
   })
 
-  test('getProcessorSync accepts a compiled module', () => {
+  test('syncGetProcessor accepts a compiled module', () => {
     const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
     const module = new WebAssembly.Module(bytes)
-    const processor = getProcessorSync(module)
+    const processor = syncGetProcessor(module)
 
     expect(processor('echo hi\n')).toMatchObject({ type: 'File' })
   })
@@ -211,21 +211,13 @@ describe('processor', () => {
     })
   })
 
-  test('getProcessorSync handles repeated calls', () => {
-    const sync = getProcessorSync(() =>
+  test('syncGetProcessor accepts a synchronous loader and handles repeated calls', () => {
+    const syncProcessor = syncGetProcessor(() =>
       readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
     )
 
     for (let i = 0; i < 1000; i++) {
-      expect(sync('echo hi\n').type).toBe('File')
+      expect(syncProcessor('echo hi\n').type).toBe('File')
     }
-  })
-
-  test('getProcessorSync accepts a synchronous loader', () => {
-    const sync = getProcessorSync(() =>
-      readFileSync(path.resolve(import.meta.dirname, '../main.wasm')),
-    )
-
-    expect(sync('echo hi\n').type).toBe('File')
   })
 })
