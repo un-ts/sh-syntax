@@ -4,9 +4,8 @@ import path from 'node:path'
 import { walk, type File, type ShOptions, parse as parse_ } from 'sh-syntax'
 
 /**
- * Returns a compact node-type histogram. Snapshotting the full tree for the
- * large fixtures would be megabytes of JSON, while the histogram still catches
- * missing or extra nodes.
+ * Returns a compact node-type histogram. Snapshotting the full tree for the large fixtures would be
+ * megabytes of JSON, while the histogram still catches missing or extra nodes.
  */
 export const summarize = (ast: File): Record<string, number> => {
   const counts: Record<string, number> = {}

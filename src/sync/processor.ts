@@ -1,12 +1,10 @@
-import {
-  invoke,
-  normalizeExports,
-  type InternalOptions,
-  type WebAssemblyBaseSource,
-} from '../processor.js'
+import { invoke, normalizeExports, type InternalOptions } from '../internal.js'
+import type { WebAssemblyBaseSource } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
+
+export type GetWebAssembly = GetWebAssemblySource | WebAssemblyBaseSource | WebAssembly.Module
 
 export interface Processor {
   (text: string, options: ShOptions & { print: true }): string
@@ -20,9 +18,7 @@ export interface Processor {
  * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so the
  * instance can serve repeated synchronous calls.
  */
-export const getProcessor = (
-  getWasm: GetWebAssemblySource | WebAssemblyBaseSource | WebAssembly.Module,
-): Processor => {
+export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   const source = typeof getWasm === 'function' ? getWasm() : getWasm
   const module = source instanceof WebAssembly.Module ? source : new WebAssembly.Module(source)
 
