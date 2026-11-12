@@ -40,7 +40,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
       exports,
     }
 
-    void go.run(instance).catch(error => {
+    void go.run(instance).catch((error: unknown) => {
       runtime.error = error
     })
     return runtime
