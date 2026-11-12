@@ -1,4 +1,5 @@
 /* istanbul ignore file -- bundler-only entry that imports a compiled wasm module */
+// oxlint-disable-next-line import/no-unassigned-import -- wasm_exec registers the Go runtime
 import '../vendors/wasm_exec.cjs'
 import wasm from '../main.wasm'
 import { getProcessor } from './processor.js'
