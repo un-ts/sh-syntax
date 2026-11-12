@@ -20,13 +20,5 @@ export const { parse, print } = createProcessorAPI(processor)
 
 export * from './ast.js'
 export * from './source.js'
-export { getProcessor, ParseError } from './processor.js'
-export type {
-  GetWebAssembly,
-  GetWebAssemblyInstance,
-  GetWebAssemblySource,
-  Processor,
-  WebAssemblyBaseSource,
-  WebAssemblySource,
-} from './processor.js'
+export * from './processor.js'
 export * from './types.js'
