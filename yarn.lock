@@ -7242,12 +7242,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sh-syntax@link:.::locator=sh-syntax%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "sh-syntax@link:.::locator=sh-syntax%40workspace%3A."
-  languageName: node
-  linkType: soft
-
 "sh-syntax@workspace:.":
   version: 0.0.0-use.local
   resolution: "sh-syntax@workspace:."
@@ -7276,7 +7270,6 @@ __metadata:
     oxfmt: "npm:^0.77.0"
     oxlint: "npm:^1.90.0"
     prettier: "npm:^3.9.4"
-    sh-syntax: "link:."
     simple-git-hooks: "npm:^2.13.1"
     size-limit: "npm:^14.0.0"
     size-limit-preset-node-lib: "npm:^0.5.0"
