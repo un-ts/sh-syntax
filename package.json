@@ -116,8 +116,8 @@
     "lib/index.cjs",
     "lib/index.js",
     "lib/shim.js",
-    "vendors/wasm_exec.cjs",
-    "lib/workerd.js"
+    "lib/workerd.js",
+    "vendors/wasm_exec.cjs"
   ],
   "size-limit": [
     {
