@@ -3,6 +3,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// oxlint-disable-next-line import/no-unassigned-import -- shim installs the runtime shim
 import './shim.js'
 import { createProcessorAPI } from './api.js'
 import { getProcessorSync, getProcessor } from './processor.js'

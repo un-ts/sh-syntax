@@ -4,12 +4,6 @@ export default defineConfig({
   ignorePatterns: ['shell/**', 'test/fixtures/**', 'vendors/**'],
   overrides: [
     {
-      files: ['src/api.ts'],
-      rules: {
-        'import/no-unassigned-import': 'off',
-      },
-    },
-    {
       files: ['src/types.ts'],
       rules: {
         'no-magic-numbers': 'off',

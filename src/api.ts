@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/no-unassigned-import -- wasm_exec registers the Go runtime
 import '../vendors/wasm_exec.cjs'
 import type { Processor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
