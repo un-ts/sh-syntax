@@ -261,12 +261,21 @@ describe('processor', () => {
   })
 
   test('syncGetProcessor throws when Go exits during startup', () => {
-    mockGoRun(function (this: { exited: boolean }) {
+    const originalRun = go?.prototype.run
+    if (!go || !originalRun) {
+      throw new Error('Go runtime is unavailable')
+    }
+
+    go.prototype.run = function (this: { exited: boolean }) {
       this.exited = true
       return Promise.reject(new Error('startup failed'))
-    })
-    const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
-    expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
+    } as never
+    try {
+      const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
+      expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
+    } finally {
+      go.prototype.run = originalRun
+    }
   })
 
   test('syncGetProcessor preserves a falsy startup rejection', async () => {
