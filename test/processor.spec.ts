@@ -2,12 +2,8 @@ import { readFileSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import {
-  type GetWebAssemblyInstance,
-  type ShOptions,
-  getProcessor,
-  getProcessorSync,
-} from 'sh-syntax'
+import { type GetWebAssemblyInstance, type ShOptions, getProcessor } from 'sh-syntax'
+import { getProcessorSync } from 'sh-syntax/sync'
 
 import { testFixtures } from './fixtures.ts'
 

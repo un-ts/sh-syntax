@@ -28,7 +28,8 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 
 ## Layout
 
-- `src/index.ts` — public entry (`init`, `parse`, `print`, sync variants, config loading)
+- `src/index.ts` — async public entry (`init`, `parse`, `print`, config loading)
+- `src/sync.ts` — synchronous Node entry (`parseSync`, `printSync`)
 - `src/browser.ts` — browser entry; fetches the default WASM asset
 - `src/workerd.ts` — workerd entry, selected by the `workerd` export condition; imports the bundled WASM as a compiled module
 - `src/api.ts` — shared async `parse`/`print` factory used by the entries
@@ -55,7 +56,7 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - `print(text)` formats source text.
 - `print(ast, { originalText })` is accepted for compatibility, but the AST is deliberately ignored and `originalText` is formatted.
 - `print(ast)` without `originalText` throws a clear `TypeError`.
-- `processor(ast, { originalText })` and `getProcessorSync` have the same compatibility path; `prettier-plugin-sh` relies on it. `getProcessorSync` accepts either bytes or a synchronous loader.
+- `processor(ast, { originalText })` and `getProcessorSync` have the same compatibility path. `getProcessorSync` accepts either bytes or a synchronous loader. `@eslint/shell` uses `parseSync`; `prettier-plugin-sh` uses the async `processor`.
 - There is no AST decoder in this branch. Do not add a reflective decoder; `print(ast)` with edits is a planned follow-up with a non-reflective wire format.
 
 ## Generated files

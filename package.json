@@ -36,7 +36,21 @@
     "./main.wasm": "./main.wasm",
     "./package.json": "./package.json",
     "./vendors/wasm_exec": "./vendors/wasm_exec.cjs",
-    "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs"
+    "./vendors/wasm_exec.cjs": "./vendors/wasm_exec.cjs",
+    "./sync": {
+      "import": {
+        "types": "./lib/sync.d.ts",
+        "default": "./lib/sync.js"
+      },
+      "require": {
+        "types": "./lib/sync.d.cts",
+        "default": "./lib/sync.cjs"
+      },
+      "default": {
+        "types": "./lib/sync.d.ts",
+        "default": "./lib/sync.js"
+      }
+    }
   },
   "files": [
     "lib",
