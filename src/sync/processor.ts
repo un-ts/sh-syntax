@@ -1,4 +1,4 @@
-import { invoke, normalizeExports, type InternalOptions } from '../internal.js'
+import { invoke, startGoRuntime, type InternalOptions, type GoRuntime } from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
 import type { File, ShOptions } from '../types.js'
 
@@ -26,9 +26,16 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     // oxlint-disable-next-line no-undef -- Go is defined globally by wasm_exec
     const go = new Go()
     const instance = new WebAssembly.Instance(module, go.importObject)
-    // Do not await: main blocks in select{}; this resolves only when the Go program exits.
-    void go.run(instance)
-    return { go, exports: normalizeExports(instance.exports) }
+    const runtime: GoRuntime & { failure?: { error: unknown } } = startGoRuntime(go, instance)
+
+    /*
+     * Do not await the program itself: main blocks in select{} until the Go program exits.
+     * Startup rejections are stored and rethrown on the next call.
+     */
+    void runtime.run.catch((error: unknown) => {
+      runtime.failure = { error }
+    })
+    return runtime
   }
 
   let runtime = createRuntime()
@@ -37,6 +44,9 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   function processor(text: string, options?: ShOptions): File
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
+    if (runtime.failure) {
+      throw runtime.failure.error
+    }
     /* istanbul ignore if -- @preserve */
     if (runtime.go.exited) {
       runtime = createRuntime()

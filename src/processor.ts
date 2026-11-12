@@ -1,4 +1,4 @@
-import { invoke, normalizeExports, type InternalOptions, type ProcessExports } from './internal.js'
+import { invoke, startGoRuntime, type GoRuntime, type InternalOptions } from './internal.js'
 import { type File, type ShOptions } from './types.js'
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
@@ -34,9 +34,7 @@ export interface Processor {
 export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   const isInstanceFactory = typeof getWasm === 'function' && getWasm.length > 0
   let wasmModule: WebAssembly.Module | undefined
-  let runtimePromise:
-    | Promise<{ go: Go; exports: ProcessExports; startup: Promise<void> }>
-    | undefined
+  let runtimePromise: Promise<GoRuntime & { startup: Promise<void> }> | undefined
   let initPromise: Promise<void> | undefined
   let ready = false
   let queue: Promise<unknown> = Promise.resolve()
@@ -73,15 +71,14 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     const instance = isInstanceFactory
       ? await (getWasm as GetWebAssemblyInstance)(go.importObject)
       : await WebAssembly.instantiate(wasmModule as WebAssembly.Module, go.importObject)
+    const runtime = startGoRuntime(go, instance)
+
     /*
      * Do not await the program itself: main blocks in select{} until the Go program exits.
      * Surface an immediate startup rejection while treating a still-running program as ready.
      */
-    const startup = Promise.race([
-      go.run(instance),
-      new Promise<void>(resolve => queueMicrotask(resolve)),
-    ])
-    return { go, exports: normalizeExports(instance.exports), startup }
+    const startup = Promise.race([runtime.run, new Promise<void>(queueMicrotask)])
+    return { ...runtime, startup }
   }
 
   const getRuntime = async () => {

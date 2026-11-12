@@ -41,9 +41,34 @@ const supportedVariants = new Set<LangVariant>([
 let encoder: TextEncoder | undefined
 let decoder: TextDecoder | undefined
 
-export const normalizeExports = (exports: WebAssembly.Exports) => {
+const normalizeExports = (exports: WebAssembly.Exports): ProcessExports => {
   const memory = (exports.memory ?? exports.mem) as WebAssembly.Memory
   return { ...exports, memory } as ProcessExports
+}
+
+export interface GoRuntime {
+  go: Go
+  exports: ProcessExports
+  run: Promise<void>
+}
+
+export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntime => {
+  const exports = normalizeExports(instance.exports)
+
+  if (
+    !(exports.mem instanceof WebAssembly.Memory) ||
+    typeof (exports as ProcessExports & { run?: unknown }).run !== 'function'
+  ) {
+    throw new TypeError('getProcessor requires a Go WASM instance')
+  }
+
+  const run = go.run(instance)
+  if (go.exited) {
+    // Attach a handler before throwing so an already-rejected run is not unhandled.
+    void run.catch(() => undefined)
+    throw new Error('Go runtime exited during startup')
+  }
+  return { go, exports, run }
 }
 
 export const invoke = (
