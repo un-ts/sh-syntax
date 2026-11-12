@@ -35,7 +35,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
       throw new TypeError('getProcessor requires a Go WASM instance')
     }
 
-    const runtime: { go: Go; exports: ProcessExports; error?: unknown; failed?: boolean } = {
+    const runtime: { go: Go; exports: ProcessExports; failure?: { error: unknown } } = {
       go,
       exports,
     }
@@ -45,8 +45,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
      * Startup rejections are stored and rethrown on the next call.
      */
     void go.run(instance).catch((error: unknown) => {
-      runtime.error = error
-      runtime.failed = true
+      runtime.failure = { error }
     })
     if (go.exited) {
       throw new Error('Go runtime exited during startup')
@@ -60,8 +59,8 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   function processor(text: string, options?: ShOptions): File
   function processor(ast: File, options: ShOptions & { originalText: string }): string
   function processor(textOrAst: File | string, options?: InternalOptions): File | string {
-    if (runtime.failed) {
-      throw runtime.error
+    if (runtime.failure) {
+      throw runtime.failure.error
     }
     /* istanbul ignore if -- @preserve */
     if (runtime.go.exited) {
