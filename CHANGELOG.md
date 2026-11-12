@@ -1,5 +1,21 @@
 # sh-syntax
 
+## 0.8.4
+
+### Patch Changes
+
+- [#163](https://github.com/un-ts/sh-syntax/pull/163) [`6235123`](https://github.com/un-ts/sh-syntax/commit/6235123ddb24eb39d65fa12f5d3e5f6a453e1d20) Thanks [@JounQin](https://github.com/JounQin)! - Add `init()` to load the WASM runtime explicitly and cache it. The async `parse` and `print` APIs initialize automatically. `init()` now rejects when the Go program fails to start instead of reporting success and leaking an unhandled rejection. The browser entry now uses the same `init()` plus async API without top-level await.
+
+- [#162](https://github.com/un-ts/sh-syntax/pull/162) [`532ecab`](https://github.com/un-ts/sh-syntax/commit/532ecabf5aa3a22e6dfc35a5b0498d2ac654c142) Thanks [@JounQin](https://github.com/JounQin)! - Add `createSourceIndex`, which converts the AST's UTF-8 byte offsets to UTF-16 code-unit offsets for JavaScript string slicing.
+
+- [#167](https://github.com/un-ts/sh-syntax/pull/167) [`68f9c6c`](https://github.com/un-ts/sh-syntax/commit/68f9c6c45725949be534c09d3afee4c8b84ae2bb) Thanks [@JounQin](https://github.com/JounQin)! - Move the synchronous API to the `sh-syntax/sync` entry (Node and browser top-level await variants; workerd has no sync variant and fails at build/import time) and keep the root entry async-only. The old `parseSync` / `printSync` names are now `parse` / `print` from `sh-syntax/sync`.
+
+- [#168](https://github.com/un-ts/sh-syntax/pull/168) [`dcbe443`](https://github.com/un-ts/sh-syntax/commit/dcbe443029f49d0a4d58a42cb539782bb6ee0eaa) Thanks [@JounQin](https://github.com/JounQin)! - Surface Go startup failures from both async `init()` and the synchronous `sh-syntax/sync` processor instead of leaking an unhandled rejection.
+
+- [#160](https://github.com/un-ts/sh-syntax/pull/160) [`a3227de`](https://github.com/un-ts/sh-syntax/commit/a3227de6330c6fb3231ad55dffb4ad2e7545a7b4) Thanks [@JounQin](https://github.com/JounQin)! - Add enter/exit visitors to `walk`: a function is the `enter` phase, an object may pair optional `enter` with required `exit`, and visitors receive `(node, parent, prop, index)`. Returning `false` from `enter` skips a node's children; returning `false` from `exit` stops the walk.
+
+- [#164](https://github.com/un-ts/sh-syntax/pull/164) [`94ee1ab`](https://github.com/un-ts/sh-syntax/commit/94ee1ab847388d1bffac0bbfc294778add9046ae) Thanks [@JounQin](https://github.com/JounQin)! - Add a dedicated `workerd` entry that imports the bundled `main.wasm` as a compiled module and exports the same async `init` / `parse` / `print` API. `getProcessor` now also accepts a compiled `WebAssembly.Module`.
+
 ## 0.8.3
 
 ### Patch Changes
