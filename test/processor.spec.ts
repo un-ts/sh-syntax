@@ -263,7 +263,7 @@ describe('processor', () => {
   test('syncGetProcessor throws when Go exits during startup', () => {
     mockGoRun(function (this: { exited: boolean }) {
       this.exited = true
-      return Promise.resolve()
+      return Promise.reject(new Error('startup failed'))
     })
     const bytes = readFileSync(path.resolve(import.meta.dirname, '../main.wasm'))
     expect(() => syncGetProcessor(bytes)).toThrow(/exited during startup/)
