@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 import './shim.js'
 import '../vendors/wasm_exec.cjs'
+import { createProcessorAPI } from './api.js'
 import { getProcessorSync, getProcessor } from './processor.js'
 import type { File, ShOptions, ShPrintOptions } from './types.js'
 
@@ -15,24 +16,9 @@ const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : _
 
 export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, '../main.wasm')))
 
-export const init = processor.init
+const api = createProcessorAPI(processor)
 
-export const parse = (text: string, options?: ShOptions) => processor(text, options)
-
-export function print(text: string, options?: ShOptions): Promise<string>
-export function print(ast: File, options: ShPrintOptions): Promise<string>
-export function print(
-  textOrAst: File | string,
-  options?: ShOptions & { originalText?: string },
-): Promise<string> {
-  if (typeof textOrAst === 'string') {
-    return processor(textOrAst, {
-      ...options,
-      print: true,
-    })
-  }
-  return processor(textOrAst, options as ShPrintOptions)
-}
+export const { init, parse, print } = api
 
 let syncProcessor: ReturnType<typeof getProcessorSync> | undefined
 

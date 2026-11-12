@@ -15,7 +15,7 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-export type WebAssemblyBaseSource = Buffer | BufferSource | WebAssembly.Module
+export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
   | WebAssemblyBaseSource
   | {
@@ -25,9 +25,13 @@ export type WebAssemblySource =
 
 export type GetWebAssemblySource = () => Promise<WebAssemblySource> | WebAssemblySource
 
-export type GetWebAssembly = WebAssemblyBaseSource | GetWebAssemblySource | GetWebAssemblyInstance
+export type GetWebAssembly =
+  | WebAssemblyBaseSource
+  | WebAssembly.Module
+  | GetWebAssemblySource
+  | GetWebAssemblyInstance
 
-export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource
+export type GetWebAssemblySourceSync = () => WebAssemblyBaseSource | WebAssembly.Module
 
 export type GetWebAssemblyInstance = (
   imports: WebAssembly.Imports,
@@ -223,7 +227,9 @@ const invoke = (
  * The Go runtime is created once and reused. Standard Go WASM uses the normal Go GC, so the
  * instance can serve repeated synchronous calls.
  */
-export const getProcessorSync = (getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource) => {
+export const getProcessorSync = (
+  getWasm: GetWebAssemblySourceSync | WebAssemblyBaseSource | WebAssembly.Module,
+) => {
   const source = typeof getWasm === 'function' ? getWasm() : getWasm
   const module = source instanceof WebAssembly.Module ? source : new WebAssembly.Module(source)
   const createRuntime = () => {
@@ -278,28 +284,21 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
         ? await (getWasm as GetWebAssemblySource)()
         : (getWasm as WebAssemblyBaseSource)
 
-    if (source instanceof WebAssembly.Module) {
-      return source
-    }
-
     if ('arrayBuffer' in source) {
-      const response = source as {
-        headers?: { get(name: string): string | null }
-        arrayBuffer(): Promise<ArrayBuffer>
-      }
       /*
        * compileStreaming is only safe for a real, same-realm Response.
        * Response-like sources and cross-realm responses use arrayBuffer.
        */
       if (
         typeof WebAssembly.compileStreaming === 'function' &&
-        response.headers?.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ===
+        source instanceof Response &&
+        source.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ===
           'application/wasm'
       ) {
-        return WebAssembly.compileStreaming(response as Response)
+        return WebAssembly.compileStreaming(source)
       }
 
-      return WebAssembly.compile(await response.arrayBuffer())
+      return WebAssembly.compile(await source.arrayBuffer())
     }
 
     return WebAssembly.compile(source)
