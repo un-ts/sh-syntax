@@ -7,7 +7,7 @@
 ## Toolchain
 
 - Node.js >=18 (CI tests 22–26), Yarn 4 (`yarn@4.18.1`)
-- Go 1.27.3 for the Go packages and the encoder generator
+- Go 1.27.4 for the Go packages and the encoder generator
 - CI uses `actions/setup-go`, pinned by commit SHA
 
 Run `yarn install` once on a fresh clone. The `prepare` script installs `simple-git-hooks` (`nano-staged` + `commitlint`).
