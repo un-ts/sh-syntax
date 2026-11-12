@@ -7,3 +7,6 @@ shell
 vendors
 *.mod
 @eaDir
+
+# package.json is formatted by prettier-plugin-pkg
+**/package.json
