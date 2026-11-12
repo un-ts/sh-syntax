@@ -80,8 +80,7 @@ Every node has a `type` plus `start`/`end` byte offsets, and fields use
 lowerCamelCase. Position fields are `{ offset, line, column }` data:
 
 ```js
-import { LangVariant, walk } from 'sh-syntax'
-import { parse } from 'sh-syntax/sync'
+import { LangVariant, parse, walk } from 'sh-syntax/sync'
 
 const ast = parse("echo 'Hello World!'", {
   keepComments: true,
@@ -125,8 +124,7 @@ AST offsets are UTF-8 byte offsets, while JavaScript strings use UTF-16 code
 units. Build a converter once for the source text:
 
 ```js
-import { createSourceIndex } from 'sh-syntax'
-import { parse } from 'sh-syntax/sync'
+import { createSourceIndex, parse } from 'sh-syntax/sync'
 
 const text = 'echo "héllo 🎉" $var\n'
 const sourceIndex = createSourceIndex(text)
