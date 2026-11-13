@@ -1,8 +1,8 @@
 package processor
 
 import (
+	"bytes"
 	"fmt"
-	"strings"
 )
 
 // PrintNode formats an encoded syntax tree, including subtrees. Unlike Print, the tree is used as
@@ -22,7 +22,7 @@ func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) 
 
 	text, err = printSyntaxNode(node, options)
 	if err != nil {
-		return "", fmt.Errorf("%s", strings.ReplaceAll(err.Error(), "*syntax.", ""))
+		return "", fmt.Errorf("%s", string(bytes.ReplaceAll([]byte(err.Error()), []byte("*syntax."), nil)))
 	}
 	return text, nil
 }
