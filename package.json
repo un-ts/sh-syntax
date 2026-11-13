@@ -75,7 +75,6 @@
     "build": "run-p 'build:*'",
     "build:tsc": "tsc -p src --declaration false && tsc -p src --removeComments false --emitDeclarationOnly",
     "build:tsdown": "tsdown",
-    "check:wasm-size": "node scripts/check-wasm-size.mjs",
     "fix": "concurrently 'yarn:lint:*(!tsc) --fix'",
     "format": "concurrently 'yarn:format:*'",
     "format:ox": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore .",
