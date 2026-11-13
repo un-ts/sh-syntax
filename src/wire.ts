@@ -20,25 +20,25 @@ const NODE_TYPES = new Map<number, string>(
 )
 
 class Writer {
-  #bytes = new Uint8Array(1024)
-  #offset = 0
+  private bytes = new Uint8Array(1024)
+  private offset = 0
 
-  #ensure(size: number): void {
-    if (this.#offset + size <= this.#bytes.length) {
+  private ensure(size: number): void {
+    if (this.offset + size <= this.bytes.length) {
       return
     }
-    let length = this.#bytes.length
-    while (length < this.#offset + size) {
+    let length = this.bytes.length
+    while (length < this.offset + size) {
       length *= 2
     }
     const next = new Uint8Array(length)
-    next.set(this.#bytes)
-    this.#bytes = next
+    next.set(this.bytes)
+    this.bytes = next
   }
 
   byte(value: number): void {
-    this.#ensure(1)
-    this.#bytes[this.#offset++] = value
+    this.ensure(1)
+    this.bytes[this.offset++] = value
   }
 
   uint(value: number): void {
@@ -55,37 +55,37 @@ class Writer {
   string(value: string): void {
     const bytes = encoder.encode(value)
     this.uint(bytes.byteLength)
-    this.#ensure(bytes.byteLength)
-    this.#bytes.set(bytes, this.#offset)
-    this.#offset += bytes.byteLength
+    this.ensure(bytes.byteLength)
+    this.bytes.set(bytes, this.offset)
+    this.offset += bytes.byteLength
   }
 
   finish(): Uint8Array {
-    return this.#bytes.slice(0, this.#offset)
+    return this.bytes.slice(0, this.offset)
   }
 }
 
 class Reader {
-  #offset = 0
-  readonly #bytes: Uint8Array
+  private position = 0
+  private readonly bytes: Uint8Array
 
   constructor(bytes: Uint8Array) {
-    this.#bytes = bytes
+    this.bytes = bytes
   }
 
   get offset(): number {
-    return this.#offset
+    return this.position
   }
 
   get length(): number {
-    return this.#bytes.length
+    return this.bytes.length
   }
 
   byte(): number {
-    if (this.#offset >= this.#bytes.length) {
+    if (this.position >= this.bytes.length) {
       throw new Error('truncated wire payload')
     }
-    return this.#bytes[this.#offset++]!
+    return this.bytes[this.position++]!
   }
 
   uint(): number {
@@ -107,18 +107,18 @@ class Reader {
 
   string(): string {
     const length = this.uint()
-    if (length > this.#bytes.length - this.#offset) {
+    if (length > this.bytes.length - this.position) {
       throw new Error('truncated wire string')
     }
-    const value = decoder.decode(this.#bytes.subarray(this.#offset, this.#offset + length))
-    this.#offset += length
+    const value = decoder.decode(this.bytes.subarray(this.position, this.position + length))
+    this.position += length
     return value
   }
 
   count(): number {
     const count = this.uint()
     /* istanbul ignore next -- malformed payload guard */
-    if (count > this.#bytes.length - this.#offset) {
+    if (count > this.bytes.length - this.position) {
       /* istanbul ignore next -- malformed payload guard */
       throw new Error('wire count exceeds payload')
     }

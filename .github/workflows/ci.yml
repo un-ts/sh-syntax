@@ -50,6 +50,9 @@ jobs:
       - name: Build Wasm
         run: yarn wasm
 
+      - name: Smoke test built entries
+        run: yarn test:built
+
       - name: Verify generated artifacts are committed
         run: git diff --exit-code
 
