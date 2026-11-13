@@ -14,7 +14,6 @@ func writeDecoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 	fmt.Fprintln(buf, "package processor")
 	fmt.Fprintln(buf)
 	fmt.Fprintln(buf, "import (")
-
 	fmt.Fprintln(buf, "\t\"fmt\"")
 	fmt.Fprintln(buf, "\t\"mvdan.cc/sh/v3/syntax\"")
 	fmt.Fprintln(buf, ")")
@@ -25,6 +24,10 @@ func writeDecoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 		fmt.Fprintf(buf, "func decode%s(raw wireValue) (*syntax.%s, error) {\n", name, name)
 		fmt.Fprintln(buf, "\tif isNull(raw) { return nil, nil }")
 		fmt.Fprintln(buf, "\tobj, err := decodeObject(raw); if err != nil { return nil, err }")
+		fmt.Fprintf(buf, "\treturn decode%sObject(obj)\n", name)
+		fmt.Fprintln(buf, "}")
+		fmt.Fprintln(buf)
+		fmt.Fprintf(buf, "func decode%sObject(obj map[string]wireValue) (*syntax.%s, error) {\n", name, name)
 		fmt.Fprintf(buf, "\tv := &syntax.%s{}\n", name)
 		for _, f := range info.fields {
 			fmt.Fprintf(buf, "\tif entry := obj[%q]; len(entry) != 0 && !isNull(entry) {\n", jsName(f.name))

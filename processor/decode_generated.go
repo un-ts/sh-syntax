@@ -14,6 +14,10 @@ func decodeFile(raw wireValue) (*syntax.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeFileObject(obj)
+}
+
+func decodeFileObject(obj map[string]wireValue) (*syntax.File, error) {
 	v := &syntax.File{}
 	if entry := obj["name"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeString(entry, &v.Name); err != nil {
@@ -61,6 +65,10 @@ func decodeComment(raw wireValue) (*syntax.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCommentObject(obj)
+}
+
+func decodeCommentObject(obj map[string]wireValue) (*syntax.Comment, error) {
 	v := &syntax.Comment{}
 	if entry := obj["hash"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -85,6 +93,10 @@ func decodeStmt(raw wireValue) (*syntax.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeStmtObject(obj)
+}
+
+func decodeStmtObject(obj map[string]wireValue) (*syntax.Stmt, error) {
 	v := &syntax.Stmt{}
 	if entry := obj["comments"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeArray(entry, func(raw wireValue) error {
@@ -172,6 +184,10 @@ func decodeAssign(raw wireValue) (*syntax.Assign, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeAssignObject(obj)
+}
+
+func decodeAssignObject(obj map[string]wireValue) (*syntax.Assign, error) {
 	v := &syntax.Assign{}
 	if entry := obj["append"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeBool(entry, &v.Append); err != nil {
@@ -226,6 +242,10 @@ func decodeRedirect(raw wireValue) (*syntax.Redirect, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeRedirectObject(obj)
+}
+
+func decodeRedirectObject(obj map[string]wireValue) (*syntax.Redirect, error) {
 	v := &syntax.Redirect{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -273,6 +293,10 @@ func decodeCallExpr(raw wireValue) (*syntax.CallExpr, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCallExprObject(obj)
+}
+
+func decodeCallExprObject(obj map[string]wireValue) (*syntax.CallExpr, error) {
 	v := &syntax.CallExpr{}
 	if entry := obj["assigns"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeArray(entry, func(raw wireValue) error {
@@ -315,6 +339,10 @@ func decodeSubshell(raw wireValue) (*syntax.Subshell, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeSubshellObject(obj)
+}
+
+func decodeSubshellObject(obj map[string]wireValue) (*syntax.Subshell, error) {
 	v := &syntax.Subshell{}
 	if entry := obj["lparen"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -371,6 +399,10 @@ func decodeBlock(raw wireValue) (*syntax.Block, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeBlockObject(obj)
+}
+
+func decodeBlockObject(obj map[string]wireValue) (*syntax.Block, error) {
 	v := &syntax.Block{}
 	if entry := obj["lbrace"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -427,6 +459,10 @@ func decodeIfClause(raw wireValue) (*syntax.IfClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeIfClauseObject(obj)
+}
+
+func decodeIfClauseObject(obj map[string]wireValue) (*syntax.IfClause, error) {
 	v := &syntax.IfClause{}
 	if entry := obj["position"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -542,6 +578,10 @@ func decodeWhileClause(raw wireValue) (*syntax.WhileClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeWhileClauseObject(obj)
+}
+
+func decodeWhileClauseObject(obj map[string]wireValue) (*syntax.WhileClause, error) {
 	v := &syntax.WhileClause{}
 	if entry := obj["whilePos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -640,6 +680,10 @@ func decodeForClause(raw wireValue) (*syntax.ForClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeForClauseObject(obj)
+}
+
+func decodeForClauseObject(obj map[string]wireValue) (*syntax.ForClause, error) {
 	v := &syntax.ForClause{}
 	if entry := obj["forPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -724,6 +768,10 @@ func decodeWordIter(raw wireValue) (*syntax.WordIter, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeWordIterObject(obj)
+}
+
+func decodeWordIterObject(obj map[string]wireValue) (*syntax.WordIter, error) {
 	v := &syntax.WordIter{}
 	if entry := obj["name"]; len(entry) != 0 && !isNull(entry) {
 		item, err := decodeLit(entry)
@@ -765,6 +813,10 @@ func decodeCStyleLoop(raw wireValue) (*syntax.CStyleLoop, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCStyleLoopObject(obj)
+}
+
+func decodeCStyleLoopObject(obj map[string]wireValue) (*syntax.CStyleLoop, error) {
 	v := &syntax.CStyleLoop{}
 	if entry := obj["lparen"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -824,6 +876,10 @@ func decodeBinaryCmd(raw wireValue) (*syntax.BinaryCmd, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeBinaryCmdObject(obj)
+}
+
+func decodeBinaryCmdObject(obj map[string]wireValue) (*syntax.BinaryCmd, error) {
 	v := &syntax.BinaryCmd{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -864,6 +920,10 @@ func decodeFuncDecl(raw wireValue) (*syntax.FuncDecl, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeFuncDeclObject(obj)
+}
+
+func decodeFuncDeclObject(obj map[string]wireValue) (*syntax.FuncDecl, error) {
 	v := &syntax.FuncDecl{}
 	if entry := obj["position"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -922,6 +982,10 @@ func decodeWord(raw wireValue) (*syntax.Word, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeWordObject(obj)
+}
+
+func decodeWordObject(obj map[string]wireValue) (*syntax.Word, error) {
 	v := &syntax.Word{}
 	if entry := obj["parts"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeArray(entry, func(raw wireValue) error {
@@ -953,6 +1017,10 @@ func decodeLit(raw wireValue) (*syntax.Lit, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeLitObject(obj)
+}
+
+func decodeLitObject(obj map[string]wireValue) (*syntax.Lit, error) {
 	v := &syntax.Lit{}
 	if entry := obj["valuePos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -984,6 +1052,10 @@ func decodeSglQuoted(raw wireValue) (*syntax.SglQuoted, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeSglQuotedObject(obj)
+}
+
+func decodeSglQuotedObject(obj map[string]wireValue) (*syntax.SglQuoted, error) {
 	v := &syntax.SglQuoted{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1020,6 +1092,10 @@ func decodeDblQuoted(raw wireValue) (*syntax.DblQuoted, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeDblQuotedObject(obj)
+}
+
+func decodeDblQuotedObject(obj map[string]wireValue) (*syntax.DblQuoted, error) {
 	v := &syntax.DblQuoted{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1070,6 +1146,10 @@ func decodeCmdSubst(raw wireValue) (*syntax.CmdSubst, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCmdSubstObject(obj)
+}
+
+func decodeCmdSubstObject(obj map[string]wireValue) (*syntax.CmdSubst, error) {
 	v := &syntax.CmdSubst{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1141,6 +1221,10 @@ func decodeParamExp(raw wireValue) (*syntax.ParamExp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeParamExpObject(obj)
+}
+
+func decodeParamExpObject(obj map[string]wireValue) (*syntax.ParamExp, error) {
 	v := &syntax.ParamExp{}
 	if entry := obj["dollar"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1292,6 +1376,10 @@ func decodeSlice(raw wireValue) (*syntax.Slice, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeSliceObject(obj)
+}
+
+func decodeSliceObject(obj map[string]wireValue) (*syntax.Slice, error) {
 	v := &syntax.Slice{}
 	if entry := obj["offset"]; len(entry) != 0 && !isNull(entry) {
 		node, err := decodeNode(entry)
@@ -1326,6 +1414,10 @@ func decodeReplace(raw wireValue) (*syntax.Replace, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeReplaceObject(obj)
+}
+
+func decodeReplaceObject(obj map[string]wireValue) (*syntax.Replace, error) {
 	v := &syntax.Replace{}
 	if entry := obj["all"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeBool(entry, &v.All); err != nil {
@@ -1357,6 +1449,10 @@ func decodeExpansion(raw wireValue) (*syntax.Expansion, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeExpansionObject(obj)
+}
+
+func decodeExpansionObject(obj map[string]wireValue) (*syntax.Expansion, error) {
 	v := &syntax.Expansion{}
 	if entry := obj["op"]; len(entry) != 0 && !isNull(entry) {
 		var n uint64
@@ -1383,6 +1479,10 @@ func decodeArithmExp(raw wireValue) (*syntax.ArithmExp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeArithmExpObject(obj)
+}
+
+func decodeArithmExpObject(obj map[string]wireValue) (*syntax.ArithmExp, error) {
 	v := &syntax.ArithmExp{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1430,6 +1530,10 @@ func decodeArithmCmd(raw wireValue) (*syntax.ArithmCmd, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeArithmCmdObject(obj)
+}
+
+func decodeArithmCmdObject(obj map[string]wireValue) (*syntax.ArithmCmd, error) {
 	v := &syntax.ArithmCmd{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1472,6 +1576,10 @@ func decodeBinaryArithm(raw wireValue) (*syntax.BinaryArithm, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeBinaryArithmObject(obj)
+}
+
+func decodeBinaryArithmObject(obj map[string]wireValue) (*syntax.BinaryArithm, error) {
 	v := &syntax.BinaryArithm{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1520,6 +1628,10 @@ func decodeUnaryArithm(raw wireValue) (*syntax.UnaryArithm, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeUnaryArithmObject(obj)
+}
+
+func decodeUnaryArithmObject(obj map[string]wireValue) (*syntax.UnaryArithm, error) {
 	v := &syntax.UnaryArithm{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1562,6 +1674,10 @@ func decodeParenArithm(raw wireValue) (*syntax.ParenArithm, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeParenArithmObject(obj)
+}
+
+func decodeParenArithmObject(obj map[string]wireValue) (*syntax.ParenArithm, error) {
 	v := &syntax.ParenArithm{}
 	if entry := obj["lparen"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1599,6 +1715,10 @@ func decodeFlagsArithm(raw wireValue) (*syntax.FlagsArithm, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeFlagsArithmObject(obj)
+}
+
+func decodeFlagsArithmObject(obj map[string]wireValue) (*syntax.FlagsArithm, error) {
 	v := &syntax.FlagsArithm{}
 	if entry := obj["flags"]; len(entry) != 0 && !isNull(entry) {
 		item, err := decodeLit(entry)
@@ -1629,6 +1749,10 @@ func decodeCaseClause(raw wireValue) (*syntax.CaseClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCaseClauseObject(obj)
+}
+
+func decodeCaseClauseObject(obj map[string]wireValue) (*syntax.CaseClause, error) {
 	v := &syntax.CaseClause{}
 	if entry := obj["case"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1704,6 +1828,10 @@ func decodeCaseItem(raw wireValue) (*syntax.CaseItem, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCaseItemObject(obj)
+}
+
+func decodeCaseItemObject(obj map[string]wireValue) (*syntax.CaseItem, error) {
 	v := &syntax.CaseItem{}
 	if entry := obj["op"]; len(entry) != 0 && !isNull(entry) {
 		var n uint64
@@ -1790,6 +1918,10 @@ func decodeTestClause(raw wireValue) (*syntax.TestClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeTestClauseObject(obj)
+}
+
+func decodeTestClauseObject(obj map[string]wireValue) (*syntax.TestClause, error) {
 	v := &syntax.TestClause{}
 	if entry := obj["left"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1827,6 +1959,10 @@ func decodeBinaryTest(raw wireValue) (*syntax.BinaryTest, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeBinaryTestObject(obj)
+}
+
+func decodeBinaryTestObject(obj map[string]wireValue) (*syntax.BinaryTest, error) {
 	v := &syntax.BinaryTest{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1875,6 +2011,10 @@ func decodeUnaryTest(raw wireValue) (*syntax.UnaryTest, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeUnaryTestObject(obj)
+}
+
+func decodeUnaryTestObject(obj map[string]wireValue) (*syntax.UnaryTest, error) {
 	v := &syntax.UnaryTest{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1912,6 +2052,10 @@ func decodeParenTest(raw wireValue) (*syntax.ParenTest, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeParenTestObject(obj)
+}
+
+func decodeParenTestObject(obj map[string]wireValue) (*syntax.ParenTest, error) {
 	v := &syntax.ParenTest{}
 	if entry := obj["lparen"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -1949,6 +2093,10 @@ func decodeDeclClause(raw wireValue) (*syntax.DeclClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeDeclClauseObject(obj)
+}
+
+func decodeDeclClauseObject(obj map[string]wireValue) (*syntax.DeclClause, error) {
 	v := &syntax.DeclClause{}
 	if entry := obj["variant"]; len(entry) != 0 && !isNull(entry) {
 		item, err := decodeLit(entry)
@@ -1983,6 +2131,10 @@ func decodeArrayExpr(raw wireValue) (*syntax.ArrayExpr, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeArrayExprObject(obj)
+}
+
+func decodeArrayExprObject(obj map[string]wireValue) (*syntax.ArrayExpr, error) {
 	v := &syntax.ArrayExpr{}
 	if entry := obj["lparen"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2039,6 +2191,10 @@ func decodeArrayElem(raw wireValue) (*syntax.ArrayElem, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeArrayElemObject(obj)
+}
+
+func decodeArrayElemObject(obj map[string]wireValue) (*syntax.ArrayElem, error) {
 	v := &syntax.ArrayElem{}
 	if entry := obj["index"]; len(entry) != 0 && !isNull(entry) {
 		node, err := decodeNode(entry)
@@ -2084,6 +2240,10 @@ func decodeExtGlob(raw wireValue) (*syntax.ExtGlob, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeExtGlobObject(obj)
+}
+
+func decodeExtGlobObject(obj map[string]wireValue) (*syntax.ExtGlob, error) {
 	v := &syntax.ExtGlob{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2117,6 +2277,10 @@ func decodeProcSubst(raw wireValue) (*syntax.ProcSubst, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeProcSubstObject(obj)
+}
+
+func decodeProcSubstObject(obj map[string]wireValue) (*syntax.ProcSubst, error) {
 	v := &syntax.ProcSubst{}
 	if entry := obj["opPos"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2180,6 +2344,10 @@ func decodeTimeClause(raw wireValue) (*syntax.TimeClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeTimeClauseObject(obj)
+}
+
+func decodeTimeClauseObject(obj map[string]wireValue) (*syntax.TimeClause, error) {
 	v := &syntax.TimeClause{}
 	if entry := obj["time"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2211,6 +2379,10 @@ func decodeCoprocClause(raw wireValue) (*syntax.CoprocClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeCoprocClauseObject(obj)
+}
+
+func decodeCoprocClauseObject(obj map[string]wireValue) (*syntax.CoprocClause, error) {
 	v := &syntax.CoprocClause{}
 	if entry := obj["coproc"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2244,6 +2416,10 @@ func decodeLetClause(raw wireValue) (*syntax.LetClause, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeLetClauseObject(obj)
+}
+
+func decodeLetClauseObject(obj map[string]wireValue) (*syntax.LetClause, error) {
 	v := &syntax.LetClause{}
 	if entry := obj["let"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)
@@ -2282,6 +2458,10 @@ func decodeBraceExp(raw wireValue) (*syntax.BraceExp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeBraceExpObject(obj)
+}
+
+func decodeBraceExpObject(obj map[string]wireValue) (*syntax.BraceExp, error) {
 	v := &syntax.BraceExp{}
 	if entry := obj["sequence"]; len(entry) != 0 && !isNull(entry) {
 		if err := decodeBool(entry, &v.Sequence); err != nil {
@@ -2314,6 +2494,10 @@ func decodeTestDecl(raw wireValue) (*syntax.TestDecl, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeTestDeclObject(obj)
+}
+
+func decodeTestDeclObject(obj map[string]wireValue) (*syntax.TestDecl, error) {
 	v := &syntax.TestDecl{}
 	if entry := obj["position"]; len(entry) != 0 && !isNull(entry) {
 		pos, err := decodePos(entry)

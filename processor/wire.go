@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -15,9 +16,11 @@ import (
 // WASM binary.
 type wireValue []byte
 
+var nullWireValue = []byte("null")
+
 func isNull(raw wireValue) bool {
-	trimmed := strings.TrimSpace(string(raw))
-	return trimmed == "" || trimmed == "null"
+	trimmed := bytes.TrimSpace(raw)
+	return len(trimmed) == 0 || bytes.Equal(trimmed, nullWireValue)
 }
 
 func decodeObject(raw wireValue) (map[string]wireValue, error) {
@@ -209,10 +212,11 @@ func decodeString(raw wireValue, out *string) error {
 }
 
 func decodeBool(raw wireValue, out *bool) error {
-	switch strings.TrimSpace(string(raw)) {
-	case "true":
+	trimmed := bytes.TrimSpace(raw)
+	switch {
+	case bytes.Equal(trimmed, []byte("true")):
 		*out = true
-	case "false":
+	case bytes.Equal(trimmed, []byte("false")):
 		*out = false
 	default:
 		return fmt.Errorf("expected boolean")
@@ -235,11 +239,19 @@ func decodePos(raw wireValue) (syntax.Pos, error) {
 		return syntax.Pos{}, err
 	}
 	var offset, line, column uint64
-	for key, value := range map[string]*uint64{"offset": &offset, "line": &line, "column": &column} {
-		if entry := object[key]; entry != nil {
-			if err := decodeUint(entry, value); err != nil {
-				return syntax.Pos{}, err
-			}
+	if entry := object["offset"]; entry != nil {
+		if err := decodeUint(entry, &offset); err != nil {
+			return syntax.Pos{}, err
+		}
+	}
+	if entry := object["line"]; entry != nil {
+		if err := decodeUint(entry, &line); err != nil {
+			return syntax.Pos{}, err
+		}
+	}
+	if entry := object["column"]; entry != nil {
+		if err := decodeUint(entry, &column); err != nil {
+			return syntax.Pos{}, err
 		}
 	}
 	var recovered bool
