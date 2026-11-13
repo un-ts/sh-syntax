@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 
 import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
-import { LangVariant, print } from 'sh-syntax'
-import { print as printSync } from 'sh-syntax/sync'
+import { LangVariant, parse, print } from 'sh-syntax'
+import { parse as parseSync, print as printSync } from 'sh-syntax/sync'
 import { createSyncFn } from 'synckit'
 
 /** @import {ShOptions} from 'sh-syntax' */
@@ -43,11 +43,21 @@ const shOptions = {
   functionNextLine,
 }
 
+const ast = await parse(text, shOptions)
+
 /** @type {(text: string, options?: ShOptions) => string} */
 const synckitPrint = createSyncFn(new URL('worker.mjs', import.meta.url))
 
 summary(() => {
   bench('sh-syntax', () => print(text, shOptions)).baseline()
+
+  bench('parse (async)', () => parse(text, shOptions))
+
+  bench('parse (sync)', () => parseSync(text, shOptions))
+
+  bench('print(ast) (async)', () => print(ast, shOptions))
+
+  bench('print(ast) (sync)', () => printSync(ast, shOptions))
 
   bench('sh-syntax (sync)', () => printSync(text, shOptions))
 
