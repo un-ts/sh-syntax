@@ -19,7 +19,7 @@ func writeDecoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 	fmt.Fprintln(buf, "\t\"mvdan.cc/sh/v3/syntax\"")
 	fmt.Fprintln(buf, ")")
 	fmt.Fprintln(buf)
-	fmt.Fprintln(buf, `func isNull(raw json.RawMessage) bool {
+	fmt.Fprint(buf, `func isNull(raw json.RawMessage) bool {
 	return len(raw) == 0 || string(raw) == "null"
 }
 
@@ -67,6 +67,7 @@ func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
 	}
 	return nil
 }
+
 `)
 
 	for _, name := range allTypes {
@@ -97,7 +98,7 @@ func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
 			fmt.Fprintf(buf, "\tcase %q: return decode%s(raw)\n", name, name)
 		}
 	}
-	fmt.Fprintln(buf, "\tdefault: return nil, fmt.Errorf(\"unknown node type %q\", header.Type)")
+	buf.WriteString("\tdefault: return nil, fmt.Errorf(\"unknown node type %q\", header.Type)\n")
 	fmt.Fprintln(buf, "\t}")
 	fmt.Fprintln(buf, "}")
 }
