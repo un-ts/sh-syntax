@@ -86,14 +86,16 @@ func Process(
 	} else {
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
-		if file == nil {
-			file = &syntax.File{}
-		}
-		var encoded bytes.Buffer
-		if encodeErr := EncodeNodeBinary(&encoded, file); encodeErr != nil {
-			err = encodeErr
-		} else {
-			ast = encoded.Bytes()
+		if err == nil {
+			if file == nil {
+				file = &syntax.File{}
+			}
+			var encoded bytes.Buffer
+			if encodeErr := EncodeNodeBinary(&encoded, file); encodeErr != nil {
+				err = encodeErr
+			} else {
+				ast = encoded.Bytes()
+			}
 		}
 	}
 

@@ -1,4 +1,3 @@
-import type { File } from './types.js'
 /**
  * Binary AST wire.
  *
@@ -7,6 +6,7 @@ import type { File } from './types.js'
  * no type/start/end header. The authoritative field order is src/wire-schema.ts, generated from
  * scripts/gen-ast/binary.go; the envelope lives in processor/result.go.
  */
+import type { File } from './types.js'
 import { WIRE_SCHEMA, WIRE_TYPES, type WireField } from './wire-schema.js'
 
 const VARINT_BASE = 0x80
@@ -119,7 +119,6 @@ class Reader {
     const count = this.uint()
     /* istanbul ignore next -- malformed payload guard */
     if (count > this.bytes.length - this.position) {
-      /* istanbul ignore next -- malformed payload guard */
       throw new Error('wire count exceeds payload')
     }
     return count

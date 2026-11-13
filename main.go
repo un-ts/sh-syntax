@@ -15,7 +15,7 @@ var (
 	lastResult []byte
 )
 
-// Keep this layout in sync with optionValues in src/processor.ts.
+// Keep this layout in sync with optionValues in src/internal.ts.
 type processOptions struct {
 	Print            uint32
 	KeepComments     uint32
