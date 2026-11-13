@@ -3,7 +3,6 @@ coverage
 lib
 .dsh
 test/fixtures
-shell
 vendors
 *.mod
 @eaDir
