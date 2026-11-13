@@ -2,6 +2,7 @@ package processor
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -147,4 +148,19 @@ func printNodeWithPrinter(t *testing.T, node syntax.Node) string {
 		t.Fatal(err)
 	}
 	return got
+}
+
+func TestPrintNodeErrorUsesJSTypeName(t *testing.T) {
+	file, err := Parse("echo hi >out\n", "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, file.Stmts[0].Redirs[0]); err != nil {
+		t.Fatal(err)
+	}
+	_, err = PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err == nil || strings.Contains(err.Error(), "*syntax.") {
+		t.Fatalf("unexpected error: %v", err)
+	}
 }

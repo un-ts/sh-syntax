@@ -6,7 +6,7 @@
  * no type/start/end header. The authoritative field order is src/wire-schema.ts, generated from
  * scripts/gen-ast/binary.go; the envelope lives in processor/result.go.
  */
-import type { File, Node } from './types.js'
+import type { File, PrintableNode } from './types.js'
 import { WIRE_SCHEMA, WIRE_TYPES, type WireField } from './wire-schema.js'
 
 const VARINT_BASE = 0x80
@@ -289,7 +289,7 @@ const readField = (reader: Reader, field: WireField): unknown => {
 }
 
 /** Encodes the current JS AST as the compact binary wire. */
-export const encodeAST = (ast: Node): Uint8Array => {
+export const encodeAST = (ast: PrintableNode): Uint8Array => {
   if (ast == null || !WIRE_SCHEMA[ast.type]?.node) {
     throw new TypeError('print(node) requires a syntax node')
   }

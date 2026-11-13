@@ -3,7 +3,7 @@ import {
   type File,
   type IParseError,
   LangVariant,
-  type Node,
+  type PrintableNode,
   type ShPrintOptions,
 } from './types.js'
 import { decodeAST, encodeAST } from './wire.js'
@@ -81,7 +81,7 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 
 export const invoke = (
   { memory, wasmAlloc, wasmFree, process, printNode, resultLength }: ProcessExports,
-  textOrAst: Node | string,
+  textOrAst: PrintableNode | string,
   {
     filepath = '',
     print = false,

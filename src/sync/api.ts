@@ -1,6 +1,6 @@
 // oxlint-disable-next-line import/no-unassigned-import -- wasm_exec registers the Go runtime
 import '../../vendors/wasm_exec.cjs'
-import type { File, Node, ShOptions, ShPrintOptions } from '../types.js'
+import type { File, PrintableNode, ShOptions, ShPrintOptions } from '../types.js'
 import type { Processor } from './processor.js'
 
 /** Synchronous API bound to one sync processor. */
@@ -8,14 +8,14 @@ export interface ProcessorAPI {
   parse: (text: string, options?: ShOptions) => File
   print: {
     (text: string, options?: ShOptions): string
-    (node: Node, options?: ShPrintOptions): string
+    (node: PrintableNode, options?: ShPrintOptions): string
   }
 }
 
 /** Binds the synchronous parse/print surface to a sync processor. */
 export const createProcessorAPI = (processor: Processor): ProcessorAPI => ({
   parse: (text, options) => processor(text, options),
-  print: (textOrAst: Node | string, options?: ShPrintOptions): string => {
+  print: (textOrAst: PrintableNode | string, options?: ShPrintOptions): string => {
     if (typeof textOrAst === 'string') {
       return processor(textOrAst, {
         ...options,

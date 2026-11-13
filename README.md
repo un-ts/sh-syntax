@@ -64,6 +64,7 @@ const formatted = await print(text)
 // files, the originalText path below is much faster.
 const printedAst = await print(ast)
 const printedStmt = await print(ast.stmts[0])
+// File output ends with a newline; subtree output does not.
 
 // originalText still selects the source-text fast path.
 const formattedSource = await print(ast, { originalText: text })
