@@ -15,7 +15,7 @@ func TestPrintNodeRoundTrip(t *testing.T) {
 	if err := EncodeNode(&encoded, file); err != nil {
 		t.Fatal(err)
 	}
-	got, err := PrintNode(encoded.Bytes(), "", SyntaxOptions{})
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,8 +25,7 @@ func TestPrintNodeRoundTrip(t *testing.T) {
 }
 
 func TestPrintNodeComplexRoundTrip(t *testing.T) {
-	source := `#!/bin/bash
-foo() { echo "$@"; }
+	source := `foo() { echo "$@"; }
 if true; then
   for x in a b; do echo "$x"; done
 elif false; then
@@ -46,24 +45,35 @@ fi
 	if err := EncodeNode(&encoded, file); err != nil {
 		t.Fatal(err)
 	}
-	got, err := PrintNode(encoded.Bytes(), "", SyntaxOptions{})
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got == "" {
-		t.Fatal("empty output")
+	want, err := Print(source, "", SyntaxOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }
 
 func TestPrintNodeRejectsNullComment(t *testing.T) {
-	_, err := PrintNode([]byte(`{"type":"File","lastComments":[null]}`), "", SyntaxOptions{})
+	_, err := PrintNode([]byte(`{"type":"File","lastComments":[null]}`), PrinterOptions{})
 	if err == nil {
 		t.Fatal("expected an error")
 	}
 }
 
 func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
-	_, err := PrintNode([]byte(`{"type":"File","stmts":[{"type":"Stmt","cmd":{"type":"CallExpr","args":[{"type":"Word","parts":[]}],"assigns":[],"redirs":[]},"redirs":[]}],"lastComments":[]}`), "", SyntaxOptions{})
+	_, err := PrintNode([]byte(`{"type":"File","stmts":[{"type":"Stmt","cmd":{"type":"CallExpr","args":[{"type":"Word","parts":[]}],"assigns":[],"redirs":[]},"redirs":[]}],"lastComments":[]}`), PrinterOptions{})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestPrintNodeRejectsNullStatement(t *testing.T) {
+	_, err := PrintNode([]byte(`{"type":"File","stmts":[null],"lastComments":[]}`), PrinterOptions{})
 	if err == nil {
 		t.Fatal("expected an error")
 	}

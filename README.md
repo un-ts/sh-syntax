@@ -60,6 +60,8 @@ const ast = await parse(text)
 const formatted = await print(text)
 
 // print(ast) prints the current tree, including edits made to its fields.
+// print(ast) serializes the tree to Go and decodes it before printing. For
+// large files, the originalText path below is much faster.
 const printedAst = await print(ast)
 
 // originalText still selects the source-text fast path.
@@ -80,7 +82,7 @@ const printedAst = print(ast)
 
 `parse` returns the complete shell syntax tree as plain, JSON-friendly data.
 Every node has a `type` plus `start`/`end` byte offsets, and fields use
-lowerCamelCase. Position fields are `{ offset, line, column }` data:
+lowerCamelCase. Field values are raw shell source text, so the printer re-emits them verbatim; setting `Lit.value` to `a b` prints two words. Position fields are `{ offset, line, column }` data:
 
 ```js
 import { LangVariant, parse, walk } from 'sh-syntax'

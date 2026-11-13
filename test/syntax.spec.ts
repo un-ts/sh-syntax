@@ -94,6 +94,12 @@ test('processor(ast) prints the current AST', async () => {
   await expect(processor(ast)).resolves.toBe('new old\n')
 })
 
+test('print(ast) rejects non-File roots and invalid input', () => {
+  const ast = parseSync('echo hi\n')
+  expect(() => printSync(ast.stmts[0] as never)).toThrow(/requires a File node/)
+  expect(() => printSync([] as never)).toThrow(TypeError)
+})
+
 test('ParNamesOperator has a zero value', () => {
   const ast = parseSync('echo $foo\n')
   const command = ast.stmts[0].cmd

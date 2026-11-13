@@ -105,7 +105,7 @@ func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
 
 func decodeField(typ, target string, interfaces map[string][]string) []string {
 	errClause := `err != nil { return nil, fmt.Errorf("decode field: %w", err) }`
-	errCheck := `if err != nil { return nil, fmt.Errorf("decode field: %w", err) }`
+	errCheck := "if " + errClause
 	switch {
 	case typ == "string":
 		return []string{fmt.Sprintf("if err := decodeString(entry, &%s); %s", target, errClause)}
@@ -120,10 +120,10 @@ func decodeField(typ, target string, interfaces map[string][]string) []string {
 		el := strings.TrimPrefix(typ, "[]")
 		if strings.HasPrefix(el, "*") {
 			name := strings.TrimPrefix(el, "*")
-			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; %s = append(%s, item); return nil }); %s", name, target, target, errClause)}
+			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", name, target, target, errClause)}
 		}
 		if _, ok := interfaces[el]; ok {
-			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { node, err := decodeNode(raw); if err != nil { return err }; item, ok := node.(syntax.%s); if !ok { return fmt.Errorf(\"expected syntax.%s\") }; %s = append(%s, item); return nil }); %s", el, el, target, target, errClause)}
+			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { node, err := decodeNode(raw); if err != nil { return err }; item, ok := node.(syntax.%s); if !ok { return fmt.Errorf(\"expected syntax.%s\") }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", el, el, target, target, errClause)}
 		}
 		return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, *item); return nil }); %s", el, target, target, errClause)}
 	}

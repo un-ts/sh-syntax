@@ -1,9 +1,8 @@
 import { ParseError } from './common.js'
-import { type File, type IParseError, LangVariant, type ShOptions } from './types.js'
+import { type File, type IParseError, LangVariant, type ShPrintOptions } from './types.js'
 
-export interface InternalOptions extends ShOptions {
+export interface InternalOptions extends ShPrintOptions {
   print?: boolean
-  originalText?: string
 }
 
 export interface ProcessExports {
@@ -18,20 +17,14 @@ export interface ProcessExports {
     textLength: number,
     optionsPointer: number,
   ) => number
-  printNode: (
-    nodePointer: number,
-    nodeLength: number,
-    filePathPointer: number,
-    filePathLength: number,
-    optionsPointer: number,
-  ) => number
+  printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
 }
 
 interface RawResult {
-  file: File
+  file?: File
   text: string
-  parseError: IParseError | null
-  message: string
+  parseError?: IParseError | null
+  message?: string
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -113,8 +106,11 @@ export const invoke = (
     throw new TypeError(`Unsupported shell variant: ${variant}`)
   }
 
-  if (textOrAst == null || (typeof textOrAst !== 'object' && typeof textOrAst !== 'string')) {
-    throw new TypeError('parse requires a string')
+  if (
+    textOrAst == null ||
+    (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
+  ) {
+    throw new TypeError('expected shell source text or a syntax tree')
   }
 
   let text: string
@@ -140,9 +136,11 @@ export const invoke = (
     throw new TypeError('stopAt must be at most 4 bytes')
   }
 
-  const filePathPointer = wasmAlloc(filePath.byteLength)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+  const filePathPointer = astBytes ? 0 : wasmAlloc(filePath.byteLength)
+  if (!astBytes) {
+    // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+  }
 
   const inputBytes = astBytes ?? textBytes
   const textPointer = wasmAlloc(inputBytes.byteLength)
@@ -182,13 +180,7 @@ export const invoke = (
   )
 
   const resultPointer = astBytes
-    ? printNode(
-        textPointer,
-        astBytes.byteLength,
-        filePathPointer,
-        filePath.byteLength,
-        optionsPointer,
-      )
+    ? printNode(textPointer, astBytes.byteLength, optionsPointer)
     : process(
         filePathPointer,
         filePath.byteLength,
@@ -226,5 +218,13 @@ export const invoke = (
     throw new SyntaxError(message)
   }
 
-  return printOutput ? processedText : file
+  if (printOutput) {
+    return processedText
+  }
+
+  if (file == null) {
+    throw new SyntaxError('missing syntax tree')
+  }
+
+  return file
 }

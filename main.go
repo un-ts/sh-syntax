@@ -109,18 +109,13 @@ func process(
 //go:wasmexport printNode
 func printNode(
 	nodePointer unsafe.Pointer, nodeLength uint32,
-	filepathPointer unsafe.Pointer, filepathLength uint32,
 	optionsPointer unsafe.Pointer,
 ) unsafe.Pointer {
 	options := (*processOptions)(optionsPointer)
 
 	text, err := processor.PrintNode(
 		bytesAt(nodePointer, nodeLength),
-		string(bytesAt(filepathPointer, filepathLength)),
-		processor.SyntaxOptions{
-			ParserOptions:  parserOptions(options),
-			PrinterOptions: printerOptions(options),
-		},
+		printerOptions(options),
 	)
 
 	if err != nil {
