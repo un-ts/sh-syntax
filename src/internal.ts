@@ -21,9 +21,9 @@ export interface ProcessExports {
 }
 
 interface RawResult {
-  file?: File
+  file: File | null
   text: string
-  parseError?: IParseError | null
+  parseError: IParseError | null
   message?: string
 }
 
@@ -129,15 +129,18 @@ export const invoke = (
     printOutput = true
   }
 
-  const filePath = encoder.encode(filepath)
   const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
   if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
     throw new TypeError('stopAt must be at most 4 bytes')
   }
 
-  const filePathPointer = astBytes ? 0 : wasmAlloc(filePath.byteLength)
+  let filePathPointer = 0
+  let filePathLength = 0
   if (!astBytes) {
+    const filePath = encoder.encode(filepath)
+    filePathLength = filePath.byteLength
+    filePathPointer = wasmAlloc(filePathLength)
     // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
     new Uint8Array(memory.buffer).set(filePath, filePathPointer)
   }
@@ -181,15 +184,11 @@ export const invoke = (
 
   const resultPointer = astBytes
     ? printNode(textPointer, astBytes.byteLength, optionsPointer)
-    : process(
-        filePathPointer,
-        filePath.byteLength,
-        textPointer,
-        textBytes.byteLength,
-        optionsPointer,
-      )
+    : process(filePathPointer, filePathLength, textPointer, textBytes.byteLength, optionsPointer)
 
-  wasmFree(filePathPointer)
+  if (!astBytes) {
+    wasmFree(filePathPointer)
+  }
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
@@ -218,13 +217,5 @@ export const invoke = (
     throw new SyntaxError(message)
   }
 
-  if (printOutput) {
-    return processedText
-  }
-
-  if (file == null) {
-    throw new SyntaxError('missing syntax tree')
-  }
-
-  return file
+  return printOutput ? processedText : (file as File)
 }

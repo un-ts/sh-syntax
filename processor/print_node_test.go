@@ -25,7 +25,8 @@ func TestPrintNodeRoundTrip(t *testing.T) {
 }
 
 func TestPrintNodeComplexRoundTrip(t *testing.T) {
-	source := `foo() { echo "$@"; }
+	source := `#!/bin/bash
+foo() { echo "$@"; }
 if true; then
   for x in a b; do echo "$x"; done
 elif false; then
@@ -49,7 +50,7 @@ fi
 	if err != nil {
 		t.Fatal(err)
 	}
-	want, err := Print(source, "", SyntaxOptions{})
+	want, err := Print(source, "", SyntaxOptions{ParserOptions: ParserOptions{KeepComments: true}})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -4,7 +4,6 @@
 package main
 
 import (
-	"encoding/json"
 	"unsafe"
 
 	"github.com/un-ts/sh-syntax/processor"
@@ -58,11 +57,6 @@ func bytesAt(pointer unsafe.Pointer, length uint32) []byte {
 	return unsafe.Slice((*byte)(pointer), length)
 }
 
-func quoteJSON(value string) []byte {
-	encoded, _ := json.Marshal(value)
-	return encoded
-}
-
 func parserOptions(options *processOptions) processor.ParserOptions {
 	return processor.ParserOptions{
 		KeepComments:  options.KeepComments != 0,
@@ -112,25 +106,8 @@ func printNode(
 	optionsPointer unsafe.Pointer,
 ) unsafe.Pointer {
 	options := (*processOptions)(optionsPointer)
-
-	text, err := processor.PrintNode(
-		bytesAt(nodePointer, nodeLength),
-		printerOptions(options),
-	)
-
-	if err != nil {
-		out := []byte("{\"text\":\"\",\"message\":")
-		out = append(out, quoteJSON(err.Error())...)
-		out = append(out, '}')
-		lastResult = append(out, 0)
-		return unsafe.Pointer(&lastResult[0])
-	}
-	// The AST printer returns text, not a parse envelope. Encode it as a JSON string
-	// so the TypeScript side can share the result envelope reader.
-	out := []byte("{\"text\":")
-	out = append(out, quoteJSON(text)...)
-	out = append(out, '}')
-	lastResult = append(out, 0)
+	result := processor.ProcessNode(bytesAt(nodePointer, nodeLength), printerOptions(options))
+	lastResult = append(result, 0)
 	return unsafe.Pointer(&lastResult[0])
 }
 
