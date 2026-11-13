@@ -79,7 +79,7 @@
     "format": "concurrently 'yarn:format:*'",
     "format:ox": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore .",
     "format:prettier": "prettier --write .",
-    "gen:encoder": "go run ./scripts/gen-encoder && oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore src",
+    "gen:ast": "go run ./scripts/gen-ast && oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore src",
     "lint": "run-p 'lint:*'",
     "lint:es": "eslint . --cache --max-warnings 10",
     "lint:ox": "oxlint .",
@@ -89,7 +89,7 @@
     "release": "changeset publish",
     "test": "vitest run",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:encoder && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && yarn wasm:opt",
+    "wasm": "yarn gen:ast && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && yarn wasm:opt",
     "wasm:opt": "wasm-opt --enable-bulk-memory --enable-sign-ext --enable-mutable-globals --enable-nontrapping-float-to-int -Oz main.wasm -o main.wasm"
   },
   "devDependencies": {
