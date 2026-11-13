@@ -79,3 +79,36 @@ func TestPrintNodeRejectsNullStatement(t *testing.T) {
 		t.Fatal("expected an error")
 	}
 }
+
+func TestDecodeStringEscapes(t *testing.T) {
+	var got string
+	if err := decodeString(wireValue(`"a\n\"b\u00e9\ud83d\ude00"`), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got != "a\n\"bé😀" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestPrintNodeUnicodeRoundTrip(t *testing.T) {
+	source := "echo 'héllo' \"$(printf '😀')\"\n"
+	file, err := Parse(source, "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encoded bytes.Buffer
+	if err := EncodeNode(&encoded, file); err != nil {
+		t.Fatal(err)
+	}
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, err := Print(source, "", SyntaxOptions{ParserOptions: ParserOptions{KeepComments: true}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}

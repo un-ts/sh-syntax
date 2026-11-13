@@ -2,66 +2,16 @@
 package processor
 
 import (
-	"encoding/json"
 	"fmt"
 	"mvdan.cc/sh/v3/syntax"
 )
 
-func isNull(raw json.RawMessage) bool {
-	return len(raw) == 0 || string(raw) == "null"
-}
-
-func decodeString(raw json.RawMessage, out *string) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodeBool(raw json.RawMessage, out *bool) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodeUint(raw json.RawMessage, out *uint64) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodePos(raw json.RawMessage) (syntax.Pos, error) {
-	var p struct {
-		Offset    uint
-		Line      uint
-		Column    uint
-		Recovered bool
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return syntax.Pos{}, err
-	}
-	if p.Recovered {
-		return syntax.NewPos(0, 0, 0), nil
-	}
-	column := p.Column
-	if p.Offset != 0 || p.Line != 0 {
-		column++
-	}
-	return syntax.NewPos(p.Offset, p.Line, column), nil
-}
-
-func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
-	var entries []json.RawMessage
-	if err := json.Unmarshal(raw, &entries); err != nil {
-		return err
-	}
-	for _, entry := range entries {
-		if err := visit(entry); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func decodeFile(raw []byte) (*syntax.File, error) {
+func decodeFile(raw wireValue) (*syntax.File, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.File{}
@@ -71,7 +21,7 @@ func decodeFile(raw []byte) (*syntax.File, error) {
 		}
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -86,7 +36,7 @@ func decodeFile(raw []byte) (*syntax.File, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -103,12 +53,12 @@ func decodeFile(raw []byte) (*syntax.File, error) {
 	return v, nil
 }
 
-func decodeComment(raw []byte) (*syntax.Comment, error) {
+func decodeComment(raw wireValue) (*syntax.Comment, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Comment{}
@@ -127,17 +77,17 @@ func decodeComment(raw []byte) (*syntax.Comment, error) {
 	return v, nil
 }
 
-func decodeStmt(raw []byte) (*syntax.Stmt, error) {
+func decodeStmt(raw wireValue) (*syntax.Stmt, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Stmt{}
 	if entry := obj["comments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -197,7 +147,7 @@ func decodeStmt(raw []byte) (*syntax.Stmt, error) {
 		}
 	}
 	if entry := obj["redirs"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeRedirect(raw)
 			if err != nil {
 				return err
@@ -214,12 +164,12 @@ func decodeStmt(raw []byte) (*syntax.Stmt, error) {
 	return v, nil
 }
 
-func decodeAssign(raw []byte) (*syntax.Assign, error) {
+func decodeAssign(raw wireValue) (*syntax.Assign, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Assign{}
@@ -268,12 +218,12 @@ func decodeAssign(raw []byte) (*syntax.Assign, error) {
 	return v, nil
 }
 
-func decodeRedirect(raw []byte) (*syntax.Redirect, error) {
+func decodeRedirect(raw wireValue) (*syntax.Redirect, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Redirect{}
@@ -315,17 +265,17 @@ func decodeRedirect(raw []byte) (*syntax.Redirect, error) {
 	return v, nil
 }
 
-func decodeCallExpr(raw []byte) (*syntax.CallExpr, error) {
+func decodeCallExpr(raw wireValue) (*syntax.CallExpr, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CallExpr{}
 	if entry := obj["assigns"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeAssign(raw)
 			if err != nil {
 				return err
@@ -340,7 +290,7 @@ func decodeCallExpr(raw []byte) (*syntax.CallExpr, error) {
 		}
 	}
 	if entry := obj["args"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeWord(raw)
 			if err != nil {
 				return err
@@ -357,12 +307,12 @@ func decodeCallExpr(raw []byte) (*syntax.CallExpr, error) {
 	return v, nil
 }
 
-func decodeSubshell(raw []byte) (*syntax.Subshell, error) {
+func decodeSubshell(raw wireValue) (*syntax.Subshell, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Subshell{}
@@ -381,7 +331,7 @@ func decodeSubshell(raw []byte) (*syntax.Subshell, error) {
 		v.Rparen = pos
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -396,7 +346,7 @@ func decodeSubshell(raw []byte) (*syntax.Subshell, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -413,12 +363,12 @@ func decodeSubshell(raw []byte) (*syntax.Subshell, error) {
 	return v, nil
 }
 
-func decodeBlock(raw []byte) (*syntax.Block, error) {
+func decodeBlock(raw wireValue) (*syntax.Block, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Block{}
@@ -437,7 +387,7 @@ func decodeBlock(raw []byte) (*syntax.Block, error) {
 		v.Rbrace = pos
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -452,7 +402,7 @@ func decodeBlock(raw []byte) (*syntax.Block, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -469,12 +419,12 @@ func decodeBlock(raw []byte) (*syntax.Block, error) {
 	return v, nil
 }
 
-func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
+func decodeIfClause(raw wireValue) (*syntax.IfClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.IfClause{}
@@ -500,7 +450,7 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 		v.FiPos = pos
 	}
 	if entry := obj["cond"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -515,7 +465,7 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 		}
 	}
 	if entry := obj["condComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -530,7 +480,7 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 		}
 	}
 	if entry := obj["then"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -545,7 +495,7 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 		}
 	}
 	if entry := obj["thenComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -567,7 +517,7 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 		v.Else = item
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -584,12 +534,12 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 	return v, nil
 }
 
-func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
+func decodeWhileClause(raw wireValue) (*syntax.WhileClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.WhileClause{}
@@ -620,7 +570,7 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 		}
 	}
 	if entry := obj["cond"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -635,7 +585,7 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 		}
 	}
 	if entry := obj["condComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -650,7 +600,7 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 		}
 	}
 	if entry := obj["do"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -665,7 +615,7 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 		}
 	}
 	if entry := obj["doComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -682,12 +632,12 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 	return v, nil
 }
 
-func decodeForClause(raw []byte) (*syntax.ForClause, error) {
+func decodeForClause(raw wireValue) (*syntax.ForClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ForClause{}
@@ -734,7 +684,7 @@ func decodeForClause(raw []byte) (*syntax.ForClause, error) {
 		v.Loop = item
 	}
 	if entry := obj["do"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -749,7 +699,7 @@ func decodeForClause(raw []byte) (*syntax.ForClause, error) {
 		}
 	}
 	if entry := obj["doComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -766,12 +716,12 @@ func decodeForClause(raw []byte) (*syntax.ForClause, error) {
 	return v, nil
 }
 
-func decodeWordIter(raw []byte) (*syntax.WordIter, error) {
+func decodeWordIter(raw wireValue) (*syntax.WordIter, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.WordIter{}
@@ -790,7 +740,7 @@ func decodeWordIter(raw []byte) (*syntax.WordIter, error) {
 		v.InPos = pos
 	}
 	if entry := obj["items"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeWord(raw)
 			if err != nil {
 				return err
@@ -807,12 +757,12 @@ func decodeWordIter(raw []byte) (*syntax.WordIter, error) {
 	return v, nil
 }
 
-func decodeCStyleLoop(raw []byte) (*syntax.CStyleLoop, error) {
+func decodeCStyleLoop(raw wireValue) (*syntax.CStyleLoop, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CStyleLoop{}
@@ -866,12 +816,12 @@ func decodeCStyleLoop(raw []byte) (*syntax.CStyleLoop, error) {
 	return v, nil
 }
 
-func decodeBinaryCmd(raw []byte) (*syntax.BinaryCmd, error) {
+func decodeBinaryCmd(raw wireValue) (*syntax.BinaryCmd, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.BinaryCmd{}
@@ -906,12 +856,12 @@ func decodeBinaryCmd(raw []byte) (*syntax.BinaryCmd, error) {
 	return v, nil
 }
 
-func decodeFuncDecl(raw []byte) (*syntax.FuncDecl, error) {
+func decodeFuncDecl(raw wireValue) (*syntax.FuncDecl, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.FuncDecl{}
@@ -940,7 +890,7 @@ func decodeFuncDecl(raw []byte) (*syntax.FuncDecl, error) {
 		v.Name = item
 	}
 	if entry := obj["names"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeLit(raw)
 			if err != nil {
 				return err
@@ -964,17 +914,17 @@ func decodeFuncDecl(raw []byte) (*syntax.FuncDecl, error) {
 	return v, nil
 }
 
-func decodeWord(raw []byte) (*syntax.Word, error) {
+func decodeWord(raw wireValue) (*syntax.Word, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Word{}
 	if entry := obj["parts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			node, err := decodeNode(raw)
 			if err != nil {
 				return err
@@ -995,12 +945,12 @@ func decodeWord(raw []byte) (*syntax.Word, error) {
 	return v, nil
 }
 
-func decodeLit(raw []byte) (*syntax.Lit, error) {
+func decodeLit(raw wireValue) (*syntax.Lit, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Lit{}
@@ -1026,12 +976,12 @@ func decodeLit(raw []byte) (*syntax.Lit, error) {
 	return v, nil
 }
 
-func decodeSglQuoted(raw []byte) (*syntax.SglQuoted, error) {
+func decodeSglQuoted(raw wireValue) (*syntax.SglQuoted, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.SglQuoted{}
@@ -1062,12 +1012,12 @@ func decodeSglQuoted(raw []byte) (*syntax.SglQuoted, error) {
 	return v, nil
 }
 
-func decodeDblQuoted(raw []byte) (*syntax.DblQuoted, error) {
+func decodeDblQuoted(raw wireValue) (*syntax.DblQuoted, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.DblQuoted{}
@@ -1091,7 +1041,7 @@ func decodeDblQuoted(raw []byte) (*syntax.DblQuoted, error) {
 		}
 	}
 	if entry := obj["parts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			node, err := decodeNode(raw)
 			if err != nil {
 				return err
@@ -1112,12 +1062,12 @@ func decodeDblQuoted(raw []byte) (*syntax.DblQuoted, error) {
 	return v, nil
 }
 
-func decodeCmdSubst(raw []byte) (*syntax.CmdSubst, error) {
+func decodeCmdSubst(raw wireValue) (*syntax.CmdSubst, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CmdSubst{}
@@ -1136,7 +1086,7 @@ func decodeCmdSubst(raw []byte) (*syntax.CmdSubst, error) {
 		v.Right = pos
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -1151,7 +1101,7 @@ func decodeCmdSubst(raw []byte) (*syntax.CmdSubst, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -1183,12 +1133,12 @@ func decodeCmdSubst(raw []byte) (*syntax.CmdSubst, error) {
 	return v, nil
 }
 
-func decodeParamExp(raw []byte) (*syntax.ParamExp, error) {
+func decodeParamExp(raw wireValue) (*syntax.ParamExp, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ParamExp{}
@@ -1289,7 +1239,7 @@ func decodeParamExp(raw []byte) (*syntax.ParamExp, error) {
 		v.Index = item
 	}
 	if entry := obj["modifiers"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeLit(raw)
 			if err != nil {
 				return err
@@ -1334,12 +1284,12 @@ func decodeParamExp(raw []byte) (*syntax.ParamExp, error) {
 	return v, nil
 }
 
-func decodeSlice(raw []byte) (*syntax.Slice, error) {
+func decodeSlice(raw wireValue) (*syntax.Slice, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Slice{}
@@ -1368,12 +1318,12 @@ func decodeSlice(raw []byte) (*syntax.Slice, error) {
 	return v, nil
 }
 
-func decodeReplace(raw []byte) (*syntax.Replace, error) {
+func decodeReplace(raw wireValue) (*syntax.Replace, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Replace{}
@@ -1399,12 +1349,12 @@ func decodeReplace(raw []byte) (*syntax.Replace, error) {
 	return v, nil
 }
 
-func decodeExpansion(raw []byte) (*syntax.Expansion, error) {
+func decodeExpansion(raw wireValue) (*syntax.Expansion, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.Expansion{}
@@ -1425,12 +1375,12 @@ func decodeExpansion(raw []byte) (*syntax.Expansion, error) {
 	return v, nil
 }
 
-func decodeArithmExp(raw []byte) (*syntax.ArithmExp, error) {
+func decodeArithmExp(raw wireValue) (*syntax.ArithmExp, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ArithmExp{}
@@ -1472,12 +1422,12 @@ func decodeArithmExp(raw []byte) (*syntax.ArithmExp, error) {
 	return v, nil
 }
 
-func decodeArithmCmd(raw []byte) (*syntax.ArithmCmd, error) {
+func decodeArithmCmd(raw wireValue) (*syntax.ArithmCmd, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ArithmCmd{}
@@ -1514,12 +1464,12 @@ func decodeArithmCmd(raw []byte) (*syntax.ArithmCmd, error) {
 	return v, nil
 }
 
-func decodeBinaryArithm(raw []byte) (*syntax.BinaryArithm, error) {
+func decodeBinaryArithm(raw wireValue) (*syntax.BinaryArithm, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.BinaryArithm{}
@@ -1562,12 +1512,12 @@ func decodeBinaryArithm(raw []byte) (*syntax.BinaryArithm, error) {
 	return v, nil
 }
 
-func decodeUnaryArithm(raw []byte) (*syntax.UnaryArithm, error) {
+func decodeUnaryArithm(raw wireValue) (*syntax.UnaryArithm, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.UnaryArithm{}
@@ -1604,12 +1554,12 @@ func decodeUnaryArithm(raw []byte) (*syntax.UnaryArithm, error) {
 	return v, nil
 }
 
-func decodeParenArithm(raw []byte) (*syntax.ParenArithm, error) {
+func decodeParenArithm(raw wireValue) (*syntax.ParenArithm, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ParenArithm{}
@@ -1641,12 +1591,12 @@ func decodeParenArithm(raw []byte) (*syntax.ParenArithm, error) {
 	return v, nil
 }
 
-func decodeFlagsArithm(raw []byte) (*syntax.FlagsArithm, error) {
+func decodeFlagsArithm(raw wireValue) (*syntax.FlagsArithm, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.FlagsArithm{}
@@ -1671,12 +1621,12 @@ func decodeFlagsArithm(raw []byte) (*syntax.FlagsArithm, error) {
 	return v, nil
 }
 
-func decodeCaseClause(raw []byte) (*syntax.CaseClause, error) {
+func decodeCaseClause(raw wireValue) (*syntax.CaseClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CaseClause{}
@@ -1714,7 +1664,7 @@ func decodeCaseClause(raw []byte) (*syntax.CaseClause, error) {
 		v.Word = item
 	}
 	if entry := obj["items"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeCaseItem(raw)
 			if err != nil {
 				return err
@@ -1729,7 +1679,7 @@ func decodeCaseClause(raw []byte) (*syntax.CaseClause, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -1746,12 +1696,12 @@ func decodeCaseClause(raw []byte) (*syntax.CaseClause, error) {
 	return v, nil
 }
 
-func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
+func decodeCaseItem(raw wireValue) (*syntax.CaseItem, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CaseItem{}
@@ -1770,7 +1720,7 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 		v.OpPos = pos
 	}
 	if entry := obj["comments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -1785,7 +1735,7 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 		}
 	}
 	if entry := obj["patterns"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeWord(raw)
 			if err != nil {
 				return err
@@ -1800,7 +1750,7 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 		}
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -1815,7 +1765,7 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -1832,12 +1782,12 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 	return v, nil
 }
 
-func decodeTestClause(raw []byte) (*syntax.TestClause, error) {
+func decodeTestClause(raw wireValue) (*syntax.TestClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.TestClause{}
@@ -1869,12 +1819,12 @@ func decodeTestClause(raw []byte) (*syntax.TestClause, error) {
 	return v, nil
 }
 
-func decodeBinaryTest(raw []byte) (*syntax.BinaryTest, error) {
+func decodeBinaryTest(raw wireValue) (*syntax.BinaryTest, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.BinaryTest{}
@@ -1917,12 +1867,12 @@ func decodeBinaryTest(raw []byte) (*syntax.BinaryTest, error) {
 	return v, nil
 }
 
-func decodeUnaryTest(raw []byte) (*syntax.UnaryTest, error) {
+func decodeUnaryTest(raw wireValue) (*syntax.UnaryTest, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.UnaryTest{}
@@ -1954,12 +1904,12 @@ func decodeUnaryTest(raw []byte) (*syntax.UnaryTest, error) {
 	return v, nil
 }
 
-func decodeParenTest(raw []byte) (*syntax.ParenTest, error) {
+func decodeParenTest(raw wireValue) (*syntax.ParenTest, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ParenTest{}
@@ -1991,12 +1941,12 @@ func decodeParenTest(raw []byte) (*syntax.ParenTest, error) {
 	return v, nil
 }
 
-func decodeDeclClause(raw []byte) (*syntax.DeclClause, error) {
+func decodeDeclClause(raw wireValue) (*syntax.DeclClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.DeclClause{}
@@ -2008,7 +1958,7 @@ func decodeDeclClause(raw []byte) (*syntax.DeclClause, error) {
 		v.Variant = item
 	}
 	if entry := obj["args"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeAssign(raw)
 			if err != nil {
 				return err
@@ -2025,12 +1975,12 @@ func decodeDeclClause(raw []byte) (*syntax.DeclClause, error) {
 	return v, nil
 }
 
-func decodeArrayExpr(raw []byte) (*syntax.ArrayExpr, error) {
+func decodeArrayExpr(raw wireValue) (*syntax.ArrayExpr, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ArrayExpr{}
@@ -2049,7 +1999,7 @@ func decodeArrayExpr(raw []byte) (*syntax.ArrayExpr, error) {
 		v.Rparen = pos
 	}
 	if entry := obj["elems"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeArrayElem(raw)
 			if err != nil {
 				return err
@@ -2064,7 +2014,7 @@ func decodeArrayExpr(raw []byte) (*syntax.ArrayExpr, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -2081,12 +2031,12 @@ func decodeArrayExpr(raw []byte) (*syntax.ArrayExpr, error) {
 	return v, nil
 }
 
-func decodeArrayElem(raw []byte) (*syntax.ArrayElem, error) {
+func decodeArrayElem(raw wireValue) (*syntax.ArrayElem, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ArrayElem{}
@@ -2109,7 +2059,7 @@ func decodeArrayElem(raw []byte) (*syntax.ArrayElem, error) {
 		v.Value = item
 	}
 	if entry := obj["comments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -2126,12 +2076,12 @@ func decodeArrayElem(raw []byte) (*syntax.ArrayElem, error) {
 	return v, nil
 }
 
-func decodeExtGlob(raw []byte) (*syntax.ExtGlob, error) {
+func decodeExtGlob(raw wireValue) (*syntax.ExtGlob, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ExtGlob{}
@@ -2159,12 +2109,12 @@ func decodeExtGlob(raw []byte) (*syntax.ExtGlob, error) {
 	return v, nil
 }
 
-func decodeProcSubst(raw []byte) (*syntax.ProcSubst, error) {
+func decodeProcSubst(raw wireValue) (*syntax.ProcSubst, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.ProcSubst{}
@@ -2190,7 +2140,7 @@ func decodeProcSubst(raw []byte) (*syntax.ProcSubst, error) {
 		v.Op = syntax.ProcOperator(n)
 	}
 	if entry := obj["stmts"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeStmt(raw)
 			if err != nil {
 				return err
@@ -2205,7 +2155,7 @@ func decodeProcSubst(raw []byte) (*syntax.ProcSubst, error) {
 		}
 	}
 	if entry := obj["lastComments"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
@@ -2222,12 +2172,12 @@ func decodeProcSubst(raw []byte) (*syntax.ProcSubst, error) {
 	return v, nil
 }
 
-func decodeTimeClause(raw []byte) (*syntax.TimeClause, error) {
+func decodeTimeClause(raw wireValue) (*syntax.TimeClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.TimeClause{}
@@ -2253,12 +2203,12 @@ func decodeTimeClause(raw []byte) (*syntax.TimeClause, error) {
 	return v, nil
 }
 
-func decodeCoprocClause(raw []byte) (*syntax.CoprocClause, error) {
+func decodeCoprocClause(raw wireValue) (*syntax.CoprocClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.CoprocClause{}
@@ -2286,12 +2236,12 @@ func decodeCoprocClause(raw []byte) (*syntax.CoprocClause, error) {
 	return v, nil
 }
 
-func decodeLetClause(raw []byte) (*syntax.LetClause, error) {
+func decodeLetClause(raw wireValue) (*syntax.LetClause, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.LetClause{}
@@ -2303,7 +2253,7 @@ func decodeLetClause(raw []byte) (*syntax.LetClause, error) {
 		v.Let = pos
 	}
 	if entry := obj["exprs"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			node, err := decodeNode(raw)
 			if err != nil {
 				return err
@@ -2324,12 +2274,12 @@ func decodeLetClause(raw []byte) (*syntax.LetClause, error) {
 	return v, nil
 }
 
-func decodeBraceExp(raw []byte) (*syntax.BraceExp, error) {
+func decodeBraceExp(raw wireValue) (*syntax.BraceExp, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.BraceExp{}
@@ -2339,7 +2289,7 @@ func decodeBraceExp(raw []byte) (*syntax.BraceExp, error) {
 		}
 	}
 	if entry := obj["elems"]; len(entry) != 0 && !isNull(entry) {
-		if err := decodeArray(entry, func(raw json.RawMessage) error {
+		if err := decodeArray(entry, func(raw wireValue) error {
 			item, err := decodeWord(raw)
 			if err != nil {
 				return err
@@ -2356,12 +2306,12 @@ func decodeBraceExp(raw []byte) (*syntax.BraceExp, error) {
 	return v, nil
 }
 
-func decodeTestDecl(raw []byte) (*syntax.TestDecl, error) {
+func decodeTestDecl(raw wireValue) (*syntax.TestDecl, error) {
 	if isNull(raw) {
 		return nil, nil
 	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &obj); err != nil {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
 	v := &syntax.TestDecl{}
@@ -2389,14 +2339,20 @@ func decodeTestDecl(raw []byte) (*syntax.TestDecl, error) {
 	return v, nil
 }
 
-func decodeNode(raw []byte) (syntax.Node, error) {
-	var header struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(raw, &header); err != nil {
+func decodeNode(raw wireValue) (syntax.Node, error) {
+	obj, err := decodeObject(raw)
+	if err != nil {
 		return nil, err
 	}
-	switch header.Type {
+	typeValue, ok := obj["type"]
+	if !ok {
+		return nil, fmt.Errorf("missing type")
+	}
+	var typeName string
+	if err := decodeString(typeValue, &typeName); err != nil {
+		return nil, err
+	}
+	switch typeName {
 	case "File":
 		return decodeFile(raw)
 	case "Comment":
@@ -2484,6 +2440,6 @@ func decodeNode(raw []byte) (syntax.Node, error) {
 	case "TestDecl":
 		return decodeTestDecl(raw)
 	default:
-		return nil, fmt.Errorf("unknown node type %q", header.Type)
+		return nil, fmt.Errorf("unknown node type %q", typeName)
 	}
 }

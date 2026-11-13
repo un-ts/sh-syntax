@@ -14,68 +14,17 @@ func writeDecoder(buf *bytes.Buffer, structs map[string]*typeInfo, allTypes []st
 	fmt.Fprintln(buf, "package processor")
 	fmt.Fprintln(buf)
 	fmt.Fprintln(buf, "import (")
-	fmt.Fprintln(buf, "\t\"encoding/json\"")
+
 	fmt.Fprintln(buf, "\t\"fmt\"")
 	fmt.Fprintln(buf, "\t\"mvdan.cc/sh/v3/syntax\"")
 	fmt.Fprintln(buf, ")")
 	fmt.Fprintln(buf)
-	fmt.Fprint(buf, `func isNull(raw json.RawMessage) bool {
-	return len(raw) == 0 || string(raw) == "null"
-}
-
-func decodeString(raw json.RawMessage, out *string) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodeBool(raw json.RawMessage, out *bool) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodeUint(raw json.RawMessage, out *uint64) error {
-	return json.Unmarshal(raw, out)
-}
-
-func decodePos(raw json.RawMessage) (syntax.Pos, error) {
-	var p struct {
-		Offset    uint
-		Line      uint
-		Column    uint
-		Recovered bool
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return syntax.Pos{}, err
-	}
-	if p.Recovered {
-		return syntax.NewPos(0, 0, 0), nil
-	}
-	column := p.Column
-	if p.Offset != 0 || p.Line != 0 {
-		column++
-	}
-	return syntax.NewPos(p.Offset, p.Line, column), nil
-}
-
-func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
-	var entries []json.RawMessage
-	if err := json.Unmarshal(raw, &entries); err != nil {
-		return err
-	}
-	for _, entry := range entries {
-		if err := visit(entry); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-`)
 
 	for _, name := range allTypes {
 		info := structs[name]
-		fmt.Fprintf(buf, "func decode%s(raw []byte) (*syntax.%s, error) {\n", name, name)
+		fmt.Fprintf(buf, "func decode%s(raw wireValue) (*syntax.%s, error) {\n", name, name)
 		fmt.Fprintln(buf, "\tif isNull(raw) { return nil, nil }")
-		fmt.Fprintln(buf, "\tvar obj map[string]json.RawMessage")
-		fmt.Fprintln(buf, "\tif err := json.Unmarshal(raw, &obj); err != nil { return nil, err }")
+		fmt.Fprintln(buf, "\tobj, err := decodeObject(raw); if err != nil { return nil, err }")
 		fmt.Fprintf(buf, "\tv := &syntax.%s{}\n", name)
 		for _, f := range info.fields {
 			fmt.Fprintf(buf, "\tif entry := obj[%q]; len(entry) != 0 && !isNull(entry) {\n", jsName(f.name))
@@ -89,16 +38,18 @@ func decodeArray(raw json.RawMessage, visit func(json.RawMessage) error) error {
 		fmt.Fprintln(buf)
 	}
 
-	fmt.Fprintln(buf, "func decodeNode(raw []byte) (syntax.Node, error) {")
-	fmt.Fprintln(buf, "\tvar header struct { Type string `json:\"type\"` }")
-	fmt.Fprintln(buf, "\tif err := json.Unmarshal(raw, &header); err != nil { return nil, err }")
-	fmt.Fprintln(buf, "\tswitch header.Type {")
+	fmt.Fprintln(buf, "func decodeNode(raw wireValue) (syntax.Node, error) {")
+	fmt.Fprintln(buf, "\tobj, err := decodeObject(raw); if err != nil { return nil, err }")
+	fmt.Fprintln(buf, "\ttypeValue, ok := obj[\"type\"]; if !ok { return nil, fmt.Errorf(\"missing type\") }")
+	fmt.Fprintln(buf, "\tvar typeName string; if err := decodeString(typeValue, &typeName); err != nil { return nil, err }")
+
+	fmt.Fprintln(buf, "\tswitch typeName {")
 	for _, name := range allTypes {
 		if structs[name].isNode {
 			fmt.Fprintf(buf, "\tcase %q: return decode%s(raw)\n", name, name)
 		}
 	}
-	buf.WriteString("\tdefault: return nil, fmt.Errorf(\"unknown node type %q\", header.Type)\n")
+	buf.WriteString("\tdefault: return nil, fmt.Errorf(\"unknown node type %q\", typeName)\n")
 	fmt.Fprintln(buf, "\t}")
 	fmt.Fprintln(buf, "}")
 }
@@ -120,12 +71,12 @@ func decodeField(typ, target string, interfaces map[string][]string) []string {
 		el := strings.TrimPrefix(typ, "[]")
 		if strings.HasPrefix(el, "*") {
 			name := strings.TrimPrefix(el, "*")
-			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", name, target, target, errClause)}
+			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw wireValue) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", name, target, target, errClause)}
 		}
 		if _, ok := interfaces[el]; ok {
-			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { node, err := decodeNode(raw); if err != nil { return err }; item, ok := node.(syntax.%s); if !ok { return fmt.Errorf(\"expected syntax.%s\") }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", el, el, target, target, errClause)}
+			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw wireValue) error { node, err := decodeNode(raw); if err != nil { return err }; item, ok := node.(syntax.%s); if !ok { return fmt.Errorf(\"expected syntax.%s\") }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, item); return nil }); %s", el, el, target, target, errClause)}
 		}
-		return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, *item); return nil }); %s", el, target, target, errClause)}
+		return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw wireValue) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, *item); return nil }); %s", el, target, target, errClause)}
 	}
 	if strings.HasPrefix(typ, "*") {
 		name := strings.TrimPrefix(typ, "*")

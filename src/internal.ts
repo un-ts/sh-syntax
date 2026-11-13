@@ -24,7 +24,7 @@ interface RawResult {
   file: File | null
   text: string
   parseError: IParseError | null
-  message?: string
+  message: string
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -217,5 +217,6 @@ export const invoke = (
     throw new SyntaxError(message)
   }
 
+  // Process emits a File object on the parse path; printNode returns file: null.
   return printOutput ? processedText : (file as File)
 }
