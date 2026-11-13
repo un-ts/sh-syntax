@@ -16,6 +16,9 @@ func TestProcessParseErrorDoesNotEncodePartialTree(t *testing.T) {
 		t.Fatal("metadata exceeds result")
 	}
 	metadata := string(out[4 : 4+metadataLength])
+	if len(out) != 4+int(metadataLength) {
+		t.Fatal("parse error result contains an AST payload")
+	}
 	if !strings.Contains(metadata, `"parseError":{`) {
 		t.Fatalf("expected a parse error, got %s", metadata)
 	}
