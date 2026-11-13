@@ -24,7 +24,7 @@ yarn gen:encoder # regenerate Go encoder, TS AST types, and operator constants
 yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >=24.14
 ```
 
-`yarn format` formats the root repository. `package.json` is owned by `prettier-plugin-pkg`; other JSON/formats go through oxfmt. `shell/` is ignored by the root Prettier config because the submodule has its own formatting setup.
+`yarn format` formats the root repository. `package.json` is owned by `prettier-plugin-pkg`; other JSON/formats go through oxfmt.
 
 ## Layout
 
@@ -43,7 +43,6 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 - `processor/` — Go parser/printer/envelope and generated encoder
 - `scripts/gen-encoder/` — Go generator for the static encoder
 - `main.wasm` — committed standard Go WASM build
-- `shell/` — `@eslint/shell` fork submodule used for integration testing
 
 ## AST contract
 
@@ -82,7 +81,6 @@ yarn wasm        # gen:encoder + standard Go WASM build + wasm-opt; needs Node >
 
 - `ci.yml` runs on pushes to `main`, pull requests, and merge queues. Do not re-enable every-branch pushes; that duplicates PR runs.
 - The `Build Wasm` job regenerates all generated sources and the WASM on Ubuntu, then verifies them.
-- The integration job checks out the `shell/` submodule, builds the root package, then installs, builds, and tests `@eslint/shell`.
 - `autofix.ci` runs `yarn run-s build format`; it must stay green.
 - Keep action pins as full commit SHAs and retain `persist-credentials: false` in the WASM checkout.
 
