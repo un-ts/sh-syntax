@@ -132,6 +132,9 @@ const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
     throw new TypeError(`wire expects a ${typeName} node`)
   }
   const value = node as Record<string, unknown>
+  if (value.type !== typeName) {
+    throw new TypeError(`wire expected ${typeName}, got ${String(value.type)}`)
+  }
   writer.uint(Number(value.start ?? 0))
   writer.uint(Number(value.end ?? 0))
   for (const [name, field] of schema.fields) {

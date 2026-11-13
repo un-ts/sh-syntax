@@ -112,7 +112,7 @@ func printNode(
 ) unsafe.Pointer {
 	options := (*processOptions)(optionsPointer)
 	result := processor.ProcessNode(bytesAt(nodePointer, nodeLength), printerOptions(options))
-	lastResult = append(result, 0)
+	lastResult = result
 	return unsafe.Pointer(&lastResult[0])
 }
 

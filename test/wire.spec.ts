@@ -27,6 +27,10 @@ test('binary wire rejects invalid output values', () => {
   const invalidRecord = structuredClone(ast) as unknown as { stmts: unknown[] }
   invalidRecord.stmts[0] = 42
   expect(() => encodeAST(invalidRecord as never)).toThrow(TypeError)
+
+  const wrongChild = structuredClone(ast) as unknown as { stmts: { type: string }[] }
+  wrongChild.stmts[0]!.type = 'Comment'
+  expect(() => encodeAST(wrongChild as never)).toThrow(TypeError)
 })
 
 test('binary wire grows for large payloads and preserves unicode', () => {
