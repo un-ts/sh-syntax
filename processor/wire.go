@@ -24,20 +24,14 @@ func isNull(raw wireValue) bool {
 }
 
 func decodeObject(raw wireValue) (map[string]wireValue, error) {
-	index, err := skipSpace(raw, 0)
-	if err != nil {
-		return nil, err
-	}
+	index := skipSpace(raw, 0)
 	if index >= len(raw) || raw[index] != '{' {
 		return nil, fmt.Errorf("expected object")
 	}
 	index++
 	result := make(map[string]wireValue)
 	for {
-		index, err = skipSpace(raw, index)
-		if err != nil {
-			return nil, err
-		}
+		index = skipSpace(raw, index)
 		if index >= len(raw) {
 			return nil, fmt.Errorf("unterminated object")
 		}
@@ -52,26 +46,17 @@ func decodeObject(raw wireValue) (map[string]wireValue, error) {
 		if err != nil {
 			return nil, err
 		}
-		index, err = skipSpace(raw, end)
-		if err != nil {
-			return nil, err
-		}
+		index = skipSpace(raw, end)
 		if index >= len(raw) || raw[index] != ':' {
 			return nil, fmt.Errorf("expected colon")
 		}
-		index, err = skipSpace(raw, index+1)
-		if err != nil {
-			return nil, err
-		}
+		index = skipSpace(raw, index+1)
 		end, err = scanValue(raw, index)
 		if err != nil {
 			return nil, err
 		}
 		result[key] = raw[index:end]
-		index, err = skipSpace(raw, end)
-		if err != nil {
-			return nil, err
-		}
+		index = skipSpace(raw, end)
 		if index >= len(raw) {
 			return nil, fmt.Errorf("unterminated object")
 		}
@@ -87,19 +72,13 @@ func decodeObject(raw wireValue) (map[string]wireValue, error) {
 }
 
 func decodeArray(raw wireValue, visit func(wireValue) error) error {
-	index, err := skipSpace(raw, 0)
-	if err != nil {
-		return err
-	}
+	index := skipSpace(raw, 0)
 	if index >= len(raw) || raw[index] != '[' {
 		return fmt.Errorf("expected array")
 	}
 	index++
 	for {
-		index, err = skipSpace(raw, index)
-		if err != nil {
-			return err
-		}
+		index = skipSpace(raw, index)
 		if index >= len(raw) {
 			return fmt.Errorf("unterminated array")
 		}
@@ -113,10 +92,7 @@ func decodeArray(raw wireValue, visit func(wireValue) error) error {
 		if err := visit(raw[index:end]); err != nil {
 			return err
 		}
-		index, err = skipSpace(raw, end)
-		if err != nil {
-			return err
-		}
+		index = skipSpace(raw, end)
 		if index >= len(raw) {
 			return fmt.Errorf("unterminated array")
 		}
@@ -132,10 +108,7 @@ func decodeArray(raw wireValue, visit func(wireValue) error) error {
 }
 
 func decodeStringValue(raw wireValue) (string, error) {
-	index, err := skipSpace(raw, 0)
-	if err != nil {
-		return "", err
-	}
+	index := skipSpace(raw, 0)
 	end, err := scanString(raw, index)
 	if err != nil {
 		return "", err
@@ -269,16 +242,16 @@ func decodePos(raw wireValue) (syntax.Pos, error) {
 	return syntax.NewPos(uint(offset), uint(line), uint(column)), nil
 }
 
-func skipSpace(raw wireValue, index int) (int, error) {
+func skipSpace(raw wireValue, index int) int {
 	for index < len(raw) {
 		switch raw[index] {
 		case ' ', '\n', '\r', '\t':
 			index++
 		default:
-			return index, nil
+			return index
 		}
 	}
-	return index, nil
+	return index
 }
 
 func scanString(raw wireValue, start int) (int, error) {
@@ -297,10 +270,7 @@ func scanString(raw wireValue, start int) (int, error) {
 }
 
 func scanValue(raw wireValue, start int) (int, error) {
-	index, err := skipSpace(raw, start)
-	if err != nil {
-		return 0, err
-	}
+	index := skipSpace(raw, start)
 	if index >= len(raw) {
 		return 0, fmt.Errorf("missing value")
 	}
