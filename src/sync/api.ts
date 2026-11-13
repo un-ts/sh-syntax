@@ -8,14 +8,14 @@ export interface ProcessorAPI {
   parse: (text: string, options?: ShOptions) => File
   print: {
     (text: string, options?: ShOptions): string
-    (ast: File, options: ShPrintOptions): string
+    (ast: File, options?: ShPrintOptions): string
   }
 }
 
 /** Binds the synchronous parse/print surface to a sync processor. */
 export const createProcessorAPI = (processor: Processor): ProcessorAPI => ({
   parse: (text, options) => processor(text, options),
-  print: (textOrAst: File | string, options?: ShOptions & { originalText?: string }): string => {
+  print: (textOrAst: File | string, options?: ShPrintOptions): string => {
     if (typeof textOrAst === 'string') {
       return processor(textOrAst, {
         ...options,

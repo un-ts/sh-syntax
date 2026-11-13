@@ -1,0 +1,98 @@
+package processor
+
+import (
+	"bytes"
+	"testing"
+)
+
+func printAST(t *testing.T, source string) string {
+	t.Helper()
+	file, err := Parse(source, "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encoded bytes.Buffer
+	if err := EncodeNode(&encoded, file); err != nil {
+		t.Fatal(err)
+	}
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return got
+}
+
+func formatSource(t *testing.T, source string) string {
+	t.Helper()
+	got, err := Print(source, "", SyntaxOptions{ParserOptions: ParserOptions{KeepComments: true}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return got
+}
+
+func requirePrintError(t *testing.T, source string) {
+	t.Helper()
+	if _, err := PrintNode([]byte(source), PrinterOptions{}); err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestPrintNodeRoundTrip(t *testing.T) {
+	source := "echo 'hello' | grep hello\n"
+	if got := printAST(t, source); got != source {
+		t.Fatalf("got %q, want %q", got, source)
+	}
+}
+
+func TestPrintNodeComplexRoundTrip(t *testing.T) {
+	source := `#!/bin/bash
+foo() { echo "$@"; }
+if true; then
+  for x in a b; do echo "$x"; done
+elif false; then
+  case "$x" in
+    a) echo a ;;
+    *) echo other ;;
+  esac
+else
+  echo "$(printf '%s' "$x")" >&2
+fi
+`
+	if got, want := printAST(t, source), formatSource(t, source); got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestPrintNodeRejectsNullComment(t *testing.T) {
+	requirePrintError(t, `{"type":"File","lastComments":[null]}`)
+}
+
+func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
+	requirePrintError(t, `{"type":"File","stmts":[{"type":"Stmt","cmd":{"type":"CallExpr","args":[{"type":"Word","parts":[]}],"assigns":[],"redirs":[]},"redirs":[]}],"lastComments":[]}`)
+}
+
+func TestPrintNodeRejectsNullStatement(t *testing.T) {
+	requirePrintError(t, `{"type":"File","stmts":[null],"lastComments":[]}`)
+}
+
+func TestDecodeStringEscapes(t *testing.T) {
+	var got string
+	if err := decodeString(wireValue(`"a\n\"b\u00e9\ud83d\ude00"`), &got); err != nil {
+		t.Fatal(err)
+	}
+	if want := "a\n\"bé😀"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestPrintNodeUnicodeRoundTrip(t *testing.T) {
+	source := "echo 'héllo' \"$(printf '😀')\"\n"
+	if got, want := printAST(t, source), formatSource(t, source); got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestPrintNodeRejectsTrailingData(t *testing.T) {
+	requirePrintError(t, `{"type":"File"} trailing`)
+}

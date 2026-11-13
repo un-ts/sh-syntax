@@ -56,27 +56,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		return "", err
 	}
 
-	if syntaxOptions.Simplify || syntaxOptions.Minify {
-		syntax.Simplify(file)
-	}
-
-	printer := syntax.NewPrinter(
-		syntax.Indent(syntaxOptions.Indent),
-		syntax.BinaryNextLine(syntaxOptions.BinaryNextLine),
-		syntax.SwitchCaseIndent(syntaxOptions.SwitchCaseIndent),
-		syntax.SpaceRedirects(syntaxOptions.SpaceRedirects),
-		syntax.KeepPadding(syntaxOptions.KeepPadding),
-		syntax.Minify(syntaxOptions.Minify),
-		syntax.SingleLine(syntaxOptions.SingleLine),
-		syntax.FunctionNextLine(syntaxOptions.FunctionNextLine),
-	)
-
-	var buf bytes.Buffer
-	if err := printer.Print(&buf, file); err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
+	return printFile(file, syntaxOptions.PrinterOptions)
 }
 
 // Process processes the input file path and text by performing either

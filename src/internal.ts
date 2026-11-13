@@ -1,9 +1,8 @@
 import { ParseError } from './common.js'
-import { type File, type IParseError, LangVariant, type ShOptions } from './types.js'
+import { type File, type IParseError, LangVariant, type ShPrintOptions } from './types.js'
 
-export interface InternalOptions extends ShOptions {
+export interface InternalOptions extends ShPrintOptions {
   print?: boolean
-  originalText?: string
 }
 
 export interface ProcessExports {
@@ -18,10 +17,11 @@ export interface ProcessExports {
     textLength: number,
     optionsPointer: number,
   ) => number
+  printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
 }
 
 interface RawResult {
-  file: File
+  file: File | null
   text: string
   parseError: IParseError | null
   message: string
@@ -72,7 +72,7 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 }
 
 export const invoke = (
-  { memory, wasmAlloc, wasmFree, process }: ProcessExports,
+  { memory, wasmAlloc, wasmFree, process, printNode }: ProcessExports,
   textOrAst: File | string,
   {
     filepath = '',
@@ -106,36 +106,49 @@ export const invoke = (
     throw new TypeError(`Unsupported shell variant: ${variant}`)
   }
 
+  if (
+    textOrAst == null ||
+    (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
+  ) {
+    throw new TypeError('expected shell source text or a syntax tree')
+  }
+
   let text: string
   let printOutput: boolean
+  let astBytes: Uint8Array | undefined
 
   if (typeof textOrAst === 'string') {
     text = textOrAst
     printOutput = print
+  } else if (originalText == null) {
+    astBytes = encoder.encode(JSON.stringify(textOrAst))
+    text = ''
+    printOutput = true
   } else {
-    if (originalText == null) {
-      throw new TypeError(
-        'processor(ast) is not supported; pass { originalText } to format the source text',
-      )
-    }
     text = originalText
     printOutput = true
   }
 
-  const filePath = encoder.encode(filepath)
   const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
   if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
     throw new TypeError('stopAt must be at most 4 bytes')
   }
 
-  const filePathPointer = wasmAlloc(filePath.byteLength)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+  let filePathPointer = 0
+  let filePathLength = 0
+  if (!astBytes) {
+    const filePath = encoder.encode(filepath)
+    filePathLength = filePath.byteLength
+    filePathPointer = wasmAlloc(filePathLength)
+    // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+  }
 
-  const textPointer = wasmAlloc(textBytes.byteLength)
+  const inputBytes = astBytes ?? textBytes
+  const textPointer = wasmAlloc(inputBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(textBytes, textPointer)
+  new Uint8Array(memory.buffer).set(inputBytes, textPointer)
 
   const optionValues = [
     printOutput,
@@ -169,15 +182,13 @@ export const invoke = (
     stopAtBytes,
   )
 
-  const resultPointer = process(
-    filePathPointer,
-    filePath.byteLength,
-    textPointer,
-    textBytes.byteLength,
-    optionsPointer,
-  )
+  const resultPointer = astBytes
+    ? printNode(textPointer, astBytes.byteLength, optionsPointer)
+    : process(filePathPointer, filePathLength, textPointer, textBytes.byteLength, optionsPointer)
 
-  wasmFree(filePathPointer)
+  if (!astBytes) {
+    wasmFree(filePathPointer)
+  }
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
@@ -206,5 +217,6 @@ export const invoke = (
     throw new SyntaxError(message)
   }
 
-  return printOutput ? processedText : file
+  // Process emits a File object on the parse path; printNode returns file: null.
+  return printOutput ? processedText : (file as File)
 }

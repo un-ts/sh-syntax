@@ -57,22 +57,17 @@ func bytesAt(pointer unsafe.Pointer, length uint32) []byte {
 	return unsafe.Slice((*byte)(pointer), length)
 }
 
-//go:wasmexport process
-func process(
-	filepathPointer unsafe.Pointer, filepathLength uint32,
-	textPointer unsafe.Pointer, textLength uint32,
-	optionsPointer unsafe.Pointer,
-) unsafe.Pointer {
-	options := (*processOptions)(optionsPointer)
-
-	parserOptions := processor.ParserOptions{
+func parserOptions(options *processOptions) processor.ParserOptions {
+	return processor.ParserOptions{
 		KeepComments:  options.KeepComments != 0,
 		Variant:       syntax.LangVariant(options.Variant),
 		StopAt:        string(options.StopAt[:options.StopAtLength]),
 		RecoverErrors: int(options.RecoverErrors),
 	}
+}
 
-	printerOptions := processor.PrinterOptions{
+func printerOptions(options *processOptions) processor.PrinterOptions {
+	return processor.PrinterOptions{
 		Simplify:         options.Simplify != 0,
 		Indent:           uint(options.Indent),
 		BinaryNextLine:   options.BinaryNextLine != 0,
@@ -83,15 +78,35 @@ func process(
 		SingleLine:       options.SingleLine != 0,
 		FunctionNextLine: options.FunctionNextLine != 0,
 	}
+}
+
+//go:wasmexport process
+func process(
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	textPointer unsafe.Pointer, textLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
 
 	result := processor.Process(
 		bytesAt(filepathPointer, filepathLength),
 		bytesAt(textPointer, textLength),
 		options.Print != 0,
-		parserOptions,
-		printerOptions,
+		parserOptions(options),
+		printerOptions(options),
 	)
 
+	lastResult = append(result, 0)
+	return unsafe.Pointer(&lastResult[0])
+}
+
+//go:wasmexport printNode
+func printNode(
+	nodePointer unsafe.Pointer, nodeLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
+	result := processor.ProcessNode(bytesAt(nodePointer, nodeLength), printerOptions(options))
 	lastResult = append(result, 0)
 	return unsafe.Pointer(&lastResult[0])
 }
