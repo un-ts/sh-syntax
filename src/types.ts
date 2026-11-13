@@ -165,8 +165,8 @@ export interface ShOptions extends ShSyntaxOptions {
 }
 
 export interface ShPrintOptions extends ShOptions {
-  /** The source text to format. The AST is accepted for compatibility and is ignored. */
-  originalText: string
+  /** Format this source text instead of the current AST. */
+  originalText?: string
 }
 
 export type * from './ast-types.js'

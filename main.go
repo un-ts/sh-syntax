@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/json"
 	"unsafe"
 
 	"github.com/un-ts/sh-syntax/processor"
@@ -57,22 +58,22 @@ func bytesAt(pointer unsafe.Pointer, length uint32) []byte {
 	return unsafe.Slice((*byte)(pointer), length)
 }
 
-//go:wasmexport process
-func process(
-	filepathPointer unsafe.Pointer, filepathLength uint32,
-	textPointer unsafe.Pointer, textLength uint32,
-	optionsPointer unsafe.Pointer,
-) unsafe.Pointer {
-	options := (*processOptions)(optionsPointer)
+func quoteJSON(value string) []byte {
+	encoded, _ := json.Marshal(value)
+	return encoded
+}
 
-	parserOptions := processor.ParserOptions{
+func parserOptions(options *processOptions) processor.ParserOptions {
+	return processor.ParserOptions{
 		KeepComments:  options.KeepComments != 0,
 		Variant:       syntax.LangVariant(options.Variant),
 		StopAt:        string(options.StopAt[:options.StopAtLength]),
 		RecoverErrors: int(options.RecoverErrors),
 	}
+}
 
-	printerOptions := processor.PrinterOptions{
+func printerOptions(options *processOptions) processor.PrinterOptions {
+	return processor.PrinterOptions{
 		Simplify:         options.Simplify != 0,
 		Indent:           uint(options.Indent),
 		BinaryNextLine:   options.BinaryNextLine != 0,
@@ -83,16 +84,58 @@ func process(
 		SingleLine:       options.SingleLine != 0,
 		FunctionNextLine: options.FunctionNextLine != 0,
 	}
+}
+
+//go:wasmexport process
+func process(
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	textPointer unsafe.Pointer, textLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
 
 	result := processor.Process(
 		bytesAt(filepathPointer, filepathLength),
 		bytesAt(textPointer, textLength),
 		options.Print != 0,
-		parserOptions,
-		printerOptions,
+		parserOptions(options),
+		printerOptions(options),
 	)
 
 	lastResult = append(result, 0)
+	return unsafe.Pointer(&lastResult[0])
+}
+
+//go:wasmexport printNode
+func printNode(
+	nodePointer unsafe.Pointer, nodeLength uint32,
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
+
+	text, err := processor.PrintNode(
+		bytesAt(nodePointer, nodeLength),
+		string(bytesAt(filepathPointer, filepathLength)),
+		processor.SyntaxOptions{
+			ParserOptions:  parserOptions(options),
+			PrinterOptions: printerOptions(options),
+		},
+	)
+
+	if err != nil {
+		out := []byte("{\"text\":\"\",\"message\":")
+		out = append(out, quoteJSON(err.Error())...)
+		out = append(out, '}')
+		lastResult = append(out, 0)
+		return unsafe.Pointer(&lastResult[0])
+	}
+	// The AST printer returns text, not a parse envelope. Encode it as a JSON string
+	// so the TypeScript side can share the result envelope reader.
+	out := []byte("{\"text\":")
+	out = append(out, quoteJSON(text)...)
+	out = append(out, '}')
+	lastResult = append(out, 0)
 	return unsafe.Pointer(&lastResult[0])
 }
 

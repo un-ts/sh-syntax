@@ -56,12 +56,14 @@ await init()
 const text = "echo 'Hello World!'"
 const ast = await parse(text)
 
-// print() formats source text; printing an edited AST is a planned follow-up.
+// print() formats source text.
 const formatted = await print(text)
 
-// Compatibility: print(ast, { originalText }) is accepted, but the AST is
-// ignored and originalText is formatted.
-const legacyFormatted = await print(ast, { originalText: text })
+// print(ast) prints the current tree, including edits made to its fields.
+const printedAst = await print(ast)
+
+// originalText still selects the source-text fast path.
+const formattedSource = await print(ast, { originalText: text })
 ```
 
 The synchronous Node API is available from `sh-syntax/sync`:
@@ -71,6 +73,7 @@ import { parse, print } from 'sh-syntax/sync'
 
 const ast = parse("echo 'Hello World!'")
 const formatted = print("echo 'Hello World!'")
+const printedAst = print(ast)
 ```
 
 #### syntax tree

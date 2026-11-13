@@ -8,7 +8,7 @@ export interface ProcessorAPI {
   parse: (text: string, options?: ShOptions) => Promise<File>
   print: {
     (text: string, options?: ShOptions): Promise<string>
-    (ast: File, options: ShPrintOptions): Promise<string>
+    (ast: File, options?: ShPrintOptions): Promise<string>
   }
 }
 

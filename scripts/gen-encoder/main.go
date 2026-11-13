@@ -47,6 +47,8 @@ func main() {
 
 	var buf bytes.Buffer
 	writeEncoder(&buf, structs, allTypes, interfaces)
+	var decBuf bytes.Buffer
+	writeDecoder(&decBuf, structs, allTypes, interfaces)
 	writeTypes(structs, order, interfaces, operators)
 	writeOperators(operators)
 
@@ -56,6 +58,14 @@ func main() {
 	}
 	if err := os.WriteFile("processor/encode_generated.go", formatted, 0o644); err != nil {
 		fatalf("write encoder: %v", err)
+	}
+	os.WriteFile("/tmp/decode_raw.go", decBuf.Bytes(), 0o644)
+	formattedDecoder, err := format.Source(decBuf.Bytes())
+	if err != nil {
+		fatalf("format generated decoder: %v", err)
+	}
+	if err := os.WriteFile("processor/decode_generated.go", formattedDecoder, 0o644); err != nil {
+		fatalf("write decoder: %v", err)
 	}
 }
 

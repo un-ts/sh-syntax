@@ -1,5 +1,5 @@
 import { invoke, startGoRuntime, type GoRuntime, type InternalOptions } from './internal.js'
-import { type File, type ShOptions } from './types.js'
+import { type File, type ShOptions, type ShPrintOptions } from './types.js'
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
@@ -22,7 +22,7 @@ export type GetWebAssemblyInstance = (
 export interface Processor {
   (text: string, options?: ShOptions): Promise<File>
   (text: string, options?: ShOptions & { print: true }): Promise<string>
-  (ast: File, options: ShOptions & { originalText: string }): Promise<string>
+  (ast: File, options?: ShPrintOptions): Promise<string>
   /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
   init(): Promise<void>
 }

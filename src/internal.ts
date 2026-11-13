@@ -18,6 +18,13 @@ export interface ProcessExports {
     textLength: number,
     optionsPointer: number,
   ) => number
+  printNode: (
+    nodePointer: number,
+    nodeLength: number,
+    filePathPointer: number,
+    filePathLength: number,
+    optionsPointer: number,
+  ) => number
 }
 
 interface RawResult {
@@ -72,7 +79,7 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 }
 
 export const invoke = (
-  { memory, wasmAlloc, wasmFree, process }: ProcessExports,
+  { memory, wasmAlloc, wasmFree, process, printNode }: ProcessExports,
   textOrAst: File | string,
   {
     filepath = '',
@@ -106,18 +113,22 @@ export const invoke = (
     throw new TypeError(`Unsupported shell variant: ${variant}`)
   }
 
+  if (textOrAst == null || (typeof textOrAst !== 'object' && typeof textOrAst !== 'string')) {
+    throw new TypeError('parse requires a string')
+  }
+
   let text: string
   let printOutput: boolean
+  let astBytes: Uint8Array | undefined
 
   if (typeof textOrAst === 'string') {
     text = textOrAst
     printOutput = print
+  } else if (originalText == null) {
+    astBytes = encoder.encode(JSON.stringify(textOrAst))
+    text = ''
+    printOutput = true
   } else {
-    if (originalText == null) {
-      throw new TypeError(
-        'processor(ast) is not supported; pass { originalText } to format the source text',
-      )
-    }
     text = originalText
     printOutput = true
   }
@@ -133,9 +144,10 @@ export const invoke = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(filePath, filePathPointer)
 
-  const textPointer = wasmAlloc(textBytes.byteLength)
+  const inputBytes = astBytes ?? textBytes
+  const textPointer = wasmAlloc(inputBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(textBytes, textPointer)
+  new Uint8Array(memory.buffer).set(inputBytes, textPointer)
 
   const optionValues = [
     printOutput,
@@ -169,13 +181,21 @@ export const invoke = (
     stopAtBytes,
   )
 
-  const resultPointer = process(
-    filePathPointer,
-    filePath.byteLength,
-    textPointer,
-    textBytes.byteLength,
-    optionsPointer,
-  )
+  const resultPointer = astBytes
+    ? printNode(
+        textPointer,
+        astBytes.byteLength,
+        filePathPointer,
+        filePath.byteLength,
+        optionsPointer,
+      )
+    : process(
+        filePathPointer,
+        filePath.byteLength,
+        textPointer,
+        textBytes.byteLength,
+        optionsPointer,
+      )
 
   wasmFree(filePathPointer)
   wasmFree(textPointer)

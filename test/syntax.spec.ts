@@ -64,13 +64,34 @@ test('print(ast, { originalText }) ignores the AST', async () => {
 
   expect(printSync(ast, { originalText: 'echo  old\n' })).toBe('echo old\n')
   await expect(print(ast, { originalText: 'echo  old\n' })).resolves.toBe('echo old\n')
-  expect(() => printSync(ast, {} as never)).toThrow(TypeError)
+  expect(printSync(ast)).toBe('new old\n')
 })
 
-test('processor(ast, { originalText }) ignores the AST', async () => {
+test('print(ast) prints a replaced child node', () => {
+  const ast = parseSync('echo old\n')
+  const replacement = parseSync('echo new\n')
+  const call = ast.stmts[0].cmd
+  const replacementCall = replacement.stmts[0].cmd
+  if (call?.type !== 'CallExpr' || replacementCall?.type !== 'CallExpr') {
+    throw new Error('expected call expressions')
+  }
+  call.args[1] = replacementCall.args[1]
+  expect(printSync(ast)).toBe('echo new\n')
+})
+
+test('processor(ast) prints the current AST', async () => {
   const ast = parseSync('echo old\n')
   await expect(processor(ast, { originalText: 'echo  old\n' })).resolves.toBe('echo old\n')
-  await expect(processor(ast, {} as never)).rejects.toThrow(TypeError)
+  const call = ast.stmts[0].cmd
+  if (call?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const literal = call.args[0].parts[0]
+  if (literal.type !== 'Lit') {
+    throw new Error('expected a literal')
+  }
+  literal.value = 'new'
+  await expect(processor(ast)).resolves.toBe('new old\n')
 })
 
 test('ParNamesOperator has a zero value', () => {
