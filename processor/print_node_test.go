@@ -124,3 +124,27 @@ func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
 		t.Fatal("expected a printer error")
 	}
 }
+
+func TestPrintNodeSubtree(t *testing.T) {
+	file, err := Parse("echo hi\n", "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	stmt := file.Stmts[0]
+	if got := printNodeWithPrinter(t, stmt); got != "echo hi" {
+		t.Fatalf("got %q, want %q", got, "echo hi")
+	}
+}
+
+func printNodeWithPrinter(t *testing.T, node syntax.Node) string {
+	t.Helper()
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, node); err != nil {
+		t.Fatal(err)
+	}
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return got
+}

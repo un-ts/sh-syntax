@@ -219,34 +219,31 @@ func (r *binaryReader) count() (int, error) {
 		fmt.Fprintln(buf)
 	}
 
-	buf.WriteString(`func EncodeNodeBinary(w io.Writer, node syntax.Node) error {
-	var buf bytes.Buffer
-	switch node := node.(type) {
-	case *syntax.File:
-		writeBinaryUint(&buf, binaryNodeIDs["File"])
-		writeFileBinary(&buf, node)
-	default:
-		return fmt.Errorf("unsupported root node")
+	buf.WriteString("func EncodeNodeBinary(w io.Writer, node syntax.Node) error {\n")
+	buf.WriteString("\tvar buf bytes.Buffer\n")
+	buf.WriteString("\tswitch node := node.(type) {\n")
+	for _, name := range allTypes {
+		if structs[name].isNode {
+			fmt.Fprintf(buf, "\tcase *syntax.%s:\n\t\twriteBinaryUint(&buf, binaryNodeIDs[%q])\n\t\twrite%sBinary(&buf, node)\n", name, name, name)
+		}
 	}
-	_, err := w.Write(buf.Bytes())
-	return err
-}
-
-func DecodeNodeBinary(data []byte) (syntax.Node, error) {
-	r := &binaryReader{data: data}
-	id, err := r.uint()
-	if err != nil { return nil, err }
-	var node syntax.Node
-	switch id {
-	case binaryNodeIDs["File"]:
-		node, err = readFileBinary(r)
-	default:
-		return nil, fmt.Errorf("unknown root node id %d", id)
+	buf.WriteString("\tdefault:\n\t\treturn fmt.Errorf(\"unsupported root node\")\n")
+	buf.WriteString("\t}\n")
+	buf.WriteString("\t_, err := w.Write(buf.Bytes())\n\treturn err\n}\n\n")
+	buf.WriteString("func DecodeNodeBinary(data []byte) (syntax.Node, error) {\n")
+	buf.WriteString("\tr := &binaryReader{data: data}\n")
+	buf.WriteString("\tid, err := r.uint()\n\tif err != nil { return nil, err }\n")
+	buf.WriteString("\tvar node syntax.Node\n\tswitch id {\n")
+	for _, name := range allTypes {
+		if structs[name].isNode {
+			fmt.Fprintf(buf, "\tcase binaryNodeIDs[%q]: node, err = read%sBinary(r)\n", name, name)
+		}
 	}
-	if err != nil { return nil, err }
-	if r.offset != len(data) { return nil, fmt.Errorf("unexpected trailing data") }
-	return node, nil
-}` + "\n")
+	buf.WriteString("\tdefault:\n\t\treturn nil, fmt.Errorf(\"unknown root node id %d\", id)\n")
+	buf.WriteString("\t}\n")
+	buf.WriteString("\tif err != nil { return nil, err }\n")
+	buf.WriteString("\tif r.offset != len(data) { return nil, fmt.Errorf(\"unexpected trailing data\") }\n")
+	buf.WriteString("\treturn node, nil\n}\n")
 }
 
 func binaryWriteField(typ, expr string, interfaces map[string][]string) string {

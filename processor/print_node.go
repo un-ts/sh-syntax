@@ -2,11 +2,9 @@ package processor
 
 import (
 	"fmt"
-
-	"mvdan.cc/sh/v3/syntax"
 )
 
-// PrintNode formats an encoded syntax tree. Unlike Print, the tree is used as
+// PrintNode formats an encoded syntax tree, including subtrees. Unlike Print, the tree is used as
 // given, including edits made by the caller, rather than reparsing source text.
 func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) {
 	defer func() {
@@ -21,10 +19,9 @@ func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) 
 		return "", err
 	}
 
-	file, ok := node.(*syntax.File)
-	if !ok {
-		return "", fmt.Errorf("print(ast) requires a File node, got %T", node)
+	if node == nil {
+		return "", fmt.Errorf("print(node) requires a syntax node")
 	}
 
-	return printFile(file, options)
+	return printSyntaxNode(node, options)
 }

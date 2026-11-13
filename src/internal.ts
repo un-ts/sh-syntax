@@ -1,5 +1,11 @@
 import { ParseError } from './common.js'
-import { type File, type IParseError, LangVariant, type ShPrintOptions } from './types.js'
+import {
+  type File,
+  type IParseError,
+  LangVariant,
+  type Node,
+  type ShPrintOptions,
+} from './types.js'
 import { decodeAST, encodeAST } from './wire.js'
 
 export interface InternalOptions extends ShPrintOptions {
@@ -75,7 +81,7 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 
 export const invoke = (
   { memory, wasmAlloc, wasmFree, process, printNode, resultLength }: ProcessExports,
-  textOrAst: File | string,
+  textOrAst: Node | string,
   {
     filepath = '',
     print = false,

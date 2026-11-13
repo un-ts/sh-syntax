@@ -3937,6 +3937,132 @@ func EncodeNodeBinary(w io.Writer, node syntax.Node) error {
 	case *syntax.File:
 		writeBinaryUint(&buf, binaryNodeIDs["File"])
 		writeFileBinary(&buf, node)
+	case *syntax.Comment:
+		writeBinaryUint(&buf, binaryNodeIDs["Comment"])
+		writeCommentBinary(&buf, node)
+	case *syntax.Stmt:
+		writeBinaryUint(&buf, binaryNodeIDs["Stmt"])
+		writeStmtBinary(&buf, node)
+	case *syntax.Assign:
+		writeBinaryUint(&buf, binaryNodeIDs["Assign"])
+		writeAssignBinary(&buf, node)
+	case *syntax.Redirect:
+		writeBinaryUint(&buf, binaryNodeIDs["Redirect"])
+		writeRedirectBinary(&buf, node)
+	case *syntax.CallExpr:
+		writeBinaryUint(&buf, binaryNodeIDs["CallExpr"])
+		writeCallExprBinary(&buf, node)
+	case *syntax.Subshell:
+		writeBinaryUint(&buf, binaryNodeIDs["Subshell"])
+		writeSubshellBinary(&buf, node)
+	case *syntax.Block:
+		writeBinaryUint(&buf, binaryNodeIDs["Block"])
+		writeBlockBinary(&buf, node)
+	case *syntax.IfClause:
+		writeBinaryUint(&buf, binaryNodeIDs["IfClause"])
+		writeIfClauseBinary(&buf, node)
+	case *syntax.WhileClause:
+		writeBinaryUint(&buf, binaryNodeIDs["WhileClause"])
+		writeWhileClauseBinary(&buf, node)
+	case *syntax.ForClause:
+		writeBinaryUint(&buf, binaryNodeIDs["ForClause"])
+		writeForClauseBinary(&buf, node)
+	case *syntax.WordIter:
+		writeBinaryUint(&buf, binaryNodeIDs["WordIter"])
+		writeWordIterBinary(&buf, node)
+	case *syntax.CStyleLoop:
+		writeBinaryUint(&buf, binaryNodeIDs["CStyleLoop"])
+		writeCStyleLoopBinary(&buf, node)
+	case *syntax.BinaryCmd:
+		writeBinaryUint(&buf, binaryNodeIDs["BinaryCmd"])
+		writeBinaryCmdBinary(&buf, node)
+	case *syntax.FuncDecl:
+		writeBinaryUint(&buf, binaryNodeIDs["FuncDecl"])
+		writeFuncDeclBinary(&buf, node)
+	case *syntax.Word:
+		writeBinaryUint(&buf, binaryNodeIDs["Word"])
+		writeWordBinary(&buf, node)
+	case *syntax.Lit:
+		writeBinaryUint(&buf, binaryNodeIDs["Lit"])
+		writeLitBinary(&buf, node)
+	case *syntax.SglQuoted:
+		writeBinaryUint(&buf, binaryNodeIDs["SglQuoted"])
+		writeSglQuotedBinary(&buf, node)
+	case *syntax.DblQuoted:
+		writeBinaryUint(&buf, binaryNodeIDs["DblQuoted"])
+		writeDblQuotedBinary(&buf, node)
+	case *syntax.CmdSubst:
+		writeBinaryUint(&buf, binaryNodeIDs["CmdSubst"])
+		writeCmdSubstBinary(&buf, node)
+	case *syntax.ParamExp:
+		writeBinaryUint(&buf, binaryNodeIDs["ParamExp"])
+		writeParamExpBinary(&buf, node)
+	case *syntax.ArithmExp:
+		writeBinaryUint(&buf, binaryNodeIDs["ArithmExp"])
+		writeArithmExpBinary(&buf, node)
+	case *syntax.ArithmCmd:
+		writeBinaryUint(&buf, binaryNodeIDs["ArithmCmd"])
+		writeArithmCmdBinary(&buf, node)
+	case *syntax.BinaryArithm:
+		writeBinaryUint(&buf, binaryNodeIDs["BinaryArithm"])
+		writeBinaryArithmBinary(&buf, node)
+	case *syntax.UnaryArithm:
+		writeBinaryUint(&buf, binaryNodeIDs["UnaryArithm"])
+		writeUnaryArithmBinary(&buf, node)
+	case *syntax.ParenArithm:
+		writeBinaryUint(&buf, binaryNodeIDs["ParenArithm"])
+		writeParenArithmBinary(&buf, node)
+	case *syntax.FlagsArithm:
+		writeBinaryUint(&buf, binaryNodeIDs["FlagsArithm"])
+		writeFlagsArithmBinary(&buf, node)
+	case *syntax.CaseClause:
+		writeBinaryUint(&buf, binaryNodeIDs["CaseClause"])
+		writeCaseClauseBinary(&buf, node)
+	case *syntax.CaseItem:
+		writeBinaryUint(&buf, binaryNodeIDs["CaseItem"])
+		writeCaseItemBinary(&buf, node)
+	case *syntax.TestClause:
+		writeBinaryUint(&buf, binaryNodeIDs["TestClause"])
+		writeTestClauseBinary(&buf, node)
+	case *syntax.BinaryTest:
+		writeBinaryUint(&buf, binaryNodeIDs["BinaryTest"])
+		writeBinaryTestBinary(&buf, node)
+	case *syntax.UnaryTest:
+		writeBinaryUint(&buf, binaryNodeIDs["UnaryTest"])
+		writeUnaryTestBinary(&buf, node)
+	case *syntax.ParenTest:
+		writeBinaryUint(&buf, binaryNodeIDs["ParenTest"])
+		writeParenTestBinary(&buf, node)
+	case *syntax.DeclClause:
+		writeBinaryUint(&buf, binaryNodeIDs["DeclClause"])
+		writeDeclClauseBinary(&buf, node)
+	case *syntax.ArrayExpr:
+		writeBinaryUint(&buf, binaryNodeIDs["ArrayExpr"])
+		writeArrayExprBinary(&buf, node)
+	case *syntax.ArrayElem:
+		writeBinaryUint(&buf, binaryNodeIDs["ArrayElem"])
+		writeArrayElemBinary(&buf, node)
+	case *syntax.ExtGlob:
+		writeBinaryUint(&buf, binaryNodeIDs["ExtGlob"])
+		writeExtGlobBinary(&buf, node)
+	case *syntax.ProcSubst:
+		writeBinaryUint(&buf, binaryNodeIDs["ProcSubst"])
+		writeProcSubstBinary(&buf, node)
+	case *syntax.TimeClause:
+		writeBinaryUint(&buf, binaryNodeIDs["TimeClause"])
+		writeTimeClauseBinary(&buf, node)
+	case *syntax.CoprocClause:
+		writeBinaryUint(&buf, binaryNodeIDs["CoprocClause"])
+		writeCoprocClauseBinary(&buf, node)
+	case *syntax.LetClause:
+		writeBinaryUint(&buf, binaryNodeIDs["LetClause"])
+		writeLetClauseBinary(&buf, node)
+	case *syntax.BraceExp:
+		writeBinaryUint(&buf, binaryNodeIDs["BraceExp"])
+		writeBraceExpBinary(&buf, node)
+	case *syntax.TestDecl:
+		writeBinaryUint(&buf, binaryNodeIDs["TestDecl"])
+		writeTestDeclBinary(&buf, node)
 	default:
 		return fmt.Errorf("unsupported root node")
 	}
@@ -3954,6 +4080,90 @@ func DecodeNodeBinary(data []byte) (syntax.Node, error) {
 	switch id {
 	case binaryNodeIDs["File"]:
 		node, err = readFileBinary(r)
+	case binaryNodeIDs["Comment"]:
+		node, err = readCommentBinary(r)
+	case binaryNodeIDs["Stmt"]:
+		node, err = readStmtBinary(r)
+	case binaryNodeIDs["Assign"]:
+		node, err = readAssignBinary(r)
+	case binaryNodeIDs["Redirect"]:
+		node, err = readRedirectBinary(r)
+	case binaryNodeIDs["CallExpr"]:
+		node, err = readCallExprBinary(r)
+	case binaryNodeIDs["Subshell"]:
+		node, err = readSubshellBinary(r)
+	case binaryNodeIDs["Block"]:
+		node, err = readBlockBinary(r)
+	case binaryNodeIDs["IfClause"]:
+		node, err = readIfClauseBinary(r)
+	case binaryNodeIDs["WhileClause"]:
+		node, err = readWhileClauseBinary(r)
+	case binaryNodeIDs["ForClause"]:
+		node, err = readForClauseBinary(r)
+	case binaryNodeIDs["WordIter"]:
+		node, err = readWordIterBinary(r)
+	case binaryNodeIDs["CStyleLoop"]:
+		node, err = readCStyleLoopBinary(r)
+	case binaryNodeIDs["BinaryCmd"]:
+		node, err = readBinaryCmdBinary(r)
+	case binaryNodeIDs["FuncDecl"]:
+		node, err = readFuncDeclBinary(r)
+	case binaryNodeIDs["Word"]:
+		node, err = readWordBinary(r)
+	case binaryNodeIDs["Lit"]:
+		node, err = readLitBinary(r)
+	case binaryNodeIDs["SglQuoted"]:
+		node, err = readSglQuotedBinary(r)
+	case binaryNodeIDs["DblQuoted"]:
+		node, err = readDblQuotedBinary(r)
+	case binaryNodeIDs["CmdSubst"]:
+		node, err = readCmdSubstBinary(r)
+	case binaryNodeIDs["ParamExp"]:
+		node, err = readParamExpBinary(r)
+	case binaryNodeIDs["ArithmExp"]:
+		node, err = readArithmExpBinary(r)
+	case binaryNodeIDs["ArithmCmd"]:
+		node, err = readArithmCmdBinary(r)
+	case binaryNodeIDs["BinaryArithm"]:
+		node, err = readBinaryArithmBinary(r)
+	case binaryNodeIDs["UnaryArithm"]:
+		node, err = readUnaryArithmBinary(r)
+	case binaryNodeIDs["ParenArithm"]:
+		node, err = readParenArithmBinary(r)
+	case binaryNodeIDs["FlagsArithm"]:
+		node, err = readFlagsArithmBinary(r)
+	case binaryNodeIDs["CaseClause"]:
+		node, err = readCaseClauseBinary(r)
+	case binaryNodeIDs["CaseItem"]:
+		node, err = readCaseItemBinary(r)
+	case binaryNodeIDs["TestClause"]:
+		node, err = readTestClauseBinary(r)
+	case binaryNodeIDs["BinaryTest"]:
+		node, err = readBinaryTestBinary(r)
+	case binaryNodeIDs["UnaryTest"]:
+		node, err = readUnaryTestBinary(r)
+	case binaryNodeIDs["ParenTest"]:
+		node, err = readParenTestBinary(r)
+	case binaryNodeIDs["DeclClause"]:
+		node, err = readDeclClauseBinary(r)
+	case binaryNodeIDs["ArrayExpr"]:
+		node, err = readArrayExprBinary(r)
+	case binaryNodeIDs["ArrayElem"]:
+		node, err = readArrayElemBinary(r)
+	case binaryNodeIDs["ExtGlob"]:
+		node, err = readExtGlobBinary(r)
+	case binaryNodeIDs["ProcSubst"]:
+		node, err = readProcSubstBinary(r)
+	case binaryNodeIDs["TimeClause"]:
+		node, err = readTimeClauseBinary(r)
+	case binaryNodeIDs["CoprocClause"]:
+		node, err = readCoprocClauseBinary(r)
+	case binaryNodeIDs["LetClause"]:
+		node, err = readLetClauseBinary(r)
+	case binaryNodeIDs["BraceExp"]:
+		node, err = readBraceExpBinary(r)
+	case binaryNodeIDs["TestDecl"]:
+		node, err = readTestDeclBinary(r)
 	default:
 		return nil, fmt.Errorf("unknown root node id %d", id)
 	}
