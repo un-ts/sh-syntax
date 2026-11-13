@@ -146,5 +146,11 @@ test('binary wire covers boolean, operator, and recovered positions', () => {
 
 test('binary wire preserves a leading BOM in strings', () => {
   const source = "echo '\u{FEFF}value'\n"
-  expect(decodeAST(encodeAST(parse(source)))).toEqual(parse(source))
+  const parsed = parse(source)
+  const decoded = decodeAST(encodeAST(parsed))
+  expect(decoded).toEqual(parsed)
+
+  const command = decoded.stmts[0]?.cmd
+  const value = command?.type === 'CallExpr' ? command.args[1]?.parts[0] : undefined
+  expect(value).toMatchObject({ type: 'SglQuoted', value: '\u{FEFF}value' })
 })
