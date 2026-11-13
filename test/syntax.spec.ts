@@ -97,6 +97,11 @@ test('processor(ast) prints the current AST', async () => {
 test('print(node) prints subtrees and rejects invalid input', () => {
   const ast = parseSync('echo hi\n')
   expect(printSync(ast.stmts[0])).toContain('echo hi')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  expect(printSync(command.args[1]!)).toBe('hi')
   expect(() => printSync([] as never)).toThrow(TypeError)
 })
 

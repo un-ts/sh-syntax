@@ -1,4 +1,4 @@
-import type { Assign, Command, File, Stmt, WordPart } from './ast-types.js'
+import type { Assign, Command, File, Stmt, Word, WordPart } from './ast-types.js'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -189,4 +189,4 @@ export interface IParseError {
   pos?: Pos
 }
 
-export type PrintableNode = File | Stmt | Command | WordPart | Assign
+export type PrintableNode = File | Stmt | Command | Word | WordPart | Assign
