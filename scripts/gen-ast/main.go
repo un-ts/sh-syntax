@@ -42,26 +42,18 @@ func main() {
 	interfaces := interfaceImplementations(implementors)
 	operators := loadOperators(moduleDir)
 
-	var buf bytes.Buffer
-	writeEncoder(&buf, structs, allTypes, interfaces)
-	var decBuf bytes.Buffer
-	writeDecoder(&decBuf, structs, allTypes, interfaces)
+	var binBuf bytes.Buffer
+	writeBinary(&binBuf, structs, allTypes, interfaces)
+	writeWireSchema(structs, allTypes, interfaces)
 	writeTypes(structs, order, interfaces, operators)
 	writeOperators(operators)
 
-	formatted, err := format.Source(buf.Bytes())
+	formattedBinary, err := format.Source(binBuf.Bytes())
 	if err != nil {
-		fatalf("format generated source: %v", err)
+		fatalf("format generated binary: %v", err)
 	}
-	if err := os.WriteFile("processor/encode_generated.go", formatted, 0o644); err != nil {
-		fatalf("write encoder: %v", err)
-	}
-	formattedDecoder, err := format.Source(decBuf.Bytes())
-	if err != nil {
-		fatalf("format generated decoder: %v", err)
-	}
-	if err := os.WriteFile("processor/decode_generated.go", formattedDecoder, 0o644); err != nil {
-		fatalf("write decoder: %v", err)
+	if err := os.WriteFile("processor/binary_generated.go", formattedBinary, 0o644); err != nil {
+		fatalf("write binary: %v", err)
 	}
 }
 

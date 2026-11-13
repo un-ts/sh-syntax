@@ -1,16 +1,5 @@
-// Package processor bridges mvdan.cc/sh's syntax tree to JSON.
+// Package processor writes result metadata and maps parse errors.
 package processor
-
-// The encoder is derived from mvdan.cc/sh/v3/syntax/typedjson, which is
-// licensed under the BSD 3-Clause license:
-//
-// Copyright (c) 2017, Daniel Martí <mvdan@mvdan.cc>
-// See https://github.com/mvdan/sh/blob/master/LICENSE for details.
-//
-// Unlike typedjson, the encoder emits every field, including empty slices and
-// invalid positions, and adds a "type" key to every syntax node. JavaScript
-// consumers get a tree that mirrors the Go structs, including the zero values
-// that the GopherJS build of mvdan-sh exposes.
 
 import (
 	"bytes"
@@ -60,31 +49,17 @@ func writeString(buf *bytes.Buffer, value string) {
 	buf.WriteByte('"')
 }
 
+func writeBool(buf *bytes.Buffer, value bool) {
+	if value {
+		buf.WriteString("true")
+	} else {
+		buf.WriteString("false")
+	}
+}
+
 func writeUint(buf *bytes.Buffer, value uint64) {
 	var scratch [24]byte
 	buf.Write(strconv.AppendUint(scratch[:0], value, 10))
-}
-
-func writePos(buf *bytes.Buffer, pos syntax.Pos) {
-	if pos.IsRecovered() {
-		buf.WriteString(`{"offset":0,"line":0,"column":0,"recovered":true}`)
-		return
-	}
-	if !pos.IsValid() {
-		buf.WriteString(`{"offset":0,"line":0,"column":0}`)
-		return
-	}
-	buf.WriteString(`{"offset":`)
-	writeUint(buf, uint64(pos.Offset()))
-	buf.WriteString(`,"line":`)
-	writeUint(buf, uint64(pos.Line()))
-	buf.WriteString(`,"column":`)
-	var column uint
-	if pos.Col() > 0 {
-		column = pos.Col() - 1
-	}
-	writeUint(buf, uint64(column))
-	buf.WriteByte('}')
 }
 
 // ErrorPos is the JSON representation of a syntax position in a parse error.

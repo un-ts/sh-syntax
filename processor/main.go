@@ -59,9 +59,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 	return printFile(file, syntaxOptions.PrinterOptions)
 }
 
-// Process processes the input file path and text by performing either
-// formatting or parsing, based on the print flag. The result is a JSON
-// envelope.
+// Process performs formatting or parsing and returns a framed binary result.
 func Process(
 	filepathBytes []byte,
 	textBytes []byte,
@@ -74,7 +72,7 @@ func Process(
 	filepath := string(filepathBytes)
 	text := string(textBytes)
 
-	fileJSON := []byte("null")
+	var ast []byte
 	textOut := ""
 	message := ""
 
@@ -88,20 +86,16 @@ func Process(
 	} else {
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
-		if file == nil {
-			file = &syntax.File{}
-		}
-		var encoded bytes.Buffer
-		const maxGrow = 64 << 20
-		grow := maxGrow
-		if len(textBytes) < maxGrow/64 {
-			grow = len(textBytes) * 64
-		}
-		encoded.Grow(grow)
-		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
-			err = encodeErr
-		} else {
-			fileJSON = encoded.Bytes()
+		if err == nil {
+			if file == nil {
+				file = &syntax.File{}
+			}
+			var encoded bytes.Buffer
+			if encodeErr := EncodeNodeBinary(&encoded, file); encodeErr != nil {
+				err = encodeErr
+			} else {
+				ast = encoded.Bytes()
+			}
 		}
 	}
 
@@ -116,16 +110,5 @@ func Process(
 		}
 	}
 
-	var out bytes.Buffer
-	out.Grow(len(fileJSON) + len(textOut) + len(message) + 256)
-	out.WriteString(`{"file":`)
-	out.Write(fileJSON)
-	out.WriteString(`,"text":`)
-	writeString(&out, textOut)
-	out.WriteString(`,"parseError":`)
-	writeParseError(&out, parseError)
-	out.WriteString(`,"message":`)
-	writeString(&out, message)
-	out.WriteByte('}')
-	return out.Bytes()
+	return encodeResult(ast, textOut, parseError, message)
 }

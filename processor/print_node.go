@@ -15,11 +15,8 @@ func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) 
 			err = fmt.Errorf("print(ast): %v", recovered)
 		}
 	}()
-	if err := validateWireRoot(encoded); err != nil {
-		return "", err
-	}
 
-	node, err := decodeNode(encoded)
+	node, err := DecodeNodeBinary(encoded)
 	if err != nil {
 		return "", err
 	}

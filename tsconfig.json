@@ -8,5 +8,5 @@
       "sh-syntax/sync": ["./src/sync/index.ts"]
     }
   },
-  "include": ["src", "test", "benchmark", "vitest.config.ts"]
+  "include": ["src", "test", "benchmark", "scripts", "vitest.config.ts"]
 }

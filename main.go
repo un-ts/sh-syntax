@@ -15,7 +15,7 @@ var (
 	lastResult []byte
 )
 
-// Keep this layout in sync with optionValues in src/processor.ts.
+// Keep this layout in sync with optionValues in src/internal.ts.
 type processOptions struct {
 	Print            uint32
 	KeepComments     uint32
@@ -96,8 +96,13 @@ func process(
 		printerOptions(options),
 	)
 
-	lastResult = append(result, 0)
+	lastResult = result
 	return unsafe.Pointer(&lastResult[0])
+}
+
+//go:wasmexport resultLength
+func resultLength() uint32 {
+	return uint32(len(lastResult))
 }
 
 //go:wasmexport printNode
@@ -107,7 +112,7 @@ func printNode(
 ) unsafe.Pointer {
 	options := (*processOptions)(optionsPointer)
 	result := processor.ProcessNode(bytesAt(nodePointer, nodeLength), printerOptions(options))
-	lastResult = append(result, 0)
+	lastResult = result
 	return unsafe.Pointer(&lastResult[0])
 }
 

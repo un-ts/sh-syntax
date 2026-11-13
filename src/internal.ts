@@ -1,5 +1,6 @@
 import { ParseError } from './common.js'
 import { type File, type IParseError, LangVariant, type ShPrintOptions } from './types.js'
+import { decodeAST, encodeAST } from './wire.js'
 
 export interface InternalOptions extends ShPrintOptions {
   print?: boolean
@@ -18,10 +19,10 @@ export interface ProcessExports {
     optionsPointer: number,
   ) => number
   printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
+  resultLength: () => number
 }
 
 interface RawResult {
-  file: File | null
   text: string
   parseError: IParseError | null
   message: string
@@ -29,6 +30,7 @@ interface RawResult {
 
 const MAX_STOP_AT_BYTES = 4
 const STOP_AT_OPTION_OFFSET = 16
+const RESULT_HEADER_BYTES = 4
 
 const supportedVariants = new Set<LangVariant>([
   LangVariant.LangBash,
@@ -72,7 +74,7 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
 }
 
 export const invoke = (
-  { memory, wasmAlloc, wasmFree, process, printNode }: ProcessExports,
+  { memory, wasmAlloc, wasmFree, process, printNode, resultLength }: ProcessExports,
   textOrAst: File | string,
   {
     filepath = '',
@@ -121,7 +123,7 @@ export const invoke = (
     text = textOrAst
     printOutput = print
   } else if (originalText == null) {
-    astBytes = encoder.encode(JSON.stringify(textOrAst))
+    astBytes = encodeAST(textOrAst)
     text = ''
     printOutput = true
   } else {
@@ -193,30 +195,26 @@ export const invoke = (
   wasmFree(optionsPointer)
 
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  const result = new Uint8Array(memory.buffer).subarray(resultPointer)
-  const end = result.indexOf(0)
-  const string = decoder.decode(result.subarray(0, end))
-
-  // Naive check that the WASM module returned JSON.
-  /* istanbul ignore if -- @preserve */
-  if (!string.startsWith('{"') || !string.endsWith('}')) {
-    throw new ParseError({
-      filename: filepath,
-      incomplete: true,
-      text: string,
-    })
+  const result = new Uint8Array(memory.buffer).subarray(
+    resultPointer,
+    resultPointer + resultLength(),
+  )
+  const metadataLength = new DataView(
+    result.buffer,
+    result.byteOffset,
+    RESULT_HEADER_BYTES,
+  ).getUint32(0, true)
+  const metadata = JSON.parse(
+    decoder.decode(result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength)),
+  ) as RawResult
+  if (metadata.parseError) {
+    throw new ParseError(metadata.parseError)
   }
 
-  const { file, text: processedText, parseError, message } = JSON.parse(string) as RawResult
-
-  if (parseError) {
-    throw new ParseError(parseError)
+  if (metadata.message) {
+    throw new SyntaxError(metadata.message)
   }
 
-  if (message) {
-    throw new SyntaxError(message)
-  }
-
-  // Process emits a File object on the parse path; printNode returns file: null.
-  return printOutput ? processedText : (file as File)
+  const ast = result.subarray(RESULT_HEADER_BYTES + metadataLength)
+  return printOutput ? metadata.text : decodeAST(ast)
 }
