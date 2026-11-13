@@ -289,12 +289,12 @@ func binaryReadField(typ, target string, interfaces map[string][]string) []strin
 		el := strings.TrimPrefix(typ, "[]")
 		if strings.HasPrefix(el, "*") {
 			name := strings.TrimPrefix(el, "*")
-			return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]*syntax.%s, 0, count); for i := 0; i < count; i++ { present, err := r.bool(); if err != nil { return nil, err }; if !present { return nil, fmt.Errorf(\"null element\") }; item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, item) }", target, name, name, target, target)}
+			return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]*syntax.%s, 0); for i := 0; i < count; i++ { present, err := r.bool(); if err != nil { return nil, err }; if !present { return nil, fmt.Errorf(\"null element\") }; item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, item) }", target, name, name, target, target)}
 		}
 		if _, ok := interfaces[el]; ok {
-			return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]syntax.%s, 0, count); for i := 0; i < count; i++ { item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, item) }", target, el, el, target, target)}
+			return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]syntax.%s, 0); for i := 0; i < count; i++ { item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, item) }", target, el, el, target, target)}
 		}
-		return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]syntax.%s, 0, count); for i := 0; i < count; i++ { item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, *item) }", target, el, el, target, target)}
+		return []string{fmt.Sprintf("count, err := r.count(); if err != nil { return nil, err }; %s = make([]syntax.%s, 0); for i := 0; i < count; i++ { item, err := read%sBinary(r); if err != nil { return nil, err }; %s = append(%s, *item) }", target, el, el, target, target)}
 	case strings.HasPrefix(typ, "*"):
 		name := strings.TrimPrefix(typ, "*")
 		return []string{fmt.Sprintf("present, err := r.bool(); if err != nil { return nil, err }; if present { item, err := read%sBinary(r); if err != nil { return nil, err }; %s = item }", name, target)}

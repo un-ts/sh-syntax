@@ -201,7 +201,7 @@ func readFileBinary(r *binaryReader) (*syntax.File, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -222,7 +222,7 @@ func readFileBinary(r *binaryReader) (*syntax.File, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -310,7 +310,7 @@ func readStmtBinary(r *binaryReader) (*syntax.Stmt, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Comments = make([]syntax.Comment, 0, count)
+		v.Comments = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -373,7 +373,7 @@ func readStmtBinary(r *binaryReader) (*syntax.Stmt, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Redirs = make([]*syntax.Redirect, 0, count)
+		v.Redirs = make([]*syntax.Redirect, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -623,7 +623,7 @@ func readCallExprBinary(r *binaryReader) (*syntax.CallExpr, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Assigns = make([]*syntax.Assign, 0, count)
+		v.Assigns = make([]*syntax.Assign, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -644,7 +644,7 @@ func readCallExprBinary(r *binaryReader) (*syntax.CallExpr, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Args = make([]*syntax.Word, 0, count)
+		v.Args = make([]*syntax.Word, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -713,7 +713,7 @@ func readSubshellBinary(r *binaryReader) (*syntax.Subshell, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -734,7 +734,7 @@ func readSubshellBinary(r *binaryReader) (*syntax.Subshell, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -796,7 +796,7 @@ func readBlockBinary(r *binaryReader) (*syntax.Block, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -817,7 +817,7 @@ func readBlockBinary(r *binaryReader) (*syntax.Block, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -910,7 +910,7 @@ func readIfClauseBinary(r *binaryReader) (*syntax.IfClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Cond = make([]*syntax.Stmt, 0, count)
+		v.Cond = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -931,7 +931,7 @@ func readIfClauseBinary(r *binaryReader) (*syntax.IfClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.CondLast = make([]syntax.Comment, 0, count)
+		v.CondLast = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -945,7 +945,7 @@ func readIfClauseBinary(r *binaryReader) (*syntax.IfClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Then = make([]*syntax.Stmt, 0, count)
+		v.Then = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -966,7 +966,7 @@ func readIfClauseBinary(r *binaryReader) (*syntax.IfClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.ThenLast = make([]syntax.Comment, 0, count)
+		v.ThenLast = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -993,7 +993,7 @@ func readIfClauseBinary(r *binaryReader) (*syntax.IfClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -1084,7 +1084,7 @@ func readWhileClauseBinary(r *binaryReader) (*syntax.WhileClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Cond = make([]*syntax.Stmt, 0, count)
+		v.Cond = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1105,7 +1105,7 @@ func readWhileClauseBinary(r *binaryReader) (*syntax.WhileClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.CondLast = make([]syntax.Comment, 0, count)
+		v.CondLast = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -1119,7 +1119,7 @@ func readWhileClauseBinary(r *binaryReader) (*syntax.WhileClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Do = make([]*syntax.Stmt, 0, count)
+		v.Do = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1140,7 +1140,7 @@ func readWhileClauseBinary(r *binaryReader) (*syntax.WhileClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.DoLast = make([]syntax.Comment, 0, count)
+		v.DoLast = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -1234,7 +1234,7 @@ func readForClauseBinary(r *binaryReader) (*syntax.ForClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Do = make([]*syntax.Stmt, 0, count)
+		v.Do = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1255,7 +1255,7 @@ func readForClauseBinary(r *binaryReader) (*syntax.ForClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.DoLast = make([]syntax.Comment, 0, count)
+		v.DoLast = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -1324,7 +1324,7 @@ func readWordIterBinary(r *binaryReader) (*syntax.WordIter, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Items = make([]*syntax.Word, 0, count)
+		v.Items = make([]*syntax.Word, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1554,7 +1554,7 @@ func readFuncDeclBinary(r *binaryReader) (*syntax.FuncDecl, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Names = make([]*syntax.Lit, 0, count)
+		v.Names = make([]*syntax.Lit, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1611,7 +1611,7 @@ func readWordBinary(r *binaryReader) (*syntax.Word, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Parts = make([]syntax.WordPart, 0, count)
+		v.Parts = make([]syntax.WordPart, 0)
 		for i := 0; i < count; i++ {
 			item, err := readWordPartBinary(r)
 			if err != nil {
@@ -1766,7 +1766,7 @@ func readDblQuotedBinary(r *binaryReader) (*syntax.DblQuoted, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Parts = make([]syntax.WordPart, 0, count)
+		v.Parts = make([]syntax.WordPart, 0)
 		for i := 0; i < count; i++ {
 			item, err := readWordPartBinary(r)
 			if err != nil {
@@ -1831,7 +1831,7 @@ func readCmdSubstBinary(r *binaryReader) (*syntax.CmdSubst, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -1852,7 +1852,7 @@ func readCmdSubstBinary(r *binaryReader) (*syntax.CmdSubst, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -2068,7 +2068,7 @@ func readParamExpBinary(r *binaryReader) (*syntax.ParamExp, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Modifiers = make([]*syntax.Lit, 0, count)
+		v.Modifiers = make([]*syntax.Lit, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -2641,7 +2641,7 @@ func readCaseClauseBinary(r *binaryReader) (*syntax.CaseClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Items = make([]*syntax.CaseItem, 0, count)
+		v.Items = make([]*syntax.CaseItem, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -2662,7 +2662,7 @@ func readCaseClauseBinary(r *binaryReader) (*syntax.CaseClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -2737,7 +2737,7 @@ func readCaseItemBinary(r *binaryReader) (*syntax.CaseItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Comments = make([]syntax.Comment, 0, count)
+		v.Comments = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -2751,7 +2751,7 @@ func readCaseItemBinary(r *binaryReader) (*syntax.CaseItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Patterns = make([]*syntax.Word, 0, count)
+		v.Patterns = make([]*syntax.Word, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -2772,7 +2772,7 @@ func readCaseItemBinary(r *binaryReader) (*syntax.CaseItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -2793,7 +2793,7 @@ func readCaseItemBinary(r *binaryReader) (*syntax.CaseItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -3034,7 +3034,7 @@ func readDeclClauseBinary(r *binaryReader) (*syntax.DeclClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Args = make([]*syntax.Assign, 0, count)
+		v.Args = make([]*syntax.Assign, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -3103,7 +3103,7 @@ func readArrayExprBinary(r *binaryReader) (*syntax.ArrayExpr, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Elems = make([]*syntax.ArrayElem, 0, count)
+		v.Elems = make([]*syntax.ArrayElem, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -3124,7 +3124,7 @@ func readArrayExprBinary(r *binaryReader) (*syntax.ArrayExpr, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -3188,7 +3188,7 @@ func readArrayElemBinary(r *binaryReader) (*syntax.ArrayElem, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Comments = make([]syntax.Comment, 0, count)
+		v.Comments = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -3312,7 +3312,7 @@ func readProcSubstBinary(r *binaryReader) (*syntax.ProcSubst, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Stmts = make([]*syntax.Stmt, 0, count)
+		v.Stmts = make([]*syntax.Stmt, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
@@ -3333,7 +3333,7 @@ func readProcSubstBinary(r *binaryReader) (*syntax.ProcSubst, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Last = make([]syntax.Comment, 0, count)
+		v.Last = make([]syntax.Comment, 0)
 		for i := 0; i < count; i++ {
 			item, err := readCommentBinary(r)
 			if err != nil {
@@ -3497,7 +3497,7 @@ func readLetClauseBinary(r *binaryReader) (*syntax.LetClause, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Exprs = make([]syntax.ArithmExpr, 0, count)
+		v.Exprs = make([]syntax.ArithmExpr, 0)
 		for i := 0; i < count; i++ {
 			item, err := readArithmExprBinary(r)
 			if err != nil {
@@ -3547,7 +3547,7 @@ func readBraceExpBinary(r *binaryReader) (*syntax.BraceExp, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Elems = make([]*syntax.Word, 0, count)
+		v.Elems = make([]*syntax.Word, 0)
 		for i := 0; i < count; i++ {
 			present, err := r.bool()
 			if err != nil {
