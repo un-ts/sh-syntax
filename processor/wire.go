@@ -178,20 +178,20 @@ func decodeStringValue(raw wireValue) (string, error) {
 				return "", err
 			}
 			index = next
-			if utf16.IsSurrogate(rune(codepoint)) && index+6 <= end && raw[index] == '\\' && raw[index+1] == 'u' {
+			if utf16.IsSurrogate(codepoint) && index+6 <= end && raw[index] == '\\' && raw[index+1] == 'u' {
 				low, nextLow, err := readHex(raw, index+2, 4)
 				if err != nil {
 					return "", err
 				}
-				if paired := utf16.DecodeRune(rune(codepoint), rune(low)); paired != utf8.RuneError {
-					codepoint = uint64(paired)
+				if paired := utf16.DecodeRune(codepoint, low); paired != utf8.RuneError {
+					codepoint = paired
 					index = nextLow
 				}
 			}
-			if !utf8.ValidRune(rune(codepoint)) {
+			if !utf8.ValidRune(codepoint) {
 				return "", fmt.Errorf("invalid unicode escape")
 			}
-			builder.WriteRune(rune(codepoint))
+			builder.WriteRune(codepoint)
 		default:
 			return "", fmt.Errorf("invalid escape")
 		}
@@ -329,7 +329,7 @@ func scanValue(raw wireValue, start int) (int, error) {
 	}
 }
 
-func readHex(raw wireValue, start, length int) (uint64, int, error) {
+func readHex(raw wireValue, start, length int) (rune, int, error) {
 	if start+length > len(raw) {
 		return 0, 0, fmt.Errorf("invalid unicode escape")
 	}
@@ -337,5 +337,8 @@ func readHex(raw wireValue, start, length int) (uint64, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
-	return value, start + length, nil
+	if value > 0xffff {
+		return 0, 0, fmt.Errorf("unicode escape out of range")
+	}
+	return rune(value), start + length, nil
 }
