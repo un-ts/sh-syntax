@@ -304,6 +304,7 @@ func scanValue(raw wireValue, start int) (int, error) {
 	if index >= len(raw) {
 		return 0, fmt.Errorf("missing value")
 	}
+	valueStart := index
 	switch raw[index] {
 	case '"':
 		return scanString(raw, index)
@@ -333,9 +334,15 @@ func scanValue(raw wireValue, start int) (int, error) {
 		for index < len(raw) {
 			switch raw[index] {
 			case ',', ']', '}', ' ', '\n', '\r', '\t':
+				if index == valueStart {
+					return 0, fmt.Errorf("missing value")
+				}
 				return index, nil
 			}
 			index++
+		}
+		if index == valueStart {
+			return 0, fmt.Errorf("missing value")
 		}
 		return index, nil
 	}
@@ -353,4 +360,23 @@ func readHex(raw wireValue, start, length int) (rune, int, error) {
 		return 0, 0, fmt.Errorf("unicode escape out of range")
 	}
 	return rune(value), start + length, nil
+}
+
+// validateWireRoot rejects trailing bytes after the root value. The decoder
+// consumes values lazily, so a truncated or concatenated payload would
+// otherwise be accepted as a valid prefix.
+func validateWireRoot(raw wireValue) error {
+	end, err := scanValue(raw, 0)
+	if err != nil {
+		return err
+	}
+	for end < len(raw) {
+		switch raw[end] {
+		case ' ', '\n', '\r', '\t':
+			end++
+		default:
+			return fmt.Errorf("unexpected trailing data")
+		}
+	}
+	return nil
 }

@@ -92,3 +92,7 @@ func TestPrintNodeUnicodeRoundTrip(t *testing.T) {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
+
+func TestPrintNodeRejectsTrailingData(t *testing.T) {
+	requirePrintError(t, `{"type":"File"} trailing`)
+}

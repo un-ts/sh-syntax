@@ -9,6 +9,9 @@ import (
 // PrintNode formats an encoded syntax tree. Unlike Print, the tree is used as
 // given, including edits made by the caller, rather than reparsing source text.
 func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) {
+	if err := validateWireRoot(encoded); err != nil {
+		return "", err
+	}
 	defer func() {
 		if recovered := recover(); recovered != nil {
 			text = ""
