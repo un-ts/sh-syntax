@@ -51,14 +51,6 @@ const synckitPrint = createSyncFn(new URL('worker.mjs', import.meta.url))
 summary(() => {
   bench('sh-syntax', () => print(text, shOptions)).baseline()
 
-  bench('parse (async)', () => parse(text, shOptions))
-
-  bench('parse (sync)', () => parseSync(text, shOptions))
-
-  bench('print(ast) (async)', () => print(ast, shOptions))
-
-  bench('print(ast) (sync)', () => printSync(ast, shOptions))
-
   bench('sh-syntax (sync)', () => printSync(text, shOptions))
 
   bench('sh-syntax (synckit)', () => synckitPrint(text, shOptions))
@@ -81,6 +73,20 @@ summary(() => {
           .Parse(text, filePath),
       )
   })
+})
+
+/*
+ * Reported separately: these measure the AST transport (parse the source / print a tree), which is
+ * slower than formatting text by design, so ranking them against `sh-syntax` above is misleading.
+ */
+summary(() => {
+  bench('parse (async)', () => parse(text, shOptions)).baseline()
+
+  bench('parse (sync)', () => parseSync(text, shOptions))
+
+  bench('print(ast) (async)', () => print(ast, shOptions))
+
+  bench('print(ast) (sync)', () => printSync(ast, shOptions))
 })
 
 await run({
