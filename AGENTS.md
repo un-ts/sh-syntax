@@ -22,6 +22,7 @@ yarn test        # vitest, coverage enabled
 yarn typecov     # type-coverage check
 yarn gen:ast     # regenerate binary codec, wire schema, TS AST types, and operators
 yarn wasm        # gen:ast + standard Go WASM build + wasm-opt; needs Node >=24.14
+yarn test:built  # built ESM/CJS smoke test; needs Node >=22.18
 ```
 
 `yarn format` formats the root repository. `package.json` is owned by `prettier-plugin-pkg`; other JSON/formats go through oxfmt.

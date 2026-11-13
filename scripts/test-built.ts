@@ -3,8 +3,8 @@ import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 
-const walk = directory => {
-  const files = []
+const walk = (directory: string): string[] => {
+  const files: string[] = []
   const entries = readdirSync(directory, { withFileTypes: true })
   for (const entry of entries) {
     const path = `${directory}/${entry.name}`
@@ -25,17 +25,27 @@ for (const file of walk('lib')) {
     throw new Error(`built output imports tslib: ${file}`)
   }
 }
-const esmSync = await import('../lib/sync/index.js')
-const cjsSync = require('../lib/sync/index.cjs')
+interface SyncAPI {
+  parse: (text: string) => unknown
+  print: (ast: unknown) => string
+}
+
+interface AsyncAPI {
+  parse: (text: string) => Promise<unknown>
+  print: (ast: unknown) => Promise<string>
+}
+
+const esmSync = (await import('../lib/sync/index.js')) as SyncAPI
+const cjsSync = require('../lib/sync/index.cjs') as SyncAPI
 for (const api of [esmSync, cjsSync]) {
-  const ast = api.parse('echo hi\n')
+  const ast: unknown = api.parse('echo hi\n')
   if (api.print(ast) !== 'echo hi\n') {
     throw new Error('built sync entry failed')
   }
 }
 
-const esmAsync = await import('../lib/index.js')
-const ast = await esmAsync.parse('echo hi\n')
+const esmAsync = (await import('../lib/index.js')) as AsyncAPI
+const ast: unknown = await esmAsync.parse('echo hi\n')
 if ((await esmAsync.print(ast)) !== 'echo hi\n') {
   throw new Error('built async entry failed')
 }
