@@ -18,8 +18,11 @@ func FuzzDecodeNodeBinary(f *testing.F) {
 		f.Add(encoded.Bytes())
 	}
 	f.Fuzz(func(t *testing.T, data []byte) {
-		// PrintNode is the guarded WASM boundary; incomplete decoded trees are
-		// expected to surface as errors rather than panic.
+		// Keep decoder panics visible; PrintNode then exercises the guarded
+		// WASM boundary for structurally incomplete trees.
+		if _, err := DecodeNodeBinary(data); err != nil {
+			return
+		}
 		_, _ = PrintNode(data, PrinterOptions{})
 	})
 }
