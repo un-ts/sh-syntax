@@ -6,10 +6,10 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
-// printFile formats a parsed syntax tree with the configured printer.
-func printFile(file *syntax.File, options PrinterOptions) (string, error) {
+// printSyntaxNode formats a syntax tree with the configured printer.
+func printSyntaxNode(node syntax.Node, options PrinterOptions) (string, error) {
 	if options.Simplify || options.Minify {
-		syntax.Simplify(file)
+		syntax.Simplify(node)
 	}
 
 	printer := syntax.NewPrinter(
@@ -24,7 +24,7 @@ func printFile(file *syntax.File, options PrinterOptions) (string, error) {
 	)
 
 	var buf bytes.Buffer
-	if err := printer.Print(&buf, file); err != nil {
+	if err := printer.Print(&buf, node); err != nil {
 		return "", err
 	}
 

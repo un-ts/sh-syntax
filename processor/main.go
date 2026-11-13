@@ -56,7 +56,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 		return "", err
 	}
 
-	return printFile(file, syntaxOptions.PrinterOptions)
+	return printSyntaxNode(file, syntaxOptions.PrinterOptions)
 }
 
 // Process performs formatting or parsing and returns a framed binary result.

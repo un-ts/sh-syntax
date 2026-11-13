@@ -1,3 +1,5 @@
+import type { Assign, Command, File, Stmt, Word, WordPart } from './ast-types.js'
+
 export type ValueOf<T> = T[keyof T]
 
 export const LangVariant = {
@@ -186,3 +188,5 @@ export interface IParseError {
   text: string
   pos?: Pos
 }
+
+export type PrintableNode = File | Stmt | Command | Word | WordPart | Assign

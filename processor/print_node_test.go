@@ -2,6 +2,7 @@ package processor
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -122,5 +123,44 @@ func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
 	writeBinaryUint(&encoded, 0)
 	if _, err := PrintNode(encoded.Bytes(), PrinterOptions{}); err == nil {
 		t.Fatal("expected a printer error")
+	}
+}
+
+func TestPrintNodeSubtree(t *testing.T) {
+	file, err := Parse("echo hi\n", "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	stmt := file.Stmts[0]
+	if got := printNodeWithPrinter(t, stmt); got != "echo hi" {
+		t.Fatalf("got %q, want %q", got, "echo hi")
+	}
+}
+
+func printNodeWithPrinter(t *testing.T, node syntax.Node) string {
+	t.Helper()
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, node); err != nil {
+		t.Fatal(err)
+	}
+	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return got
+}
+
+func TestPrintNodeErrorUsesJSTypeName(t *testing.T) {
+	file, err := Parse("echo hi >out\n", "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, file.Stmts[0].Redirs[0]); err != nil {
+		t.Fatal(err)
+	}
+	_, err = PrintNode(encoded.Bytes(), PrinterOptions{})
+	if err == nil || strings.Contains(err.Error(), "*syntax.") {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }

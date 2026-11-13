@@ -59,10 +59,12 @@ const ast = await parse(text)
 // print() formats source text.
 const formatted = await print(text)
 
-// print(ast) prints the current tree, including edits made to its fields.
-// print(ast) serializes the tree to Go and decodes it before printing. For
-// large files, the originalText path below is much faster.
+// print(node) prints the current tree or any subtree, including edits.
+// It serializes the tree to Go and decodes it before printing. For large
+// files, the originalText path below is much faster.
 const printedAst = await print(ast)
+const printedStmt = await print(ast.stmts[0])
+// File output ends with a newline; subtree output does not.
 
 // originalText still selects the source-text fast path.
 const formattedSource = await print(ast, { originalText: text })

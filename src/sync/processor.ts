@@ -1,6 +1,6 @@
 import { invoke, startGoRuntime, type InternalOptions, type GoRuntime } from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
-import type { File, ShOptions, ShPrintOptions } from '../types.js'
+import type { File, PrintableNode, ShOptions, ShPrintOptions } from '../types.js'
 
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
 
@@ -9,7 +9,7 @@ export type GetWebAssembly = GetWebAssemblySource | WebAssemblyBaseSource | WebA
 export interface Processor {
   (text: string, options: ShOptions & { print: true }): string
   (text: string, options?: ShOptions): File
-  (ast: File, options?: ShPrintOptions): string
+  (node: PrintableNode, options?: ShPrintOptions): string
 }
 
 /**
@@ -42,8 +42,8 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
 
   function processor(text: string, options: ShOptions & { print: true }): string
   function processor(text: string, options?: ShOptions): File
-  function processor(ast: File, options?: ShPrintOptions): string
-  function processor(textOrAst: File | string, options?: InternalOptions): File | string {
+  function processor(node: PrintableNode, options?: ShPrintOptions): string
+  function processor(textOrAst: PrintableNode | string, options?: InternalOptions): File | string {
     if (runtime.failure) {
       throw runtime.failure.error
     }
