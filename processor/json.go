@@ -60,6 +60,14 @@ func writeString(buf *bytes.Buffer, value string) {
 	buf.WriteByte('"')
 }
 
+func writeBool(buf *bytes.Buffer, value bool) {
+	if value {
+		buf.WriteString("true")
+	} else {
+		buf.WriteString("false")
+	}
+}
+
 func writeUint(buf *bytes.Buffer, value uint64) {
 	var scratch [24]byte
 	buf.Write(strconv.AppendUint(scratch[:0], value, 10))

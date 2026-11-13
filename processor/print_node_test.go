@@ -12,7 +12,7 @@ func printAST(t *testing.T, source string) string {
 		t.Fatal(err)
 	}
 	var encoded bytes.Buffer
-	if err := EncodeNode(&encoded, file); err != nil {
+	if err := EncodeNodeBinary(&encoded, file); err != nil {
 		t.Fatal(err)
 	}
 	got, err := PrintNode(encoded.Bytes(), PrinterOptions{})
@@ -64,25 +64,22 @@ fi
 	}
 }
 
-func TestPrintNodeRejectsNullComment(t *testing.T) {
-	requirePrintError(t, `{"type":"File","lastComments":[null]}`)
+func TestPrintNodeRejectsMalformedPayload(t *testing.T) {
+	requirePrintError(t, "")
+	requirePrintError(t, "\xff")
 }
 
-func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
-	requirePrintError(t, `{"type":"File","stmts":[{"type":"Stmt","cmd":{"type":"CallExpr","args":[{"type":"Word","parts":[]}],"assigns":[],"redirs":[]},"redirs":[]}],"lastComments":[]}`)
-}
-
-func TestPrintNodeRejectsNullStatement(t *testing.T) {
-	requirePrintError(t, `{"type":"File","stmts":[null],"lastComments":[]}`)
-}
-
-func TestDecodeStringEscapes(t *testing.T) {
-	var got string
-	if err := decodeString(wireValue(`"a\n\"b\u00e9\ud83d\ude00"`), &got); err != nil {
+func TestPrintNodeRejectsTrailingData(t *testing.T) {
+	file, err := Parse("echo hi\n", "", ParserOptions{KeepComments: true})
+	if err != nil {
 		t.Fatal(err)
 	}
-	if want := "a\n\"bé😀"; got != want {
-		t.Fatalf("got %q, want %q", got, want)
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, file); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := PrintNode(append(encoded.Bytes(), 0), PrinterOptions{}); err == nil {
+		t.Fatal("expected an error")
 	}
 }
 
@@ -91,8 +88,4 @@ func TestPrintNodeUnicodeRoundTrip(t *testing.T) {
 	if got, want := printAST(t, source), formatSource(t, source); got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
-}
-
-func TestPrintNodeRejectsTrailingData(t *testing.T) {
-	requirePrintError(t, `{"type":"File"} trailing`)
 }

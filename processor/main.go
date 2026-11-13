@@ -74,7 +74,7 @@ func Process(
 	filepath := string(filepathBytes)
 	text := string(textBytes)
 
-	fileJSON := []byte("null")
+	var ast []byte
 	textOut := ""
 	message := ""
 
@@ -92,16 +92,10 @@ func Process(
 			file = &syntax.File{}
 		}
 		var encoded bytes.Buffer
-		const maxGrow = 64 << 20
-		grow := maxGrow
-		if len(textBytes) < maxGrow/64 {
-			grow = len(textBytes) * 64
-		}
-		encoded.Grow(grow)
-		if encodeErr := EncodeNode(&encoded, file); encodeErr != nil {
+		if encodeErr := EncodeNodeBinary(&encoded, file); encodeErr != nil {
 			err = encodeErr
 		} else {
-			fileJSON = encoded.Bytes()
+			ast = encoded.Bytes()
 		}
 	}
 
@@ -116,16 +110,5 @@ func Process(
 		}
 	}
 
-	var out bytes.Buffer
-	out.Grow(len(fileJSON) + len(textOut) + len(message) + 256)
-	out.WriteString(`{"file":`)
-	out.Write(fileJSON)
-	out.WriteString(`,"text":`)
-	writeString(&out, textOut)
-	out.WriteString(`,"parseError":`)
-	writeParseError(&out, parseError)
-	out.WriteString(`,"message":`)
-	writeString(&out, message)
-	out.WriteByte('}')
-	return out.Bytes()
+	return encodeResult(ast, textOut, parseError, message)
 }
