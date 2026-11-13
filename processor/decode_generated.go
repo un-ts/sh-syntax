@@ -88,6 +88,9 @@ func decodeFile(raw []byte) (*syntax.File, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.Last = append(v.Last, *item)
 			return nil
 		}); err != nil {
@@ -135,6 +138,9 @@ func decodeStmt(raw []byte) (*syntax.Stmt, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Comments = append(v.Comments, *item)
 			return nil
@@ -380,6 +386,9 @@ func decodeSubshell(raw []byte) (*syntax.Subshell, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.Last = append(v.Last, *item)
 			return nil
 		}); err != nil {
@@ -429,6 +438,9 @@ func decodeBlock(raw []byte) (*syntax.Block, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Last = append(v.Last, *item)
 			return nil
@@ -487,6 +499,9 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.CondLast = append(v.CondLast, *item)
 			return nil
 		}); err != nil {
@@ -511,6 +526,9 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.ThenLast = append(v.ThenLast, *item)
 			return nil
 		}); err != nil {
@@ -529,6 +547,9 @@ func decodeIfClause(raw []byte) (*syntax.IfClause, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Last = append(v.Last, *item)
 			return nil
@@ -592,6 +613,9 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.CondLast = append(v.CondLast, *item)
 			return nil
 		}); err != nil {
@@ -615,6 +639,9 @@ func decodeWhileClause(raw []byte) (*syntax.WhileClause, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.DoLast = append(v.DoLast, *item)
 			return nil
@@ -693,6 +720,9 @@ func decodeForClause(raw []byte) (*syntax.ForClause, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.DoLast = append(v.DoLast, *item)
 			return nil
@@ -1077,6 +1107,9 @@ func decodeCmdSubst(raw []byte) (*syntax.CmdSubst, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Last = append(v.Last, *item)
 			return nil
@@ -1647,6 +1680,9 @@ func decodeCaseClause(raw []byte) (*syntax.CaseClause, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.Last = append(v.Last, *item)
 			return nil
 		}); err != nil {
@@ -1685,6 +1721,9 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.Comments = append(v.Comments, *item)
 			return nil
 		}); err != nil {
@@ -1720,6 +1759,9 @@ func decodeCaseItem(raw []byte) (*syntax.CaseItem, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Last = append(v.Last, *item)
 			return nil
@@ -1961,6 +2003,9 @@ func decodeArrayExpr(raw []byte) (*syntax.ArrayExpr, error) {
 			if err != nil {
 				return err
 			}
+			if item == nil {
+				return fmt.Errorf("null element")
+			}
 			v.Last = append(v.Last, *item)
 			return nil
 		}); err != nil {
@@ -2002,6 +2047,9 @@ func decodeArrayElem(raw []byte) (*syntax.ArrayElem, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Comments = append(v.Comments, *item)
 			return nil
@@ -2092,6 +2140,9 @@ func decodeProcSubst(raw []byte) (*syntax.ProcSubst, error) {
 			item, err := decodeComment(raw)
 			if err != nil {
 				return err
+			}
+			if item == nil {
+				return fmt.Errorf("null element")
 			}
 			v.Last = append(v.Last, *item)
 			return nil

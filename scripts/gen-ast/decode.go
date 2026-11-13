@@ -125,7 +125,7 @@ func decodeField(typ, target string, interfaces map[string][]string) []string {
 		if _, ok := interfaces[el]; ok {
 			return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { node, err := decodeNode(raw); if err != nil { return err }; item, ok := node.(syntax.%s); if !ok { return fmt.Errorf(\"expected syntax.%s\") }; %s = append(%s, item); return nil }); %s", el, el, target, target, errClause)}
 		}
-		return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; %s = append(%s, *item); return nil }); %s", el, target, target, errClause)}
+		return []string{fmt.Sprintf("if err := decodeArray(entry, func(raw json.RawMessage) error { item, err := decode%s(raw); if err != nil { return err }; if item == nil { return fmt.Errorf(\"null element\") }; %s = append(%s, *item); return nil }); %s", el, target, target, errClause)}
 	}
 	if strings.HasPrefix(typ, "*") {
 		name := strings.TrimPrefix(typ, "*")

@@ -54,3 +54,17 @@ fi
 		t.Fatal("empty output")
 	}
 }
+
+func TestPrintNodeRejectsNullComment(t *testing.T) {
+	_, err := PrintNode([]byte(`{"type":"File","lastComments":[null]}`), "", SyntaxOptions{})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}
+
+func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
+	_, err := PrintNode([]byte(`{"type":"File","stmts":[{"type":"Stmt","cmd":{"type":"CallExpr","args":[{"type":"Word","parts":[]}],"assigns":[],"redirs":[]},"redirs":[]}],"lastComments":[]}`), "", SyntaxOptions{})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+}

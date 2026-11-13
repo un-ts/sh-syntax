@@ -56,7 +56,6 @@ func main() {
 	if err := os.WriteFile("processor/encode_generated.go", formatted, 0o644); err != nil {
 		fatalf("write encoder: %v", err)
 	}
-	os.WriteFile("/tmp/decode_raw.go", decBuf.Bytes(), 0o644)
 	formattedDecoder, err := format.Source(decBuf.Bytes())
 	if err != nil {
 		fatalf("format generated decoder: %v", err)

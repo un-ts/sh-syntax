@@ -2,13 +2,21 @@ package processor
 
 import (
 	"bytes"
+	"fmt"
 
 	"mvdan.cc/sh/v3/syntax"
 )
 
 // PrintNode formats an encoded syntax tree. Unlike Print, the tree is used as
 // given, including edits made by the caller, rather than reparsing source text.
-func PrintNode(encoded []byte, _ string, syntaxOptions SyntaxOptions) (string, error) {
+func PrintNode(encoded []byte, _ string, syntaxOptions SyntaxOptions) (text string, err error) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			text = ""
+			err = fmt.Errorf("print(ast): %v", recovered)
+		}
+	}()
+
 	node, err := decodeNode(encoded)
 	if err != nil {
 		return "", err
