@@ -1,4 +1,12 @@
 import type { File } from './types.js'
+/**
+ * Binary AST wire.
+ *
+ * Layout: LEB128 varints, a node id for the root and interface values, start/end offsets before
+ * each node body, presence bytes for nullable refs, and counts before slices. Non-node records have
+ * no type/start/end header. The authoritative field order is src/wire-schema.ts, generated from
+ * scripts/gen-ast/binary.go; the envelope lives in processor/result.go.
+ */
 import { WIRE_SCHEMA, WIRE_TYPES, type WireField } from './wire-schema.js'
 
 const VARINT_BASE = 0x80
@@ -6,7 +14,7 @@ const VARINT_MASK = 0x7f
 const MAX_VARINT_BYTES = 8
 
 const encoder = new TextEncoder()
-const decoder = new TextDecoder()
+const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
 const NODE_TYPES = new Map<number, string>(
   Object.entries(WIRE_TYPES).map(([name, id]) => [id, name]),
 )

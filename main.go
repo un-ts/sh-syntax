@@ -96,16 +96,13 @@ func process(
 		printerOptions(options),
 	)
 
-	lastResult = append(result, 0)
+	lastResult = result
 	return unsafe.Pointer(&lastResult[0])
 }
 
 //go:wasmexport resultLength
 func resultLength() uint32 {
-	if len(lastResult) == 0 {
-		return 0
-	}
-	return uint32(len(lastResult) - 1)
+	return uint32(len(lastResult))
 }
 
 //go:wasmexport printNode

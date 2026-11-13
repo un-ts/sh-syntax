@@ -39,6 +39,7 @@ yarn wasm        # gen:ast + standard Go WASM build + wasm-opt; needs Node >=24.
 - `src/processor.ts` — async WASM lifecycle (`init()`) and processor
 - `src/ast.ts` — `walk()` (callback or `{ enter, exit }` visitors with `(node, parent, prop, index)`) and `isIncomplete()`
 - `src/source.ts` — `createSourceIndex()` from UTF-8 byte offsets to UTF-16 code units
+- `src/wire.ts` — hand-written binary AST encoder/decoder
 - `src/types.ts` — public AST and option types
 - `processor/` — Go parser/printer/envelope and generated binary codec
 - `scripts/gen-ast/` — Go generator for the binary codec, wire schema, AST types, and operator constants

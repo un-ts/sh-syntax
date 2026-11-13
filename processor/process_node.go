@@ -1,7 +1,6 @@
 package processor
 
-// ProcessNode prints an encoded syntax tree and returns the same envelope shape
-// as Process, with a null file because no parse is performed.
+// ProcessNode prints a binary syntax tree and returns the same framed result shape as Process.
 func ProcessNode(encoded []byte, printerOptions PrinterOptions) []byte {
 	textOut, err := PrintNode(encoded, printerOptions)
 	message := ""

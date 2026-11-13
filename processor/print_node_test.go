@@ -3,6 +3,8 @@ package processor
 import (
 	"bytes"
 	"testing"
+
+	"mvdan.cc/sh/v3/syntax"
 )
 
 func printAST(t *testing.T, source string) string {
@@ -87,5 +89,38 @@ func TestPrintNodeUnicodeRoundTrip(t *testing.T) {
 	source := "echo 'héllo' \"$(printf '😀')\"\n"
 	if got, want := printAST(t, source), formatSource(t, source); got != want {
 		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestPrintNodeRecoversPrinterPanic(t *testing.T) {
+	var encoded bytes.Buffer
+	writeBinaryUint(&encoded, binaryNodeIDs["File"])
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryString(&encoded, "")
+	writeBinaryUint(&encoded, 1)
+	writeBinaryBool(&encoded, true)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, binaryNodeIDs["CallExpr"])
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 1)
+	writeBinaryBool(&encoded, true)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryPos(&encoded, syntax.Pos{})
+	writeBinaryPos(&encoded, syntax.Pos{})
+	writeBinaryBool(&encoded, false)
+	writeBinaryBool(&encoded, false)
+	writeBinaryBool(&encoded, false)
+	writeBinaryBool(&encoded, false)
+	writeBinaryUint(&encoded, 0)
+	writeBinaryUint(&encoded, 0)
+	if _, err := PrintNode(encoded.Bytes(), PrinterOptions{}); err == nil {
+		t.Fatal("expected a printer error")
 	}
 }

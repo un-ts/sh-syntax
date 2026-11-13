@@ -59,9 +59,7 @@ func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (s
 	return printFile(file, syntaxOptions.PrinterOptions)
 }
 
-// Process processes the input file path and text by performing either
-// formatting or parsing, based on the print flag. The result is a JSON
-// envelope.
+// Process performs formatting or parsing and returns a framed binary result.
 func Process(
 	filepathBytes []byte,
 	textBytes []byte,

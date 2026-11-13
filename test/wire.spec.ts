@@ -139,3 +139,8 @@ test('binary wire covers boolean, operator, and recovered positions', () => {
   recovered.stmts[0]!.position.recovered = true
   expect(decodeAST(encodeAST(recovered as never))).toBeDefined()
 })
+
+test('binary wire preserves a leading BOM in strings', () => {
+  const source = "echo '\u{FEFF}value'\n"
+  expect(decodeAST(encodeAST(parse(source)))).toEqual(parse(source))
+})

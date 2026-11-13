@@ -50,6 +50,9 @@ jobs:
       - name: Build Wasm
         run: yarn wasm
 
+      - name: Check Wasm size budget
+        run: yarn check:wasm-size
+
       - name: Verify generated artifacts are committed
         run: git diff --exit-code
 
