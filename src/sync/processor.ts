@@ -1,6 +1,12 @@
-import { invoke, startGoRuntime, type InternalOptions, type GoRuntime } from '../internal.js'
+import {
+  invoke,
+  invokeSplitBraces,
+  startGoRuntime,
+  type InternalOptions,
+  type GoRuntime,
+} from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
-import type { File, PrintableNode, ShOptions, ShPrintOptions } from '../types.js'
+import type { File, PrintableNode, ShOptions, ShPrintOptions, Word } from '../types.js'
 
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
 
@@ -10,6 +16,7 @@ export interface Processor {
   (text: string, options: ShOptions & { print: true }): string
   (text: string, options?: ShOptions): File
   (node: PrintableNode, options?: ShPrintOptions): string
+  splitBraces: (word: Word) => Word
 }
 
 /**
@@ -54,5 +61,16 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return invoke(runtime.exports, textOrAst, options)
   }
 
+  processor.splitBraces = (word: Word): Word => {
+    /* istanbul ignore if -- @preserve */
+    if (runtime.failure) {
+      throw runtime.failure.error
+    }
+    /* istanbul ignore if -- @preserve */
+    if (runtime.go.exited) {
+      runtime = createRuntime()
+    }
+    return invokeSplitBraces(runtime.exports, word)
+  }
   return processor
 }

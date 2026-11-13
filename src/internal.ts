@@ -5,6 +5,7 @@ import {
   LangVariant,
   type PrintableNode,
   type ShPrintOptions,
+  type Word,
 } from './types.js'
 import { decodeAST, encodeAST } from './wire.js'
 
@@ -25,6 +26,7 @@ export interface ProcessExports {
     optionsPointer: number,
   ) => number
   printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
+  splitBraces: (nodePointer: number, nodeLength: number) => number
   resultLength: () => number
 }
 
@@ -223,4 +225,35 @@ export const invoke = (
 
   const ast = result.subarray(RESULT_HEADER_BYTES + metadataLength)
   return printOutput ? metadata.text : decodeAST(ast)
+}
+
+export const invokeSplitBraces = (
+  { memory, wasmAlloc, wasmFree, splitBraces, resultLength }: ProcessExports,
+  word: Word,
+): Word => {
+  const bytes = encodeAST(word)
+  const nodePointer = wasmAlloc(bytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(bytes, nodePointer)
+  const resultPointer = splitBraces(nodePointer, bytes.byteLength)
+  wasmFree(nodePointer)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  const result = new Uint8Array(memory.buffer).subarray(
+    resultPointer,
+    resultPointer + resultLength(),
+  )
+  const metadataLength = new DataView(
+    result.buffer,
+    result.byteOffset,
+    RESULT_HEADER_BYTES,
+  ).getUint32(0, true)
+  const metadata = JSON.parse(
+    new TextDecoder().decode(
+      result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength),
+    ),
+  ) as RawResult
+  if (metadata.message) {
+    throw new SyntaxError(metadata.message)
+  }
+  return decodeAST(result.subarray(RESULT_HEADER_BYTES + metadataLength)) as unknown as Word
 }

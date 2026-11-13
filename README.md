@@ -66,6 +66,9 @@ const printedAst = await print(ast)
 const printedStmt = await print(ast.stmts[0])
 // File output ends with a newline; subtree output does not.
 
+// Expand brace expressions in a word.
+const splitWord = splitBraces(ast.stmts[0].cmd.args[1])
+
 // originalText still selects the source-text fast path.
 const formattedSource = await print(ast, { originalText: text })
 ```

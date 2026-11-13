@@ -7,9 +7,10 @@ import {
   parse,
   print,
   processor,
+  splitBraces as splitBracesAsync,
   walk,
 } from 'sh-syntax'
-import { parse as parseSync, print as printSync } from 'sh-syntax/sync'
+import { parse as parseSync, print as printSync, splitBraces } from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -103,6 +104,27 @@ test('print(node) prints subtrees and rejects invalid input', () => {
   }
   expect(printSync(command.args[1]!)).toBe('hi')
   expect(() => printSync([] as never)).toThrow(TypeError)
+})
+
+test('splitBraces expands a word part', () => {
+  const ast = parseSync('echo {a,b}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const split = splitBraces(command.args[1]!)
+  expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
+  expect(() => splitBraces(ast as never)).toThrow(/requires a Word node/)
+})
+
+test('async splitBraces expands a word part', async () => {
+  const ast = await parse('echo {a,b}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const split = await splitBracesAsync(command.args[1]!)
+  expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
 })
 
 test('ParNamesOperator has a zero value', () => {

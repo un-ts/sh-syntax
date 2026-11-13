@@ -1,5 +1,17 @@
-import { invoke, startGoRuntime, type GoRuntime, type InternalOptions } from './internal.js'
-import { type File, type PrintableNode, type ShOptions, type ShPrintOptions } from './types.js'
+import {
+  invoke,
+  invokeSplitBraces,
+  startGoRuntime,
+  type GoRuntime,
+  type InternalOptions,
+} from './internal.js'
+import {
+  type File,
+  type PrintableNode,
+  type ShOptions,
+  type ShPrintOptions,
+  type Word,
+} from './types.js'
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
@@ -23,6 +35,7 @@ export interface Processor {
   (text: string, options?: ShOptions): Promise<File>
   (text: string, options?: ShOptions & { print: true }): Promise<string>
   (node: PrintableNode, options?: ShPrintOptions): Promise<string>
+  splitBraces: (word: Word) => Promise<Word>
   /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
   init(): Promise<void>
 }
@@ -163,5 +176,24 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     }
   }) as Processor
   processor.init = init
+  processor.splitBraces = async (word: Word): Promise<Word> => {
+    /* istanbul ignore if -- @preserve */
+    if (!ready) {
+      await init()
+    }
+    const previous = queue
+    let release!: () => void
+    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
+    queue = new Promise<void>(resolve => {
+      release = resolve
+    })
+    await previous
+    try {
+      const runtime = await getRuntime()
+      return invokeSplitBraces(runtime.exports, word)
+    } finally {
+      release()
+    }
+  }
   return processor
 }

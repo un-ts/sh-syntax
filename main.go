@@ -105,6 +105,14 @@ func resultLength() uint32 {
 	return uint32(len(lastResult))
 }
 
+//go:wasmexport splitBraces
+func splitBraces(
+	nodePointer unsafe.Pointer, nodeLength uint32,
+) unsafe.Pointer {
+	lastResult = processor.ProcessSplitBraces(bytesAt(nodePointer, nodeLength))
+	return unsafe.Pointer(&lastResult[0])
+}
+
 //go:wasmexport printNode
 func printNode(
 	nodePointer unsafe.Pointer, nodeLength uint32,

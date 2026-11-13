@@ -16,7 +16,7 @@ export const processor = getProcessor(() => fs.readFile(path.resolve(moduleDir, 
 
 export const { init } = processor
 
-export const { parse, print } = createProcessorAPI(processor)
+export const { parse, print, splitBraces } = createProcessorAPI(processor)
 
 export * from './common.js'
 export * from './processor.js'

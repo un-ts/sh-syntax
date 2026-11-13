@@ -1,11 +1,12 @@
 // oxlint-disable-next-line import/no-unassigned-import -- wasm_exec registers the Go runtime
 import '../vendors/wasm_exec.cjs'
 import type { Processor } from './processor.js'
-import type { File, PrintableNode, ShOptions, ShPrintOptions } from './types.js'
+import type { File, PrintableNode, ShOptions, ShPrintOptions, Word } from './types.js'
 
 /** Async API bound to one processor. */
 export interface ProcessorAPI {
   parse: (text: string, options?: ShOptions) => Promise<File>
+  splitBraces: (word: Word) => Promise<Word>
   print: {
     (text: string, options?: ShOptions): Promise<string>
     (node: PrintableNode, options?: ShPrintOptions): Promise<string>
@@ -15,6 +16,7 @@ export interface ProcessorAPI {
 /** Binds the async parse/print surface to a processor. */
 export const createProcessorAPI = (processor: Processor): ProcessorAPI => ({
   parse: (text, options) => processor(text, options),
+  splitBraces: word => processor.splitBraces(word),
   print: (textOrAst: PrintableNode | string, options?: ShPrintOptions): Promise<string> => {
     if (typeof textOrAst === 'string') {
       return processor(textOrAst, {
