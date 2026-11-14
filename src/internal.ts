@@ -1,4 +1,11 @@
-import { ParseError } from './common.js'
+import {
+  InputError,
+  LanguageError,
+  ParseError,
+  PrintError,
+  SplitBracesError,
+  type ShSyntaxError,
+} from './common.js'
 import {
   type File,
   type IParseError,
@@ -88,10 +95,13 @@ interface DecodedResult {
   ast: Uint8Array
 }
 
+type MessageError = new (message: string) => ShSyntaxError
+
 const readResult = (
   memory: WebAssembly.Memory,
   resultPointer: number,
   resultLength: number,
+  ErrorType: MessageError,
 ): DecodedResult => {
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer, resultPointer + resultLength)
@@ -109,7 +119,7 @@ const readResult = (
     throw new ParseError(metadata.parseError)
   }
   if (metadata.message) {
-    throw new SyntaxError(metadata.message)
+    throw new ErrorType(metadata.message)
   }
   return {
     metadata,
@@ -149,14 +159,14 @@ export const invoke = (
   decoder ??= new TextDecoder()
 
   if (!supportedVariants.has(variant)) {
-    throw new TypeError(`Unsupported shell variant: ${variant}`)
+    throw new InputError(`Unsupported shell variant: ${variant}`)
   }
 
   if (
     textOrAst == null ||
     (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
   ) {
-    throw new TypeError('expected shell source text or a syntax tree')
+    throw new InputError('expected shell source text or a syntax tree')
   }
 
   let text: string
@@ -178,7 +188,7 @@ export const invoke = (
   const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
   if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
-    throw new TypeError('stopAt must be at most 4 bytes')
+    throw new InputError('stopAt must be at most 4 bytes')
   }
 
   let filePathPointer = 0
@@ -238,7 +248,12 @@ export const invoke = (
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
-  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  const { metadata, ast } = readResult(
+    memory,
+    resultPointer,
+    resultLength(),
+    astBytes || printOutput ? PrintError : LanguageError,
+  )
   return printOutput ? metadata.text : decodeAST(ast)
 }
 
@@ -254,7 +269,7 @@ export const invokeSplitBraces = (
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
   const resultPointer = splitBraces(nodePointer, bytes.byteLength)
   wasmFree(nodePointer)
-  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength(), SplitBracesError)
   const result = decodeAST(ast) as unknown as Word
   result.start = start
   result.end = end

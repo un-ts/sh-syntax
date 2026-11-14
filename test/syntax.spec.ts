@@ -2,6 +2,8 @@ import {
   LangVariant,
   ParNamesOperator,
   ParseError,
+  InputError,
+  ErrorCode,
   RedirOperator,
   isIncomplete,
   parse,
@@ -52,7 +54,16 @@ test('sync parser returns the full typed tree', () => {
 })
 
 test('rejects non-text input', () => {
-  expect(() => parseSync(null as never)).toThrow(TypeError)
+  expect(() => parseSync(null as never)).toThrow(InputError)
+  const inputError = (() => {
+    try {
+      parseSync(null as never)
+    } catch (error) {
+      return error as InputError
+    }
+    throw new Error('expected parseSync to throw')
+  })()
+  expect(inputError).toMatchObject({ name: 'InputError', code: ErrorCode.input })
 })
 
 test('print(ast, { originalText }) ignores the AST', async () => {
@@ -198,12 +209,18 @@ test('parse errors expose position and incompleteness', () => {
   })()
 
   expect(parseError).toBeInstanceOf(ParseError)
+  expect(parseError.name).toBe('ParseError')
+  expect(parseError.code).toBe(ErrorCode.parse)
   expect(parseError.message.length).toBeGreaterThan(0)
   expect(parseError.pos?.offset).toBe(5)
   expect(parseError.incomplete).toBe(false)
 })
 
-test('language errors become SyntaxError', async () => {
+test('language errors use the syntax error taxonomy', async () => {
+  await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
+    name: 'LanguageError',
+    code: ErrorCode.language,
+  })
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toBeInstanceOf(
     SyntaxError,
   )
