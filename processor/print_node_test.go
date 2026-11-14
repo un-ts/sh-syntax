@@ -27,7 +27,11 @@ func printAST(t *testing.T, source string) string {
 
 func formatSource(t *testing.T, source string) string {
 	t.Helper()
-	got, err := Print(source, "", SyntaxOptions{ParserOptions: ParserOptions{KeepComments: true}})
+	file, err := Parse(source, "", ParserOptions{KeepComments: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := printSyntaxNode(file, PrinterOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
