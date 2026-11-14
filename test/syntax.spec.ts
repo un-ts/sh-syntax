@@ -279,8 +279,8 @@ test('input encoding is explicit', async () => {
   expect(ast.stmts[0]?.cmd?.type).toBe('CallExpr')
   expect(JSON.stringify(ast)).toContain('\u{FFFD}')
   const bytes = new Uint8Array([101, 99, 104, 111])
-  expect(() => parseSync(bytes as never)).toThrow(/not bytes/)
-  await expect(parse(bytes as never)).rejects.toThrow(/not bytes/)
+  expect(() => parseSync(bytes as never)).toThrow(InputError)
+  await expect(parse(bytes as never)).rejects.toBeInstanceOf(InputError)
 })
 
 test('recoverErrors marks recovered positions', () => {
