@@ -11,13 +11,17 @@ export const ErrorCode = {
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode]
 
-export abstract class ShSyntaxError extends SyntaxError {
-  abstract readonly code: ErrorCode
+export class ShSyntaxError extends SyntaxError {
+  readonly code: ErrorCode
   override name = 'ShSyntaxError'
+
+  constructor(code: ErrorCode, message: string) {
+    super(message)
+    this.code = code
+  }
 }
 
 export class ParseError extends ShSyntaxError implements IParseError {
-  override readonly code = ErrorCode.Parse
   override name = 'ParseError'
   filename?: string
   incomplete: boolean
@@ -25,7 +29,7 @@ export class ParseError extends ShSyntaxError implements IParseError {
   pos?: Pos
 
   constructor({ filename, incomplete, text, pos }: IParseError) {
-    super(text)
+    super(ErrorCode.Parse, text)
     this.filename = filename
     this.incomplete = incomplete
     this.text = text
@@ -33,24 +37,9 @@ export class ParseError extends ShSyntaxError implements IParseError {
   }
 }
 
-export class LanguageError extends ShSyntaxError {
-  override readonly code = ErrorCode.Language
-  override name = 'LanguageError'
-}
-
 export class InputError extends TypeError {
   readonly code = ErrorCode.Input
   override name = 'InputError'
-}
-
-export class PrintError extends ShSyntaxError {
-  override readonly code = ErrorCode.Print
-  override name = 'PrintError'
-}
-
-export class SplitBracesError extends ShSyntaxError {
-  override readonly code = ErrorCode.SplitBraces
-  override name = 'SplitBracesError'
 }
 
 export * from './ast.js'

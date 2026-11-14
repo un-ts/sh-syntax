@@ -1,11 +1,4 @@
-import {
-  InputError,
-  LanguageError,
-  ParseError,
-  PrintError,
-  SplitBracesError,
-  type ShSyntaxError,
-} from './common.js'
+import { ErrorCode, InputError, ParseError, ShSyntaxError } from './common.js'
 import {
   type File,
   type IParseError,
@@ -95,13 +88,11 @@ interface DecodedResult {
   ast: Uint8Array
 }
 
-type MessageError = new (message: string) => ShSyntaxError
-
 const readResult = (
   memory: WebAssembly.Memory,
   resultPointer: number,
   resultLength: number,
-  ErrorType: MessageError,
+  errorCode: ErrorCode,
 ): DecodedResult => {
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer, resultPointer + resultLength)
@@ -119,7 +110,7 @@ const readResult = (
     throw new ParseError(metadata.parseError)
   }
   if (metadata.message) {
-    throw new ErrorType(metadata.message)
+    throw new ShSyntaxError(errorCode, metadata.message)
   }
   return {
     metadata,
@@ -252,7 +243,7 @@ export const invoke = (
     memory,
     resultPointer,
     resultLength(),
-    astBytes || printOutput ? PrintError : LanguageError,
+    astBytes || printOutput ? ErrorCode.Print : ErrorCode.Language,
   )
   return printOutput ? metadata.text : decodeAST(ast)
 }
@@ -269,7 +260,7 @@ export const invokeSplitBraces = (
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
   const resultPointer = splitBraces(nodePointer, bytes.byteLength)
   wasmFree(nodePointer)
-  const { metadata, ast } = readResult(memory, resultPointer, resultLength(), SplitBracesError)
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength(), ErrorCode.SplitBraces)
   const result = decodeAST(ast) as unknown as Word
   result.start = start
   result.end = end

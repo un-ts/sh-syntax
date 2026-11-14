@@ -4,10 +4,7 @@ import {
   ParseError,
   InputError,
   ErrorCode,
-  LanguageError,
-  PrintError,
   ShSyntaxError,
-  SplitBracesError,
   RedirOperator,
   isIncomplete,
   parse,
@@ -224,7 +221,7 @@ test('parse errors expose position and incompleteness', () => {
 
 test('language errors use the syntax error taxonomy', async () => {
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
-    name: 'LanguageError',
+    name: 'ShSyntaxError',
     code: ErrorCode.Language,
   })
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toBeInstanceOf(
@@ -235,19 +232,19 @@ test('language errors use the syntax error taxonomy', async () => {
 test('error taxonomy is stable', () => {
   const cases = [
     [new ParseError({ incomplete: false, text: 'x' }), 'ParseError', ErrorCode.Parse],
-    [new LanguageError('x'), 'LanguageError', ErrorCode.Language],
+    [new ShSyntaxError(ErrorCode.Language, 'x'), 'ShSyntaxError', ErrorCode.Language],
     [new InputError('x'), 'InputError', ErrorCode.Input],
-    [new PrintError('x'), 'PrintError', ErrorCode.Print],
-    [new SplitBracesError('x'), 'SplitBracesError', ErrorCode.SplitBraces],
+    [new ShSyntaxError(ErrorCode.Print, 'x'), 'ShSyntaxError', ErrorCode.Print],
+    [new ShSyntaxError(ErrorCode.SplitBraces, 'x'), 'ShSyntaxError', ErrorCode.SplitBraces],
   ] as const
   for (const [error, name, code] of cases) {
     expect(error).toMatchObject({ name, code })
   }
   for (const error of [
     new ParseError({ incomplete: false, text: 'x' }),
-    new LanguageError('x'),
-    new PrintError('x'),
-    new SplitBracesError('x'),
+    new ShSyntaxError(ErrorCode.Language, 'x'),
+    new ShSyntaxError(ErrorCode.Print, 'x'),
+    new ShSyntaxError(ErrorCode.SplitBraces, 'x'),
   ]) {
     expect(error).toBeInstanceOf(ShSyntaxError)
     expect(error).toBeInstanceOf(SyntaxError)
