@@ -1,5 +1,17 @@
 # sh-syntax
 
+## 0.8.5
+
+### Patch Changes
+
+- [#176](https://github.com/un-ts/sh-syntax/pull/176) [`889d042`](https://github.com/un-ts/sh-syntax/commit/889d042143f29b99e28eaa85ea604b00b797ff12) Thanks [@JounQin](https://github.com/JounQin)! - Use a generated binary wire for AST transport, removing the JSON parser and `encoding/json` from the WASM path.
+
+- [#173](https://github.com/un-ts/sh-syntax/pull/173) [`ac1cbee`](https://github.com/un-ts/sh-syntax/commit/ac1cbee65936396f1850912ed007bee4dfbda907) Thanks [@JounQin](https://github.com/JounQin)! - `print(ast)` now prints the current syntax tree, including edits made to its fields, instead of requiring `originalText`.
+
+- [#178](https://github.com/un-ts/sh-syntax/pull/178) [`910c9a3`](https://github.com/un-ts/sh-syntax/commit/910c9a3dcae3edb9063f6e2f89f9bf77f277b796) Thanks [@JounQin](https://github.com/JounQin)! - `print(node)` now prints printable syntax subtrees: files, statements, commands, words, word parts, and assigns. File output keeps its trailing newline; subtree output does not.
+
+- [#179](https://github.com/un-ts/sh-syntax/pull/179) [`fec2d3f`](https://github.com/un-ts/sh-syntax/commit/fec2d3f0151653702b00be9780a3f1be3658a0cd) Thanks [@JounQin](https://github.com/JounQin)! - Add `splitBraces(word)` returning `{ word, changed }` to split brace expressions into `BraceExp` parts for analysis. `changed` is true when mvdan processed brace syntax, even if no `BraceExp` remains. The returned word keeps its original source span. Split literals lack source positions, while composite `BraceExp` bounds may be derived from retained children and serialized. The printer cannot render `BraceExp`; such trees are rejected explicitly.
+
 ## 0.8.4
 
 ### Patch Changes
