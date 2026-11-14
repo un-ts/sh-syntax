@@ -189,8 +189,21 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     })
     await previous
     try {
-      const runtime = await getRuntime()
-      return invokeSplitBraces(runtime.exports, word)
+      let runtime = await getRuntime()
+      /* istanbul ignore if -- @preserve */
+      if (runtime.go.exited) {
+        invalidateRuntime()
+        runtime = await getRuntime()
+      }
+      try {
+        return invokeSplitBraces(runtime.exports, word)
+      } catch (error) {
+        /* istanbul ignore next -- @preserve */
+        if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
+          invalidateRuntime()
+        }
+        throw error
+      }
     } finally {
       release()
     }

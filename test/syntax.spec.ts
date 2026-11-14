@@ -115,6 +115,7 @@ test('splitBraces expands a word part', () => {
   const split = splitBraces(command.args[1]!)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   expect(() => splitBraces(ast as never)).toThrow(/requires a Word node/)
+  expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
 })
 
 test('async splitBraces expands a word part', async () => {
@@ -125,6 +126,7 @@ test('async splitBraces expands a word part', async () => {
   }
   const split = await splitBracesAsync(command.args[1]!)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
+  await expect(splitBracesAsync(ast as never)).rejects.toThrow(/requires a Word node/)
 })
 
 test('ParNamesOperator has a zero value', () => {

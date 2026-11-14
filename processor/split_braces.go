@@ -2,6 +2,7 @@ package processor
 
 import (
 	"bytes"
+	"fmt"
 
 	"mvdan.cc/sh/v3/syntax"
 )
@@ -14,7 +15,7 @@ func SplitBraces(encoded []byte) ([]byte, error) {
 	}
 	word, ok := node.(*syntax.Word)
 	if !ok {
-		return nil, &SplitBracesError{Type: nodeTypeName(node)}
+		return nil, &SplitBracesError{Type: string(bytes.ReplaceAll([]byte(fmt.Sprintf("%T", node)), []byte("*syntax."), nil))}
 	}
 	syntax.SplitBraces(word)
 	var out bytes.Buffer
@@ -30,17 +31,4 @@ type SplitBracesError struct {
 
 func (e *SplitBracesError) Error() string {
 	return "splitBraces requires a Word node, got " + e.Type
-}
-
-func nodeTypeName(node syntax.Node) string {
-	switch node.(type) {
-	case *syntax.Word:
-		return "Word"
-	case *syntax.File:
-		return "File"
-	case *syntax.Stmt:
-		return "Stmt"
-	default:
-		return "node"
-	}
 }

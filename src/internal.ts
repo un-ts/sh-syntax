@@ -81,6 +81,40 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
   return { go, exports, run }
 }
 
+interface DecodedResult {
+  metadata: RawResult
+  ast: Uint8Array
+}
+
+const readResult = (
+  memory: WebAssembly.Memory,
+  resultPointer: number,
+  resultLength: number,
+): DecodedResult => {
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  const result = new Uint8Array(memory.buffer).subarray(resultPointer, resultPointer + resultLength)
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  decoder ??= new TextDecoder()
+  const metadataLength = new DataView(
+    result.buffer,
+    result.byteOffset,
+    RESULT_HEADER_BYTES,
+  ).getUint32(0, true)
+  const metadata = JSON.parse(
+    decoder.decode(result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength)),
+  ) as RawResult
+  if (metadata.parseError) {
+    throw new ParseError(metadata.parseError)
+  }
+  if (metadata.message) {
+    throw new SyntaxError(metadata.message)
+  }
+  return {
+    metadata,
+    ast: result.subarray(RESULT_HEADER_BYTES + metadataLength),
+  }
+}
+
 export const invoke = (
   { memory, wasmAlloc, wasmFree, process, printNode, resultLength }: ProcessExports,
   textOrAst: PrintableNode | string,
@@ -202,28 +236,7 @@ export const invoke = (
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  const result = new Uint8Array(memory.buffer).subarray(
-    resultPointer,
-    resultPointer + resultLength(),
-  )
-  const metadataLength = new DataView(
-    result.buffer,
-    result.byteOffset,
-    RESULT_HEADER_BYTES,
-  ).getUint32(0, true)
-  const metadata = JSON.parse(
-    decoder.decode(result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength)),
-  ) as RawResult
-  if (metadata.parseError) {
-    throw new ParseError(metadata.parseError)
-  }
-
-  if (metadata.message) {
-    throw new SyntaxError(metadata.message)
-  }
-
-  const ast = result.subarray(RESULT_HEADER_BYTES + metadataLength)
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
   return printOutput ? metadata.text : decodeAST(ast)
 }
 
@@ -237,23 +250,6 @@ export const invokeSplitBraces = (
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
   const resultPointer = splitBraces(nodePointer, bytes.byteLength)
   wasmFree(nodePointer)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  const result = new Uint8Array(memory.buffer).subarray(
-    resultPointer,
-    resultPointer + resultLength(),
-  )
-  const metadataLength = new DataView(
-    result.buffer,
-    result.byteOffset,
-    RESULT_HEADER_BYTES,
-  ).getUint32(0, true)
-  const metadata = JSON.parse(
-    new TextDecoder().decode(
-      result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength),
-    ),
-  ) as RawResult
-  if (metadata.message) {
-    throw new SyntaxError(metadata.message)
-  }
-  return decodeAST(result.subarray(RESULT_HEADER_BYTES + metadataLength)) as unknown as Word
+  const { ast } = readResult(memory, resultPointer, resultLength())
+  return decodeAST(ast) as unknown as Word
 }

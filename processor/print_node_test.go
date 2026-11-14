@@ -164,3 +164,19 @@ func TestPrintNodeErrorUsesJSTypeName(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestPrintNodeRejectsBraceExp(t *testing.T) {
+	file, err := Parse("echo {a,b}\n", "", ParserOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	word := file.Stmts[0].Cmd.(*syntax.CallExpr).Args[1]
+	syntax.SplitBraces(word)
+	var encoded bytes.Buffer
+	if err := EncodeNodeBinary(&encoded, word); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := PrintNode(encoded.Bytes(), PrinterOptions{}); err == nil || !strings.Contains(err.Error(), "BraceExp") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
