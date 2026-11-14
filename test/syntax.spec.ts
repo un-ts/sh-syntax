@@ -258,6 +258,20 @@ test('async interactive parser emits complete statements', async () => {
   ).rejects.toBeInstanceOf(InputError)
 })
 
+test('interactive reset invalidates queued writes', async () => {
+  const parser = createInteractiveParser()
+  const first = parser.write('echo one\n')
+  parser.reset()
+  const second = await parser.write('echo two\n')
+  await first
+  const command = second.ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  expect(command.args[0]?.parts[0]).toMatchObject({ type: 'Lit', value: 'echo' })
+  expect(parser.incomplete).toBe(false)
+})
+
 test('ParNamesOperator has a zero value', () => {
   const ast = parseSync('echo $foo\n')
   const command = ast.stmts[0].cmd

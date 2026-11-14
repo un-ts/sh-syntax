@@ -67,3 +67,31 @@ func TestProcessInteractiveIncomplete(t *testing.T) {
 		t.Fatalf("remaining = %#v", interactive["remaining"])
 	}
 }
+
+func TestProcessInteractiveNoNewlineIsIncomplete(t *testing.T) {
+	for _, source := range []string{"echo one", "cat <<DOC\nbody\nDOC"} {
+		metadata, _ := interactiveResult(t, ProcessInteractive(source, "", ParserOptions{}))
+		interactive := metadata["interactive"].(map[string]any)
+		if interactive["incomplete"] != true {
+			t.Fatalf("%q: expected incomplete, got %#v", source, interactive)
+		}
+		if interactive["remaining"] != source {
+			t.Fatalf("%q: remaining = %#v", source, interactive["remaining"])
+		}
+	}
+}
+
+func TestProcessInteractiveDoesNotDuplicateStatements(t *testing.T) {
+	metadata, ast := interactiveResult(t, ProcessInteractive("echo a; if true; then\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != true {
+		t.Fatalf("expected incomplete, got %#v", interactive)
+	}
+	file, err := DecodeNodeBinary(ast)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(file.(*syntax.File).Stmts); got != 1 {
+		t.Fatalf("got %d statements, want 1", got)
+	}
+}

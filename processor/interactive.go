@@ -12,10 +12,17 @@ import (
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
 	parser := newParser(parserOptions)
 	var stmts []*syntax.Stmt
+	seen := map[*syntax.Stmt]struct{}{}
 	var lastEnd uint
 	err := parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
 		if len(parsed) > 0 {
-			stmts = append(stmts, parsed...)
+			for _, stmt := range parsed {
+				if _, ok := seen[stmt]; ok {
+					continue
+				}
+				seen[stmt] = struct{}{}
+				stmts = append(stmts, stmt)
+			}
 			if end := parsed[len(parsed)-1].End().Offset(); end > lastEnd {
 				lastEnd = end
 			}
@@ -44,6 +51,9 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		lastEnd = uint(len(text))
 	}
 	remaining = text[lastEnd:]
+	if !incomplete && remaining != "" && !strings.HasSuffix(text, "\n") {
+		incomplete = true
+	}
 
 	file := &syntax.File{Name: filepath, Stmts: stmts}
 	var encoded bytes.Buffer
