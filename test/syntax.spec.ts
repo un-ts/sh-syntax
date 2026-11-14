@@ -116,7 +116,8 @@ test('sync splitBraces expands a word part', () => {
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = splitBracesSync(command.args[1]!)
+  const { word: split, changed } = splitBracesSync(command.args[1]!)
+  expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
   expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
@@ -128,7 +129,8 @@ test('async splitBraces expands a word part', async () => {
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = await splitBraces(command.args[1]!)
+  const { word: split, changed } = await splitBraces(command.args[1]!)
+  expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   await expect(splitBraces(ast as never)).rejects.toThrow(/requires a Word node/)
 })
@@ -139,8 +141,24 @@ test('splitBraces handles empty alternatives', () => {
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = splitBracesSync(command.args[1]!)
+  const { word: split } = splitBracesSync(command.args[1]!)
   expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
+  expect(split.start).toBe(command.args[1]!.start)
+  expect(split.end).toBe(command.args[1]!.end)
+
+  const plain = parseSync('echo plain\n').stmts[0]?.cmd
+  if (plain?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  expect(splitBracesSync(plain.args[1]!).changed).toBe(false)
+
+  const fallback = parseSync('echo {x}\n').stmts[0]?.cmd
+  if (fallback?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const fallbackResult = splitBracesSync(fallback.args[1]!)
+  expect(fallbackResult.changed).toBe(true)
+  expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
 })
 
 test('ParNamesOperator has a zero value', () => {

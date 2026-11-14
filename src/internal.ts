@@ -5,6 +5,7 @@ import {
   LangVariant,
   type PrintableNode,
   type ShPrintOptions,
+  type SplitBracesResult,
   type Word,
 } from './types.js'
 import { decodeAST, encodeAST } from './wire.js'
@@ -34,6 +35,7 @@ interface RawResult {
   text: string
   parseError: IParseError | null
   message: string
+  changed?: boolean
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -243,13 +245,18 @@ export const invoke = (
 export const invokeSplitBraces = (
   { memory, wasmAlloc, wasmFree, splitBraces, resultLength }: ProcessExports,
   word: Word,
-): Word => {
+): SplitBracesResult => {
+  const start = word.start
+  const end = word.end
   const bytes = encodeAST(word)
   const nodePointer = wasmAlloc(bytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
   const resultPointer = splitBraces(nodePointer, bytes.byteLength)
   wasmFree(nodePointer)
-  const { ast } = readResult(memory, resultPointer, resultLength())
-  return decodeAST(ast) as unknown as Word
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  const result = decodeAST(ast) as unknown as Word
+  result.start = start
+  result.end = end
+  return { word: result, changed: metadata.changed === true }
 }

@@ -8,6 +8,10 @@ import (
 // encodeResult frames metadata JSON and an optional binary AST payload:
 // uint32 metadata length, metadata JSON, AST bytes.
 func encodeResult(ast []byte, text string, parseError *ParseError, message string) []byte {
+	return encodeResultChanged(ast, text, parseError, message, false)
+}
+
+func encodeResultChanged(ast []byte, text string, parseError *ParseError, message string, changed bool) []byte {
 	var meta bytes.Buffer
 	meta.WriteString(`{"text":`)
 	writeString(&meta, text)
@@ -15,6 +19,8 @@ func encodeResult(ast []byte, text string, parseError *ParseError, message strin
 	writeParseError(&meta, parseError)
 	meta.WriteString(`,"message":`)
 	writeString(&meta, message)
+	meta.WriteString(`,"changed":`)
+	writeBool(&meta, changed)
 	meta.WriteByte('}')
 
 	out := make([]byte, 4+meta.Len()+len(ast))

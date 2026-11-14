@@ -10,6 +10,7 @@ import {
   type PrintableNode,
   type ShOptions,
   type ShPrintOptions,
+  type SplitBracesResult,
   type Word,
 } from './types.js'
 
@@ -35,7 +36,7 @@ export interface Processor {
   (text: string, options?: ShOptions): Promise<File>
   (text: string, options?: ShOptions & { print: true }): Promise<string>
   (node: PrintableNode, options?: ShPrintOptions): Promise<string>
-  splitBraces: (word: Word) => Promise<Word>
+  splitBraces: (word: Word) => Promise<SplitBracesResult>
   /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
   init(): Promise<void>
 }
@@ -181,7 +182,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return enqueue(() => withRuntime(current => invoke(current.exports, textOrAst, options)))
   }) as Processor
   processor.init = init
-  processor.splitBraces = async (word: Word): Promise<Word> => {
+  processor.splitBraces = async (word: Word): Promise<SplitBracesResult> => {
     /* istanbul ignore if -- @preserve */
     if (!ready) {
       await init()

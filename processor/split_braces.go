@@ -8,22 +8,22 @@ import (
 )
 
 // SplitBraces replaces brace expansions in a Word with BraceExp parts.
-func SplitBraces(encoded []byte) ([]byte, error) {
+func SplitBraces(encoded []byte) ([]byte, bool, error) {
 	node, err := DecodeNodeBinary(encoded)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	word, ok := node.(*syntax.Word)
 	if !ok {
-		return nil, &SplitBracesError{Type: string(bytes.ReplaceAll([]byte(fmt.Sprintf("%T", node)), []byte("*syntax."), nil))}
+		return nil, false, &SplitBracesError{Type: string(bytes.ReplaceAll([]byte(fmt.Sprintf("%T", node)), []byte("*syntax."), nil))}
 	}
-	syntax.SplitBraces(word)
+	changed := syntax.SplitBraces(word)
 	clearSplitLitPositions(word)
 	var out bytes.Buffer
 	if err := EncodeNodeBinary(&out, word); err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	return out.Bytes(), nil
+	return out.Bytes(), changed, nil
 }
 
 type SplitBracesError struct {

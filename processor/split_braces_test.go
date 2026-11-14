@@ -19,9 +19,12 @@ func TestSplitBraces(t *testing.T) {
 	if err := EncodeNodeBinary(encoded, word); err != nil {
 		t.Fatal(err)
 	}
-	result, err := SplitBraces(encoded.Bytes())
+	result, changed, err := SplitBraces(encoded.Bytes())
 	if err != nil {
 		t.Fatal(err)
+	}
+	if !changed {
+		t.Fatal("expected changed")
 	}
 	node, err := DecodeNodeBinary(result)
 	if err != nil {
@@ -49,9 +52,12 @@ func TestSplitBracesNoop(t *testing.T) {
 	if err := EncodeNodeBinary(encoded, word); err != nil {
 		t.Fatal(err)
 	}
-	result, err := SplitBraces(encoded.Bytes())
+	result, changed, err := SplitBraces(encoded.Bytes())
 	if err != nil {
 		t.Fatal(err)
+	}
+	if changed {
+		t.Fatal("expected unchanged")
 	}
 	node, err := DecodeNodeBinary(result)
 	if err != nil {
@@ -71,7 +77,7 @@ func TestSplitBracesRejectsNonWord(t *testing.T) {
 	if err := EncodeNodeBinary(&encoded, file.Stmts[0]); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := SplitBraces(encoded.Bytes()); err == nil || !strings.Contains(err.Error(), "Stmt") {
+	if _, _, err := SplitBraces(encoded.Bytes()); err == nil || !strings.Contains(err.Error(), "Stmt") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -87,7 +93,7 @@ func TestSplitBracesEmptyAlternatives(t *testing.T) {
 		if err := EncodeNodeBinary(encoded, word); err != nil {
 			t.Fatal(err)
 		}
-		result, err := SplitBraces(encoded.Bytes())
+		result, _, err := SplitBraces(encoded.Bytes())
 		if err != nil {
 			t.Fatalf("%s: %v", source, err)
 		}

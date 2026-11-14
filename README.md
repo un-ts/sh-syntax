@@ -69,7 +69,7 @@ const printedStmt = await print(ast.stmts[0])
 // Split brace expressions into BraceExp parts for analysis.
 // Synthetic split nodes have no source positions, and the printer rejects them.
 const braceAst = await parse('echo {a,b}')
-const splitWord = await splitBraces(braceAst.stmts[0].cmd.args[1])
+const { word: splitWord, changed } = await splitBraces(braceAst.stmts[0].cmd.args[1])
 
 // originalText still selects the source-text fast path.
 const formattedSource = await print(ast, { originalText: text })
