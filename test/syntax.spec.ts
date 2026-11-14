@@ -135,6 +135,7 @@ test('sync splitBraces expands a word part', () => {
   expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
+  expect(() => splitBracesSync(null as never)).toThrow(InputError)
   expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
 })
 
@@ -148,6 +149,7 @@ test('async splitBraces expands a word part', async () => {
   expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   await expect(splitBraces(ast as never)).rejects.toThrow(/requires a Word node/)
+  await expect(splitBraces(null as never)).rejects.toBeInstanceOf(InputError)
 })
 
 test('splitBraces handles empty alternatives', () => {

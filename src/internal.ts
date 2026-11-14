@@ -261,9 +261,9 @@ export const invokeSplitBraces = (
   { memory, wasmAlloc, wasmFree, splitBraces, resultLength }: ProcessExports,
   word: Word,
 ): SplitBracesResult => {
+  const bytes = encodeAST(word)
   const start = word.start
   const end = word.end
-  const bytes = encodeAST(word)
   const nodePointer = wasmAlloc(bytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
