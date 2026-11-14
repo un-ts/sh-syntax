@@ -161,6 +161,10 @@ export const invoke = (
     throw new InputError(`Unsupported shell variant: ${variant}`)
   }
 
+  if (ArrayBuffer.isView(textOrAst) || textOrAst instanceof ArrayBuffer) {
+    throw new InputError('source input must be a string, not bytes')
+  }
+
   if (
     textOrAst == null ||
     (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))

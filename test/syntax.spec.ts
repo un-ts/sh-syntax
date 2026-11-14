@@ -274,11 +274,13 @@ test('error taxonomy is stable', () => {
   expect(new InputError('x')).not.toBeInstanceOf(ShSyntaxError)
 })
 
-test('input encoding is explicit', () => {
+test('input encoding is explicit', async () => {
   const ast = parseSync("echo '\u{D800}'")
   expect(ast.stmts[0]?.cmd?.type).toBe('CallExpr')
   expect(JSON.stringify(ast)).toContain('\u{FFFD}')
-  expect(() => parseSync(new Uint8Array([101, 99, 104, 111]) as never)).toThrow(InputError)
+  const bytes = new Uint8Array([101, 99, 104, 111])
+  expect(() => parseSync(bytes as never)).toThrow(/not bytes/)
+  await expect(parse(bytes as never)).rejects.toThrow(/not bytes/)
 })
 
 test('recoverErrors marks recovered positions', () => {

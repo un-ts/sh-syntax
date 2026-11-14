@@ -79,7 +79,7 @@ const formattedSource = await print(ast, { originalText: text })
 
 Errors expose stable codes via `ErrorCode`: `SH_SYNTAX_PARSE`, `SH_SYNTAX_LANGUAGE`, `SH_SYNTAX_INPUT`, `SH_SYNTAX_PRINT`, and `SH_SYNTAX_SPLIT_BRACES`. `name` distinguishes `ParseError`, `InputError`, and the shared `ShSyntaxError`; use `code` for language/print/split failures.
 
-Input is a JavaScript string. Unpaired UTF-16 surrogates are replaced with U+FFFD by `TextEncoder`, and byte input such as `Uint8Array` is not accepted.
+Source text input is a JavaScript string. Unpaired UTF-16 surrogates are replaced with U+FFFD by `TextEncoder`, and byte input such as `Uint8Array` is rejected.
 
 The synchronous Node API is available from `sh-syntax/sync`:
 
