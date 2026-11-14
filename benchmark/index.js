@@ -86,7 +86,7 @@ summary(() => {
  * slower than formatting text by design, so ranking them against `sh-syntax` above is misleading.
  */
 summary(() => {
-  bench('parse (async)', () => parse(text, shOptions))
+  bench('parse (async)', () => parse(text, shOptions)).baseline()
 
   bench('sh-ast (parse)', () =>
     shAstParse(text, { Filename: filePath, KeepComments: keepComments, Variant: ShAstLangBash }))
@@ -100,7 +100,7 @@ summary(() => {
       Minify: minify,
       SpaceRedirects: spaceRedirects,
       SwitchCaseIndent: switchCaseIndent,
-    })).baseline()
+    }))
 
   bench('parse (sync)', () => parseSync(text, shOptions))
 

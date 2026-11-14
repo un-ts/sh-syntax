@@ -1,66 +1,80 @@
-clk: ~3.04 GHz
+clk: ~3.05 GHz
 cpu: Apple M1 Max
 runtime: node 26.12.0 (arm64-darwin)
 
 benchmark                   avg (min … max) p75 / p99    (min … top 1%)
 ------------------------------------------- -------------------------------
-sh-syntax                     17.61 ms/iter  18.77 ms    ▂       ▂█  █▂    
-                      (14.23 ms … 20.52 ms)  20.26 ms    █ ▅▅    ██▅▅██  ▅ 
-                    (601.18 kb …   5.78 mb) 822.36 kb ▇▁▇█▇██▇▇▁▇██████▇▁█▇
-                  4.33 ipc (  0.63% stalls)    NaN% L1 data cache
-         56.78M cycles 246.03M instructions   0.00% retired LD/ST (   0.00)
+sh-syntax                     18.04 ms/iter  19.33 ms      ▄       ▄  █    
+                      (14.52 ms … 20.92 ms)  20.71 ms      █     █ █  █    
+                    (256.23 kb …   5.85 mb) 921.23 kb ▅▅▁▁▅█▅▅▁▅████▁██▁▁█▅
+                  4.33 ipc (  0.61% stalls)    NaN% L1 data cache
+         57.43M cycles 248.88M instructions   0.00% retired LD/ST (   0.00)
 
-sh-syntax (sync)              18.58 ms/iter  19.80 ms ▃ █    █             
-                      (15.35 ms … 23.18 ms)  22.69 ms █ █    █▂▂▇▂▂  ▂ ▂   
-                    (373.30 kb … 835.63 kb) 602.99 kb █▁█▁▁▁▆██████▁▆█▁█▆▁▆
-                  4.20 ipc (  0.60% stalls)    NaN% L1 data cache
-         59.03M cycles 248.06M instructions   0.00% retired LD/ST (   0.00)
+sh-syntax (sync)              17.51 ms/iter  18.24 ms  ▄          █        
+                      (14.77 ms … 20.50 ms)  20.34 ms  █      ▅█ ██        
+                    (600.70 kb … 659.03 kb) 602.86 kb ▅█▅▁▁▅█▁██▅██▅▅█▅▁▁█▅
+                  4.35 ipc (  0.61% stalls)    NaN% L1 data cache
+         56.06M cycles 243.70M instructions   0.00% retired LD/ST (   0.00)
 
-sh-syntax (synckit)           18.12 ms/iter  19.87 ms      █  ▃▃      ▃    
-                      (15.00 ms … 22.63 ms)  21.75 ms ▂ ▇  █  ██ ▂   ▂█    
-                    (275.52 kb … 923.13 kb) 322.97 kb █▆█▆▁█▆▁██▆█▁▆▆██▁▆▁▆
-                  2.84 ipc (  9.61% stalls)    NaN% L1 data cache
-        452.62k cycles   1.29M instructions   0.00% retired LD/ST (   0.00)
+sh-syntax (synckit)           18.08 ms/iter  19.33 ms          █    ▃      
+                      (14.59 ms … 21.82 ms)  21.21 ms  ▂  ▂▂▂  █▂▇▂ █   ▇  
+                    (104.55 kb … 939.13 kb) 304.14 kb ▆█▁▆███▆▁████▆█▆▁▆█▆▆
+                  3.29 ipc (  8.65% stalls)    NaN% L1 data cache
+        507.39k cycles   1.67M instructions   0.00% retired LD/ST (   0.00)
 
-mvdan-sh                      74.20 ms/iter  74.55 ms ██                   
-                     (64.88 ms … 105.29 ms) 101.36 ms ██                   
-                    (  4.34 mb …  22.39 mb)  16.89 mb ████▁██▁▁▁▁▁▁▁▁▁▁▁▁▁█
-                  5.19 ipc (  1.16% stalls)    NaN% L1 data cache
-        217.53M cycles   1.13G instructions   0.00% retired LD/ST (   0.00)
+mvdan-sh                      67.87 ms/iter  66.54 ms      █               
+                      (63.12 ms … 88.13 ms)  71.97 ms ▅▅▅ ▅█▅▅▅    ▅      ▅
+                    (  5.47 mb …  22.32 mb)  16.83 mb ███▁█████▁▁▁▁█▁▁▁▁▁▁█
+                  5.37 ipc (  1.20% stalls)    NaN% L1 data cache
+        211.12M cycles   1.13G instructions   0.00% retired LD/ST (   0.00)
 
 summary
   sh-syntax
-   1.03x faster than sh-syntax (synckit)
-   1.06x faster than sh-syntax (sync)
-   4.21x faster than mvdan-sh
+   1.03x slower than sh-syntax (sync)
+   1x faster than sh-syntax (synckit)
+   3.76x faster than mvdan-sh
 
 ------------------------------------------- -------------------------------
-parse (async)                 28.63 ms/iter  29.79 ms               █      
-                      (24.35 ms … 31.44 ms)  31.16 ms            ▅  █▅▅▅   
-                    ( 14.13 mb …  14.93 mb)  14.26 mb ▇▁▇▇▁▁▁▇▁▇▁█▇▁████▇▁▇
-                  5.05 ipc (  0.95% stalls)    NaN% L1 data cache
-         90.77M cycles 457.92M instructions   0.00% retired LD/ST (   0.00)
+parse (async)                 31.87 ms/iter  33.28 ms              █       
+                      (27.19 ms … 34.52 ms)  34.39 ms              █  ██  █
+                    (  1.96 mb …  14.93 mb)  10.46 mb █▁▁▁███▁█▁█▁▁█████▁██
+                  4.85 ipc (  0.94% stalls)    NaN% L1 data cache
+         99.77M cycles 484.32M instructions   0.00% retired LD/ST (   0.00)
 
-parse (sync)                  27.47 ms/iter  28.98 ms                █     
-                      (23.71 ms … 31.21 ms)  30.54 ms                █     
-                    ( 14.13 mb …  14.14 mb)  14.14 mb ███▁▅▁▁▅▁▁▁▅▁▅▁█▅▅▅▅▅
-                  5.09 ipc (  0.98% stalls)    NaN% L1 data cache
-         88.16M cycles 449.01M instructions   0.00% retired LD/ST (   0.00)
+sh-ast (parse)                74.83 ms/iter  74.56 ms    █                 
+                      (72.24 ms … 86.86 ms)  77.05 ms ▅▅▅█▅  ▅▅ ▅ ▅       ▅
+                    ( 16.61 mb …  16.61 mb)  16.61 mb █████▁▁██▁█▁█▁▁▁▁▁▁▁█
+                  4.43 ipc (  0.55% stalls)    NaN% L1 data cache
+        237.36M cycles   1.05G instructions   0.00% retired LD/ST (   0.00)
 
-print(ast) (async)            28.60 ms/iter  30.13 ms █                    
-                      (26.23 ms … 30.82 ms)  30.59 ms ██               ██  
-                    (  2.39 mb …   2.39 mb)   2.39 mb ██▁▁▁█▁▁██▁▁▁█▁▁█████
-                  4.70 ipc (  0.70% stalls)    NaN% L1 data cache
-         91.38M cycles 429.65M instructions   0.00% retired LD/ST (   0.00)
+sh-ast (print ast)           627.10 ms/iter 651.05 ms               █      
+                    (528.93 ms … 686.62 ms) 685.79 ms               █      
+                    ( 40.50 mb …  61.36 mb)  46.82 mb ▆▆▁▁▁▁▆▁▁▁▁▁▁▁█▁▆▆▁▁▆
+                  4.83 ipc (  0.40% stalls)    NaN% L1 data cache
+          1.91G cycles   9.24G instructions   0.00% retired LD/ST (   0.00)
 
-print(ast) (sync)             28.49 ms/iter  29.13 ms  █       ▃           
-                      (25.69 ms … 33.17 ms)  32.93 ms  █      ▇█▂          
-                    (  2.39 mb …   2.39 mb)   2.39 mb ▆█▁▆▁▁▁▆███▁▁▆▆▁▁▁▁▁▆
-                  4.75 ipc (  0.70% stalls)    NaN% L1 data cache
-         91.05M cycles 432.67M instructions   0.00% retired LD/ST (   0.00)
+parse (sync)                  30.14 ms/iter  32.37 ms            █         
+                      (25.16 ms … 35.59 ms)  34.12 ms     █ █    █     █   
+                    (  2.68 mb …  14.14 mb)  10.62 mb █▁▁▁███▁██████▁▁███▁█
+                  4.96 ipc (  0.93% stalls)    NaN% L1 data cache
+         96.51M cycles 478.48M instructions   0.00% retired LD/ST (   0.00)
+
+print(ast) (async)            30.04 ms/iter  32.31 ms █                    
+                      (26.25 ms … 34.61 ms)  33.93 ms █     ▅▅         ▅   
+                    (  2.39 mb …   2.40 mb)   2.39 mb █▁▁▇▁▁██▁▇▁▇▁▁▇▇▇█▇▁▇
+                  4.91 ipc (  0.65% stalls)    NaN% L1 data cache
+         96.42M cycles 473.84M instructions   0.00% retired LD/ST (   0.00)
+
+print(ast) (sync)             30.55 ms/iter  32.34 ms    █              █  
+                      (27.68 ms … 33.28 ms)  32.76 ms    █              ███
+                    (  2.39 mb …   2.39 mb)   2.39 mb ██████▁█▁▁▁▁▁▁▁▁█████
+                  4.94 ipc (  0.65% stalls)    NaN% L1 data cache
+         98.10M cycles 484.37M instructions   0.00% retired LD/ST (   0.00)
 
 summary
   parse (async)
-   1.04x slower than parse (sync)
-   1.01x slower than print(ast) (sync)
-   1x slower than print(ast) (async)
+   1.06x slower than print(ast) (async)
+   1.06x slower than parse (sync)
+   1.04x slower than print(ast) (sync)
+   2.35x faster than sh-ast (parse)
+   19.67x faster than sh-ast (print ast)
