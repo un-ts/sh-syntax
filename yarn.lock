@@ -7242,6 +7242,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sh-ast@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "sh-ast@npm:0.12.0"
+  checksum: 10c0/f172663f5429b80909f9df3ec0f67ea815d7a278fd1ce8295cdda9dec94e7823ba6c60bea74c7ecdeefb2245c63384e0386097f35b0bdfa503edad80c2863e41
+  languageName: node
+  linkType: hard
+
 "sh-syntax@workspace:.":
   version: 0.0.0-use.local
   resolution: "sh-syntax@workspace:."
@@ -7270,6 +7277,7 @@ __metadata:
     oxfmt: "npm:^0.78.0"
     oxlint: "npm:^1.90.0"
     prettier: "npm:^3.9.4"
+    sh-ast: "npm:^0.12.0"
     simple-git-hooks: "npm:^2.13.1"
     size-limit: "npm:^14.0.0"
     size-limit-preset-node-lib: "npm:^0.5.0"

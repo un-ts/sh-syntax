@@ -89,7 +89,21 @@ jobs:
           PARSER_NO_WATCH: true
 
       - name: Benchmark
-        run: node benchmark
+        shell: bash
+        env:
+          NO_COLOR: '1'
+        run: |
+          set +e
+          node benchmark | tee "$RUNNER_TEMP/benchmark.txt"
+          status=$?
+          {
+            echo '## Benchmark'
+            echo
+            echo '```text'
+            cat "$RUNNER_TEMP/benchmark.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1

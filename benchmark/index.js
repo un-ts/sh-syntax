@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { bench, run, summary } from 'mitata'
 import sh from 'mvdan-sh'
+import { LangBash as ShAstLangBash, parseSync as shAstParse, printSync as shAstPrint } from 'sh-ast'
 import { LangVariant, parse, print } from 'sh-syntax'
 import { parse as parseSync, print as printSync } from 'sh-syntax/sync'
 import { createSyncFn } from 'synckit'
@@ -44,6 +45,11 @@ const shOptions = {
 }
 
 const ast = await parse(text, shOptions)
+const shAstAst = shAstParse(text, {
+  Filename: filePath,
+  KeepComments: keepComments,
+  Variant: ShAstLangBash,
+})
 
 /** @type {(text: string, options?: ShOptions) => string} */
 const synckitPrint = createSyncFn(new URL('worker.mjs', import.meta.url))
@@ -81,6 +87,20 @@ summary(() => {
  */
 summary(() => {
   bench('parse (async)', () => parse(text, shOptions)).baseline()
+
+  bench('sh-ast (parse)', () =>
+    shAstParse(text, { Filename: filePath, KeepComments: keepComments, Variant: ShAstLangBash }))
+
+  bench('sh-ast (print ast)', () =>
+    shAstPrint(shAstAst, {
+      BinaryNextLine: binaryNextLine,
+      FunctionNextLine: functionNextLine,
+      Indent: indent,
+      KeepPadding: keepPadding,
+      Minify: minify,
+      SpaceRedirects: spaceRedirects,
+      SwitchCaseIndent: switchCaseIndent,
+    }))
 
   bench('parse (sync)', () => parseSync(text, shOptions))
 
