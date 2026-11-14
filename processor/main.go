@@ -107,5 +107,5 @@ func Process(
 		}
 	}
 
-	return encodeResult(ast, textOut, parseError, message, nil, errorKind, nil)
+	return encodeResult(ast, textOut, parseError, message, resultMeta{errorKind: errorKind})
 }

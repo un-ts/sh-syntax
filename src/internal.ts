@@ -134,19 +134,13 @@ const readResult = (
   }
 }
 
-export const invoke = (
-  { memory, wasmAlloc, wasmFree, process, printNode, resultLength }: ProcessExports,
-  textOrAst: PrintableNode | string,
+const writeOptions = (
+  { memory, wasmAlloc }: Pick<ProcessExports, 'memory' | 'wasmAlloc'>,
   {
-    filepath = '',
-    print = false,
-    originalText,
-
     keepComments = true,
     variant = LangVariant.LangBash,
     stopAt = '',
     recoverErrors = 0,
-
     useTabs = false,
     tabWidth = 2,
     simplify = false,
@@ -158,60 +152,20 @@ export const invoke = (
     minify = false,
     singleLine = false,
     functionNextLine = false,
-  }: InternalOptions = {},
-): File | string => {
+  }: InternalOptions,
+  printOutput: boolean,
+): number => {
   // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
   encoder ??= new TextEncoder()
-  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
-  decoder ??= new TextDecoder()
 
   if (!supportedVariants.has(variant)) {
     throw new InputError(`Unsupported shell variant: ${variant}`)
   }
 
-  if (
-    textOrAst == null ||
-    (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
-  ) {
-    throw new InputError('expected shell source text or a syntax tree')
-  }
-
-  let text: string
-  let printOutput: boolean
-  let astBytes: Uint8Array | undefined
-
-  if (typeof textOrAst === 'string') {
-    text = textOrAst
-    printOutput = print
-  } else if (originalText == null) {
-    astBytes = encodeAST(textOrAst)
-    text = ''
-    printOutput = true
-  } else {
-    text = originalText
-    printOutput = true
-  }
-
-  const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
   if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
     throw new InputError('stopAt must be at most 4 bytes')
   }
-
-  let filePathPointer = 0
-  let filePathLength = 0
-  if (!astBytes) {
-    const filePath = encoder.encode(filepath)
-    filePathLength = filePath.byteLength
-    filePathPointer = wasmAlloc(filePathLength)
-    // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
-  }
-
-  const inputBytes = astBytes ?? textBytes
-  const textPointer = wasmAlloc(inputBytes.byteLength)
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  new Uint8Array(memory.buffer).set(inputBytes, textPointer)
 
   const optionValues = [
     printOutput,
@@ -244,6 +198,62 @@ export const invoke = (
   new Uint8Array(memory.buffer, optionsPointer + STOP_AT_OPTION_OFFSET, MAX_STOP_AT_BYTES).set(
     stopAtBytes,
   )
+  return optionsPointer
+}
+
+export const invoke = (
+  exports: ProcessExports,
+  textOrAst: PrintableNode | string,
+  options: InternalOptions = {},
+): File | string => {
+  const { memory, wasmAlloc, wasmFree, process, printNode, resultLength } = exports
+  const { filepath = '', print = false, originalText } = options
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  encoder ??= new TextEncoder()
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  decoder ??= new TextDecoder()
+
+  if (
+    textOrAst == null ||
+    (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
+  ) {
+    throw new InputError('expected shell source text or a syntax tree')
+  }
+
+  let text: string
+  let printOutput: boolean
+  let astBytes: Uint8Array | undefined
+
+  if (typeof textOrAst === 'string') {
+    text = textOrAst
+    printOutput = print
+  } else if (originalText == null) {
+    astBytes = encodeAST(textOrAst)
+    text = ''
+    printOutput = true
+  } else {
+    text = originalText
+    printOutput = true
+  }
+
+  const textBytes = encoder.encode(text)
+
+  let filePathPointer = 0
+  let filePathLength = 0
+  if (!astBytes) {
+    const filePath = encoder.encode(filepath)
+    filePathLength = filePath.byteLength
+    filePathPointer = wasmAlloc(filePathLength)
+    // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+    new Uint8Array(memory.buffer).set(filePath, filePathPointer)
+  }
+
+  const inputBytes = astBytes ?? textBytes
+  const textPointer = wasmAlloc(inputBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(inputBytes, textPointer)
+
+  const optionsPointer = writeOptions(exports, options, printOutput)
 
   const resultPointer = astBytes
     ? printNode(textPointer, astBytes.byteLength, optionsPointer)
@@ -285,31 +295,19 @@ export interface InvokeInteractiveResult {
 }
 
 export const invokeInteractive = (
-  { memory, wasmAlloc, wasmFree, interactive, resultLength }: ProcessExports,
+  exports: ProcessExports,
   text: string,
-  {
-    filepath = '',
-    keepComments = true,
-    variant = LangVariant.LangBash,
-    stopAt = '',
-    recoverErrors = 0,
-  }: InternalOptions,
+  options: InternalOptions,
 ): InvokeInteractiveResult => {
+  const { memory, wasmAlloc, wasmFree, interactive, resultLength } = exports
+  const { filepath = '' } = options
   // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
   encoder ??= new TextEncoder()
   // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
   decoder ??= new TextDecoder()
 
-  if (!supportedVariants.has(variant)) {
-    throw new InputError(`Unsupported shell variant: ${variant}`)
-  }
-
   const textBytes = encoder.encode(text)
   const filePathBytes = encoder.encode(filepath)
-  const stopAtBytes = encoder.encode(stopAt)
-  if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
-    throw new InputError('stopAt must be at most 4 bytes')
-  }
 
   const filePathPointer = wasmAlloc(filePathBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
@@ -318,37 +316,7 @@ export const invokeInteractive = (
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(textBytes, textPointer)
 
-  const optionValues = [
-    false,
-    keepComments,
-    variant,
-    recoverErrors,
-    0,
-    stopAtBytes.byteLength,
-    false,
-    2,
-    true,
-    true,
-    true,
-    false,
-    false,
-    false,
-    false,
-  ] as const
-  const optionsPointer = wasmAlloc(optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
-  const options = new DataView(
-    memory.buffer,
-    optionsPointer,
-    optionValues.length * Uint32Array.BYTES_PER_ELEMENT,
-  )
-  let optionOffset = 0
-  for (const value of optionValues) {
-    options.setUint32(optionOffset, Number(value), true)
-    optionOffset += Uint32Array.BYTES_PER_ELEMENT
-  }
-  new Uint8Array(memory.buffer, optionsPointer + STOP_AT_OPTION_OFFSET, MAX_STOP_AT_BYTES).set(
-    stopAtBytes,
-  )
+  const optionsPointer = writeOptions(exports, options, false)
 
   const resultPointer = interactive(
     filePathPointer,

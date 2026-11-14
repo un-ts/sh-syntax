@@ -54,8 +54,8 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		encoded.Reset()
 	}
 
-	return encodeResult(encoded.Bytes(), "", parseError, message, nil, errorKind, &InteractiveMeta{
-		Remaining:  remaining,
-		Incomplete: incomplete,
+	return encodeResult(encoded.Bytes(), "", parseError, message, resultMeta{
+		errorKind:   errorKind,
+		interactive: &InteractiveMeta{Remaining: remaining, Incomplete: incomplete},
 	})
 }
