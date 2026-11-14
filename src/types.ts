@@ -198,8 +198,9 @@ export interface InteractiveResult {
   /** True when the next chunk is required, including when this chunk lacks a trailing newline. */
   incomplete: boolean
   /**
-   * Unconsumed source retained for the next write (comments, whitespace, incomplete syntax). This
-   * is often non-empty even for a complete chunk; use `incomplete`, not `remaining === ''`.
+   * Unconsumed suffix after this chunk (comments, whitespace, incomplete syntax). The parser reuses
+   * it for the next write unless `reset()` intervenes. This is often non-empty even for a complete
+   * chunk; use `incomplete`, not `remaining === ''`.
    */
   remaining: string
 }

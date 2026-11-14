@@ -101,7 +101,7 @@ const third = await parser.write('  echo two\nfi\n')
 // third.ast.stmts has the completed if statement (not echo one)
 ```
 
-`remaining` also carries trailing comments/whitespace after the last complete statement, so callers can decide whether to keep them. It is often non-empty even for a complete chunk (for example a trailing newline); use `incomplete`, not `remaining === ''`, to decide whether more input is required. `incomplete` also means this chunk did not end with a newline, so `echo one;` is syntactically complete but still waits for Enter.
+`remaining` is the unconsumed suffix after this chunk, including trailing comments/whitespace; the parser reuses it for the next write unless `reset()` intervenes. It is often non-empty even for a complete chunk (for example a trailing newline); use `incomplete`, not `remaining === ''`, to decide whether more input is required. `incomplete` also means this chunk did not end with a newline, so `echo one;` is syntactically complete but still waits for Enter.
 
 The synchronous entry exposes the same function:
 
