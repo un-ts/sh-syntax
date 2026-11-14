@@ -322,6 +322,17 @@ test('interactive pending heredoc statement is not committed', () => {
   expect(second.ast.stmts).toHaveLength(2)
 })
 
+test('interactive nested pending heredoc is not committed', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('echo a && cat <<EOF; echo x\n')
+  expect(first.incomplete).toBe(true)
+  expect(first.ast.stmts).toHaveLength(0)
+  expect(first.remaining).toBe('echo a && cat <<EOF; echo x\n')
+  const second = parser.write('body\nEOF\n')
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(2)
+})
+
 test('interactive reset invalidates queued writes', async () => {
   const parser = createInteractiveParser()
   const first = parser.write('if true; then\n')

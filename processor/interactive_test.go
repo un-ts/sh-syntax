@@ -172,3 +172,33 @@ func TestProcessInteractiveHeredocSemicolonStatement(t *testing.T) {
 		t.Fatalf("got %d statements, want 2", got)
 	}
 }
+
+func TestProcessInteractiveNestedPendingHeredoc(t *testing.T) {
+	metadata, ast := interactiveResult(t, ProcessInteractive("echo a && cat <<EOF; echo x\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != true || interactive["remaining"] != "echo a && cat <<EOF; echo x\n" {
+		t.Fatalf("unexpected interactive metadata: %#v", interactive)
+	}
+	file, err := DecodeNodeBinary(ast)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(file.(*syntax.File).Stmts); got != 0 {
+		t.Fatalf("got %d statements, want 0", got)
+	}
+}
+
+func TestProcessInteractiveNestedHeredocCompletes(t *testing.T) {
+	metadata, ast := interactiveResult(t, ProcessInteractive("echo a && cat <<EOF; echo x\nbody\nEOF\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != false || interactive["remaining"] != "\n" {
+		t.Fatalf("unexpected interactive metadata: %#v", interactive)
+	}
+	file, err := DecodeNodeBinary(ast)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(file.(*syntax.File).Stmts); got != 2 {
+		t.Fatalf("got %d statements, want 2", got)
+	}
+}

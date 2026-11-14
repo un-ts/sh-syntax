@@ -10,15 +10,22 @@ import (
 // ProcessInteractive parses complete statements from an interactive chunk and
 // returns the unconsumed suffix. The next call should prepend Remaining.
 func hasPendingHeredoc(stmt *syntax.Stmt) bool {
-	for _, redir := range stmt.Redirs {
-		if redir.Op != syntax.Hdoc && redir.Op != syntax.DashHdoc {
-			continue
+	pending := false
+	syntax.Walk(stmt, func(node syntax.Node) bool {
+		if node == nil {
+			return false
 		}
-		if redir.Hdoc == nil {
+		redir, ok := node.(*syntax.Redirect)
+		if !ok {
 			return true
 		}
-	}
-	return false
+		if (redir.Op == syntax.Hdoc || redir.Op == syntax.DashHdoc) && redir.Hdoc == nil {
+			pending = true
+			return false
+		}
+		return true
+	})
+	return pending
 }
 
 func interactiveStatementEnd(stmt *syntax.Stmt) uint {
