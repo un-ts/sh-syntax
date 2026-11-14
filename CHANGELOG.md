@@ -1,5 +1,11 @@
 # sh-syntax
 
+## 0.8.6
+
+### Patch Changes
+
+- [#180](https://github.com/un-ts/sh-syntax/pull/180) [`8c770b7`](https://github.com/un-ts/sh-syntax/commit/8c770b7125e82c7caa7a3239a507e9f7f817c3a9) Thanks [@JounQin](https://github.com/JounQin)! - Expose stable error classes and codes. `ParseError` now extends `ShSyntaxError`/`SyntaxError` and reports `name: "ParseError"`; `InputError` extends `TypeError`; other syntax failures use `ShSyntaxError` with one of `SH_SYNTAX_LANGUAGE`, `SH_SYNTAX_PRINT`, or `SH_SYNTAX_SPLIT_BRACES`.
+
 ## 0.8.5
 
 ### Patch Changes
