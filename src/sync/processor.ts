@@ -47,30 +47,26 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
 
   let runtime = createRuntime()
 
+  const withRuntime = <T>(run: (current: GoRuntime) => T): T => {
+    /* istanbul ignore if -- @preserve */
+    if (runtime.failure) {
+      throw runtime.failure.error
+    }
+    /* istanbul ignore if -- @preserve */
+    if (runtime.go.exited) {
+      runtime = createRuntime()
+    }
+    return run(runtime)
+  }
+
   function processor(text: string, options: ShOptions & { print: true }): string
   function processor(text: string, options?: ShOptions): File
   function processor(node: PrintableNode, options?: ShPrintOptions): string
   function processor(textOrAst: PrintableNode | string, options?: InternalOptions): File | string {
-    if (runtime.failure) {
-      throw runtime.failure.error
-    }
-    /* istanbul ignore if -- @preserve */
-    if (runtime.go.exited) {
-      runtime = createRuntime()
-    }
-    return invoke(runtime.exports, textOrAst, options)
+    return withRuntime(current => invoke(current.exports, textOrAst, options))
   }
 
-  processor.splitBraces = (word: Word): Word => {
-    /* istanbul ignore if -- @preserve */
-    if (runtime.failure) {
-      throw runtime.failure.error
-    }
-    /* istanbul ignore if -- @preserve */
-    if (runtime.go.exited) {
-      runtime = createRuntime()
-    }
-    return invokeSplitBraces(runtime.exports, word)
-  }
+  processor.splitBraces = (word: Word): Word =>
+    withRuntime(current => invokeSplitBraces(current.exports, word))
   return processor
 }

@@ -138,6 +138,39 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     runtimePromise = undefined
   }
 
+  const withRuntime = async <T>(run: (runtime: GoRuntime) => T): Promise<T> => {
+    let runtime = await getRuntime()
+    /* istanbul ignore if -- @preserve */
+    if (runtime.go.exited) {
+      invalidateRuntime()
+      runtime = await getRuntime()
+    }
+    try {
+      return run(runtime)
+    } catch (error) {
+      /* istanbul ignore next -- @preserve */
+      if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
+        invalidateRuntime()
+      }
+      throw error
+    }
+  }
+
+  const enqueue = async <T>(run: () => Promise<T>): Promise<T> => {
+    const previous = queue
+    let release!: () => void
+    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
+    queue = new Promise<void>(resolve => {
+      release = resolve
+    })
+    await previous
+    try {
+      return await run()
+    } finally {
+      release()
+    }
+  }
+
   const processor = (async (
     textOrAst: PrintableNode | string,
     options: InternalOptions = {},
@@ -145,35 +178,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     if (!ready) {
       await init()
     }
-
-    const previous = queue
-    let release!: () => void
-    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
-    queue = new Promise<void>(resolve => {
-      release = resolve
-    })
-    await previous
-
-    try {
-      let runtime = await getRuntime()
-      /* istanbul ignore if -- @preserve */
-      if (runtime.go.exited) {
-        invalidateRuntime()
-        runtime = await getRuntime()
-      }
-
-      try {
-        return invoke(runtime.exports, textOrAst, options)
-      } catch (error) {
-        /* istanbul ignore next -- @preserve */
-        if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
-          invalidateRuntime()
-        }
-        throw error
-      }
-    } finally {
-      release()
-    }
+    return enqueue(() => withRuntime(current => invoke(current.exports, textOrAst, options)))
   }) as Processor
   processor.init = init
   processor.splitBraces = async (word: Word): Promise<Word> => {
@@ -181,32 +186,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     if (!ready) {
       await init()
     }
-    const previous = queue
-    let release!: () => void
-    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
-    queue = new Promise<void>(resolve => {
-      release = resolve
-    })
-    await previous
-    try {
-      let runtime = await getRuntime()
-      /* istanbul ignore if -- @preserve */
-      if (runtime.go.exited) {
-        invalidateRuntime()
-        runtime = await getRuntime()
-      }
-      try {
-        return invokeSplitBraces(runtime.exports, word)
-      } catch (error) {
-        /* istanbul ignore next -- @preserve */
-        if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
-          invalidateRuntime()
-        }
-        throw error
-      }
-    } finally {
-      release()
-    }
+    return enqueue(() => withRuntime(current => invokeSplitBraces(current.exports, word)))
   }
   return processor
 }
