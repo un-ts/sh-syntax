@@ -10,6 +10,8 @@ import (
 // ProcessInteractive parses complete statements from an interactive chunk and
 // returns the unconsumed suffix. The next call should prepend Remaining.
 func interactiveStatementEnd(stmt *syntax.Stmt) uint {
+	// A panic here is intentionally covered by ProcessInteractive's recover; it
+	// also guards incomplete nodes reached while extending the heredoc boundary.
 	end := stmt.End().Offset()
 	syntax.Walk(stmt, func(node syntax.Node) bool {
 		if node == nil {
