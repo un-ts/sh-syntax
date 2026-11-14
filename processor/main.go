@@ -25,11 +25,6 @@ type PrinterOptions struct {
 	FunctionNextLine bool
 }
 
-type SyntaxOptions struct {
-	ParserOptions
-	PrinterOptions
-}
-
 // Parse converts shell script text into a structured syntax tree.
 func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
 	var options []syntax.ParserOption
@@ -47,16 +42,6 @@ func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.F
 	parser := syntax.NewParser(options...)
 
 	return parser.Parse(bytes.NewReader([]byte(text)), filepath)
-}
-
-// Print returns the formatted shell script defined in originalText.
-func Print(originalText string, filepath string, syntaxOptions SyntaxOptions) (string, error) {
-	file, err := Parse(originalText, filepath, syntaxOptions.ParserOptions)
-	if err != nil {
-		return "", err
-	}
-
-	return printSyntaxNode(file, syntaxOptions.PrinterOptions)
 }
 
 // Process performs formatting or parsing and returns a framed binary result.
@@ -77,12 +62,19 @@ func Process(
 	message := ""
 
 	var err error
+	errorKind := ""
 
 	if printOutput {
-		textOut, err = Print(text, filepath, SyntaxOptions{
-			ParserOptions:  parserOptions,
-			PrinterOptions: printerOptions,
-		})
+		var file *syntax.File
+		file, err = Parse(text, filepath, parserOptions)
+		if err != nil {
+			errorKind = errorKindLanguage
+		} else {
+			textOut, err = printSyntaxNode(file, printerOptions)
+			if err != nil {
+				errorKind = errorKindPrint
+			}
+		}
 	} else {
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
@@ -96,6 +88,8 @@ func Process(
 			} else {
 				ast = encoded.Bytes()
 			}
+		} else {
+			errorKind = "language"
 		}
 	}
 
@@ -105,10 +99,11 @@ func Process(
 	var parseError *ParseError
 	if mapped, mappedMessage := MapParseError(err); mapped != nil {
 		parseError = mapped
+		errorKind = errorKindParse
 		if mappedMessage != "" {
 			message = mappedMessage
 		}
 	}
 
-	return encodeResult(ast, textOut, parseError, message, nil)
+	return encodeResult(ast, textOut, parseError, message, nil, errorKind)
 }

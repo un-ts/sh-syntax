@@ -1,4 +1,4 @@
-import { ParseError } from './common.js'
+import { ErrorCode, InputError, ParseError, ShSyntaxError } from './common.js'
 import {
   type File,
   type IParseError,
@@ -31,11 +31,14 @@ export interface ProcessExports {
   resultLength: () => number
 }
 
+type ErrorKind = 'language' | 'print' | 'parse' | 'splitBraces'
+
 interface RawResult {
   text: string
   parseError: IParseError | null
   message: string
   changed?: boolean
+  errorKind?: ErrorKind
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -109,7 +112,13 @@ const readResult = (
     throw new ParseError(metadata.parseError)
   }
   if (metadata.message) {
-    throw new SyntaxError(metadata.message)
+    const errorCode =
+      metadata.errorKind === 'print'
+        ? ErrorCode.Print
+        : metadata.errorKind === 'splitBraces'
+          ? ErrorCode.SplitBraces
+          : ErrorCode.Language
+    throw new ShSyntaxError(errorCode, metadata.message)
   }
   return {
     metadata,
@@ -149,14 +158,14 @@ export const invoke = (
   decoder ??= new TextDecoder()
 
   if (!supportedVariants.has(variant)) {
-    throw new TypeError(`Unsupported shell variant: ${variant}`)
+    throw new InputError(`Unsupported shell variant: ${variant}`)
   }
 
   if (
     textOrAst == null ||
     (typeof textOrAst !== 'string' && (typeof textOrAst !== 'object' || Array.isArray(textOrAst)))
   ) {
-    throw new TypeError('expected shell source text or a syntax tree')
+    throw new InputError('expected shell source text or a syntax tree')
   }
 
   let text: string
@@ -178,7 +187,7 @@ export const invoke = (
   const textBytes = encoder.encode(text)
   const stopAtBytes = encoder.encode(stopAt)
   if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
-    throw new TypeError('stopAt must be at most 4 bytes')
+    throw new InputError('stopAt must be at most 4 bytes')
   }
 
   let filePathPointer = 0
@@ -246,9 +255,9 @@ export const invokeSplitBraces = (
   { memory, wasmAlloc, wasmFree, splitBraces, resultLength }: ProcessExports,
   word: Word,
 ): SplitBracesResult => {
+  const bytes = encodeAST(word)
   const start = word.start
   const end = word.end
-  const bytes = encodeAST(word)
   const nodePointer = wasmAlloc(bytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(bytes, nodePointer)

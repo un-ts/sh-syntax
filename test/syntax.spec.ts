@@ -2,6 +2,9 @@ import {
   LangVariant,
   ParNamesOperator,
   ParseError,
+  InputError,
+  ErrorCode,
+  ShSyntaxError,
   RedirOperator,
   isIncomplete,
   parse,
@@ -52,7 +55,16 @@ test('sync parser returns the full typed tree', () => {
 })
 
 test('rejects non-text input', () => {
-  expect(() => parseSync(null as never)).toThrow(TypeError)
+  expect(() => parseSync(null as never)).toThrow(InputError)
+  const inputError = (() => {
+    try {
+      parseSync(null as never)
+    } catch (error) {
+      return error as InputError
+    }
+    throw new Error('expected parseSync to throw')
+  })()
+  expect(inputError).toMatchObject({ name: 'InputError', code: ErrorCode.Input })
 })
 
 test('print(ast, { originalText }) ignores the AST', async () => {
@@ -119,8 +131,26 @@ test('sync splitBraces expands a word part', () => {
   const { word: split, changed } = splitBracesSync(command.args[1]!)
   expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
-  expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
-  expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
+  const splitError = (() => {
+    try {
+      splitBracesSync(ast as never)
+    } catch (error) {
+      return error as ShSyntaxError
+    }
+    throw new Error('expected splitBracesSync to throw')
+  })()
+  expect(splitError).toMatchObject({ name: 'ShSyntaxError', code: ErrorCode.SplitBraces })
+  expect(() => splitBracesSync(null as never)).toThrow(InputError)
+
+  const printError = (() => {
+    try {
+      printSync(split)
+    } catch (error) {
+      return error as ShSyntaxError
+    }
+    throw new Error('expected printSync to throw')
+  })()
+  expect(printError).toMatchObject({ name: 'ShSyntaxError', code: ErrorCode.Print })
 })
 
 test('async splitBraces expands a word part', async () => {
@@ -133,6 +163,7 @@ test('async splitBraces expands a word part', async () => {
   expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
   await expect(splitBraces(ast as never)).rejects.toThrow(/requires a Word node/)
+  await expect(splitBraces(null as never)).rejects.toBeInstanceOf(InputError)
 })
 
 test('splitBraces handles empty alternatives', () => {
@@ -198,15 +229,49 @@ test('parse errors expose position and incompleteness', () => {
   })()
 
   expect(parseError).toBeInstanceOf(ParseError)
+  expect(parseError.name).toBe('ParseError')
+  expect(parseError.code).toBe(ErrorCode.Parse)
   expect(parseError.message.length).toBeGreaterThan(0)
   expect(parseError.pos?.offset).toBe(5)
   expect(parseError.incomplete).toBe(false)
 })
 
-test('language errors become SyntaxError', async () => {
+test('language errors use the syntax error taxonomy', async () => {
+  await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
+    name: 'ShSyntaxError',
+    code: ErrorCode.Language,
+  })
+  await expect(print('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
+    name: 'ShSyntaxError',
+    code: ErrorCode.Language,
+  })
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toBeInstanceOf(
     SyntaxError,
   )
+})
+
+test('error taxonomy is stable', () => {
+  const cases = [
+    [new ParseError({ incomplete: false, text: 'x' }), 'ParseError', ErrorCode.Parse],
+    [new ShSyntaxError(ErrorCode.Language, 'x'), 'ShSyntaxError', ErrorCode.Language],
+    [new InputError('x'), 'InputError', ErrorCode.Input],
+    [new ShSyntaxError(ErrorCode.Print, 'x'), 'ShSyntaxError', ErrorCode.Print],
+    [new ShSyntaxError(ErrorCode.SplitBraces, 'x'), 'ShSyntaxError', ErrorCode.SplitBraces],
+  ] as const
+  for (const [error, name, code] of cases) {
+    expect(error).toMatchObject({ name, code })
+  }
+  for (const error of [
+    new ParseError({ incomplete: false, text: 'x' }),
+    new ShSyntaxError(ErrorCode.Language, 'x'),
+    new ShSyntaxError(ErrorCode.Print, 'x'),
+    new ShSyntaxError(ErrorCode.SplitBraces, 'x'),
+  ]) {
+    expect(error).toBeInstanceOf(ShSyntaxError)
+    expect(error).toBeInstanceOf(SyntaxError)
+  }
+  expect(new InputError('x')).toBeInstanceOf(TypeError)
+  expect(new InputError('x')).not.toBeInstanceOf(ShSyntaxError)
 })
 
 test('recoverErrors marks recovered positions', () => {

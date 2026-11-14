@@ -5,10 +5,18 @@ import (
 	"encoding/binary"
 )
 
+const (
+	errorKindLanguage    = "language"
+	errorKindPrint       = "print"
+	errorKindParse       = "parse"
+	errorKindSplitBraces = "splitBraces"
+)
+
 // encodeResult frames metadata JSON and an optional binary AST payload:
 // uint32 metadata length, metadata JSON, AST bytes. A non-nil changed adds the
-// splitBraces-only changed field.
-func encodeResult(ast []byte, text string, parseError *ParseError, message string, changed *bool) []byte {
+// splitBraces-only changed field. errorKind is language, print, parse, or
+// splitBraces when an operation fails.
+func encodeResult(ast []byte, text string, parseError *ParseError, message string, changed *bool, errorKind string) []byte {
 	var meta bytes.Buffer
 	meta.WriteString(`{"text":`)
 	writeString(&meta, text)
@@ -19,6 +27,10 @@ func encodeResult(ast []byte, text string, parseError *ParseError, message strin
 	if changed != nil {
 		meta.WriteString(`,"changed":`)
 		writeBool(&meta, *changed)
+	}
+	if errorKind != "" {
+		meta.WriteString(`,"errorKind":`)
+		writeString(&meta, errorKind)
 	}
 	meta.WriteByte('}')
 
