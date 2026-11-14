@@ -15,6 +15,7 @@ const moduleDir = importMetaUrl ? path.dirname(fileURLToPath(importMetaUrl)) : _
 export const processor = getProcessor(readFileSync(path.resolve(moduleDir, '../../main.wasm')))
 
 export const { parse, print } = createProcessorAPI(processor)
+export const { splitBraces } = processor
 
 export * from '../common.js'
 

@@ -6,6 +6,7 @@ export const processor = getProcessor(() => fetch(new URL('../main.wasm', import
 export const { init } = processor
 
 export const { parse, print } = createProcessorAPI(processor)
+export const { splitBraces } = processor
 
 export * from './common.js'
 export * from './processor.js'

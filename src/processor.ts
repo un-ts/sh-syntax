@@ -1,5 +1,18 @@
-import { invoke, startGoRuntime, type GoRuntime, type InternalOptions } from './internal.js'
-import { type File, type PrintableNode, type ShOptions, type ShPrintOptions } from './types.js'
+import {
+  invoke,
+  invokeSplitBraces,
+  startGoRuntime,
+  type GoRuntime,
+  type InternalOptions,
+} from './internal.js'
+import {
+  type File,
+  type PrintableNode,
+  type ShOptions,
+  type ShPrintOptions,
+  type SplitBracesResult,
+  type Word,
+} from './types.js'
 
 export type WebAssemblyBaseSource = Buffer | BufferSource
 export type WebAssemblySource =
@@ -23,6 +36,7 @@ export interface Processor {
   (text: string, options?: ShOptions): Promise<File>
   (text: string, options?: ShOptions & { print: true }): Promise<string>
   (node: PrintableNode, options?: ShPrintOptions): Promise<string>
+  splitBraces: (word: Word) => Promise<SplitBracesResult>
   /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
   init(): Promise<void>
 }
@@ -125,14 +139,25 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     runtimePromise = undefined
   }
 
-  const processor = (async (
-    textOrAst: PrintableNode | string,
-    options: InternalOptions = {},
-  ): Promise<File | string> => {
-    if (!ready) {
-      await init()
+  const withRuntime = async <T>(run: (runtime: GoRuntime) => T): Promise<T> => {
+    let runtime = await getRuntime()
+    /* istanbul ignore if -- @preserve */
+    if (runtime.go.exited) {
+      invalidateRuntime()
+      runtime = await getRuntime()
     }
+    try {
+      return run(runtime)
+    } catch (error) {
+      /* istanbul ignore next -- @preserve */
+      if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
+        invalidateRuntime()
+      }
+      throw error
+    }
+  }
 
+  const enqueue = async <T>(run: () => Promise<T>): Promise<T> => {
     const previous = queue
     let release!: () => void
     // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- Node 18 compatibility
@@ -140,28 +165,29 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
       release = resolve
     })
     await previous
-
     try {
-      let runtime = await getRuntime()
-      /* istanbul ignore if -- @preserve */
-      if (runtime.go.exited) {
-        invalidateRuntime()
-        runtime = await getRuntime()
-      }
-
-      try {
-        return invoke(runtime.exports, textOrAst, options)
-      } catch (error) {
-        /* istanbul ignore next -- @preserve */
-        if (error instanceof WebAssembly.RuntimeError || error instanceof RangeError) {
-          invalidateRuntime()
-        }
-        throw error
-      }
+      return await run()
     } finally {
       release()
     }
+  }
+
+  const processor = (async (
+    textOrAst: PrintableNode | string,
+    options: InternalOptions = {},
+  ): Promise<File | string> => {
+    if (!ready) {
+      await init()
+    }
+    return enqueue(() => withRuntime(current => invoke(current.exports, textOrAst, options)))
   }) as Processor
   processor.init = init
+  processor.splitBraces = async (word: Word): Promise<SplitBracesResult> => {
+    /* istanbul ignore if -- @preserve */
+    if (!ready) {
+      await init()
+    }
+    return enqueue(() => withRuntime(current => invokeSplitBraces(current.exports, word)))
+  }
   return processor
 }

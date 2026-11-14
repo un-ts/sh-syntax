@@ -7,9 +7,14 @@ import {
   parse,
   print,
   processor,
+  splitBraces,
   walk,
 } from 'sh-syntax'
-import { parse as parseSync, print as printSync } from 'sh-syntax/sync'
+import {
+  parse as parseSync,
+  print as printSync,
+  splitBraces as splitBracesSync,
+} from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -103,6 +108,61 @@ test('print(node) prints subtrees and rejects invalid input', () => {
   }
   expect(printSync(command.args[1]!)).toBe('hi')
   expect(() => printSync([] as never)).toThrow(TypeError)
+})
+
+test('sync splitBraces expands a word part', () => {
+  const ast = parseSync('echo {a,b}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const { word: split, changed } = splitBracesSync(command.args[1]!)
+  expect(changed).toBe(true)
+  expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
+  expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
+  expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
+})
+
+test('async splitBraces expands a word part', async () => {
+  const ast = await parse('echo {a,b}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const { word: split, changed } = await splitBraces(command.args[1]!)
+  expect(changed).toBe(true)
+  expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
+  await expect(splitBraces(ast as never)).rejects.toThrow(/requires a Word node/)
+})
+
+test('splitBraces handles empty alternatives', () => {
+  const ast = parseSync('echo {,a}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const { word: split } = splitBracesSync(command.args[1]!)
+  expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
+  expect(split.start).toBe(command.args[1]!.start)
+  expect(split.end).toBe(command.args[1]!.end)
+
+  const plain = parseSync('echo plain\n').stmts[0]?.cmd
+  if (plain?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const plainWord = plain.args[1]!
+  const plainResult = splitBracesSync(plainWord)
+  expect(plainResult.changed).toBe(false)
+  expect(plainResult.word.start).toBe(plainWord.start)
+  expect(plainResult.word.end).toBe(plainWord.end)
+
+  const fallback = parseSync('echo {x}\n').stmts[0]?.cmd
+  if (fallback?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const fallbackResult = splitBracesSync(fallback.args[1]!)
+  expect(fallbackResult.changed).toBe(true)
+  expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
 })
 
 test('ParNamesOperator has a zero value', () => {

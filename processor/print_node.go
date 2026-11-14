@@ -20,6 +20,10 @@ func PrintNode(encoded []byte, options PrinterOptions) (text string, err error) 
 		return "", err
 	}
 
+	if containsBraceExp(node) {
+		return "", fmt.Errorf("cannot print BraceExp nodes; splitBraces output is analysis-only")
+	}
+
 	text, err = printSyntaxNode(node, options)
 	if err != nil {
 		return "", fmt.Errorf("%s", string(bytes.ReplaceAll([]byte(err.Error()), []byte("*syntax."), nil)))

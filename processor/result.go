@@ -6,8 +6,9 @@ import (
 )
 
 // encodeResult frames metadata JSON and an optional binary AST payload:
-// uint32 metadata length, metadata JSON, AST bytes.
-func encodeResult(ast []byte, text string, parseError *ParseError, message string) []byte {
+// uint32 metadata length, metadata JSON, AST bytes. A non-nil changed adds the
+// splitBraces-only changed field.
+func encodeResult(ast []byte, text string, parseError *ParseError, message string, changed *bool) []byte {
 	var meta bytes.Buffer
 	meta.WriteString(`{"text":`)
 	writeString(&meta, text)
@@ -15,6 +16,10 @@ func encodeResult(ast []byte, text string, parseError *ParseError, message strin
 	writeParseError(&meta, parseError)
 	meta.WriteString(`,"message":`)
 	writeString(&meta, message)
+	if changed != nil {
+		meta.WriteString(`,"changed":`)
+		writeBool(&meta, *changed)
+	}
 	meta.WriteByte('}')
 
 	out := make([]byte, 4+meta.Len()+len(ast))

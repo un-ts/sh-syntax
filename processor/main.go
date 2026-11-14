@@ -110,5 +110,5 @@ func Process(
 		}
 	}
 
-	return encodeResult(ast, textOut, parseError, message)
+	return encodeResult(ast, textOut, parseError, message, nil)
 }

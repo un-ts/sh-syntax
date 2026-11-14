@@ -189,4 +189,9 @@ export interface IParseError {
   pos?: Pos
 }
 
+export interface SplitBracesResult {
+  word: Word
+  changed: boolean
+}
+
 export type PrintableNode = File | Stmt | Command | Word | WordPart | Assign

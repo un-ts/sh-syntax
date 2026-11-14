@@ -1,6 +1,19 @@
-import { invoke, startGoRuntime, type InternalOptions, type GoRuntime } from '../internal.js'
+import {
+  invoke,
+  invokeSplitBraces,
+  startGoRuntime,
+  type InternalOptions,
+  type GoRuntime,
+} from '../internal.js'
 import type { WebAssemblyBaseSource } from '../processor.js'
-import type { File, PrintableNode, ShOptions, ShPrintOptions } from '../types.js'
+import type {
+  File,
+  PrintableNode,
+  ShOptions,
+  ShPrintOptions,
+  SplitBracesResult,
+  Word,
+} from '../types.js'
 
 export type GetWebAssemblySource = () => WebAssemblyBaseSource | WebAssembly.Module
 
@@ -10,6 +23,7 @@ export interface Processor {
   (text: string, options: ShOptions & { print: true }): string
   (text: string, options?: ShOptions): File
   (node: PrintableNode, options?: ShPrintOptions): string
+  splitBraces: (word: Word) => SplitBracesResult
 }
 
 /**
@@ -40,10 +54,8 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
 
   let runtime = createRuntime()
 
-  function processor(text: string, options: ShOptions & { print: true }): string
-  function processor(text: string, options?: ShOptions): File
-  function processor(node: PrintableNode, options?: ShPrintOptions): string
-  function processor(textOrAst: PrintableNode | string, options?: InternalOptions): File | string {
+  const withRuntime = <T>(run: (current: GoRuntime) => T): T => {
+    /* istanbul ignore if -- @preserve */
     if (runtime.failure) {
       throw runtime.failure.error
     }
@@ -51,8 +63,17 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     if (runtime.go.exited) {
       runtime = createRuntime()
     }
-    return invoke(runtime.exports, textOrAst, options)
+    return run(runtime)
   }
 
+  function processor(text: string, options: ShOptions & { print: true }): string
+  function processor(text: string, options?: ShOptions): File
+  function processor(node: PrintableNode, options?: ShPrintOptions): string
+  function processor(textOrAst: PrintableNode | string, options?: InternalOptions): File | string {
+    return withRuntime(current => invoke(current.exports, textOrAst, options))
+  }
+
+  processor.splitBraces = (word: Word): SplitBracesResult =>
+    withRuntime(current => invokeSplitBraces(current.exports, word))
   return processor
 }

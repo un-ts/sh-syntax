@@ -48,7 +48,7 @@ npm i sh-syntax
 #### node
 
 ```js
-import { init, parse, print } from 'sh-syntax'
+import { init, parse, print, splitBraces } from 'sh-syntax'
 
 // Optional: load and initialize the WASM runtime up front.
 await init()
@@ -65,6 +65,13 @@ const formatted = await print(text)
 const printedAst = await print(ast)
 const printedStmt = await print(ast.stmts[0])
 // File output ends with a newline; subtree output does not.
+
+// Split brace expressions into BraceExp parts for analysis.
+// `changed` can be true even when no BraceExp is produced ({x}, unterminated braces).
+// Split literals have no source positions; BraceExp bounds may use retained children.
+// The printer rejects BraceExp trees.
+const braceAst = await parse('echo {a,b}')
+const { word: splitWord, changed } = await splitBraces(braceAst.stmts[0].cmd.args[1])
 
 // originalText still selects the source-text fast path.
 const formattedSource = await print(ast, { originalText: text })

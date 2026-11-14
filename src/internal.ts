@@ -5,6 +5,8 @@ import {
   LangVariant,
   type PrintableNode,
   type ShPrintOptions,
+  type SplitBracesResult,
+  type Word,
 } from './types.js'
 import { decodeAST, encodeAST } from './wire.js'
 
@@ -25,6 +27,7 @@ export interface ProcessExports {
     optionsPointer: number,
   ) => number
   printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
+  splitBraces: (nodePointer: number, nodeLength: number) => number
   resultLength: () => number
 }
 
@@ -32,6 +35,7 @@ interface RawResult {
   text: string
   parseError: IParseError | null
   message: string
+  changed?: boolean
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -77,6 +81,40 @@ export const startGoRuntime = (go: Go, instance: WebAssembly.Instance): GoRuntim
     throw new Error('Go runtime exited during startup')
   }
   return { go, exports, run }
+}
+
+interface DecodedResult {
+  metadata: RawResult
+  ast: Uint8Array
+}
+
+const readResult = (
+  memory: WebAssembly.Memory,
+  resultPointer: number,
+  resultLength: number,
+): DecodedResult => {
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  const result = new Uint8Array(memory.buffer).subarray(resultPointer, resultPointer + resultLength)
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  decoder ??= new TextDecoder()
+  const metadataLength = new DataView(
+    result.buffer,
+    result.byteOffset,
+    RESULT_HEADER_BYTES,
+  ).getUint32(0, true)
+  const metadata = JSON.parse(
+    decoder.decode(result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength)),
+  ) as RawResult
+  if (metadata.parseError) {
+    throw new ParseError(metadata.parseError)
+  }
+  if (metadata.message) {
+    throw new SyntaxError(metadata.message)
+  }
+  return {
+    metadata,
+    ast: result.subarray(RESULT_HEADER_BYTES + metadataLength),
+  }
 }
 
 export const invoke = (
@@ -200,27 +238,25 @@ export const invoke = (
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
-  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
-  const result = new Uint8Array(memory.buffer).subarray(
-    resultPointer,
-    resultPointer + resultLength(),
-  )
-  const metadataLength = new DataView(
-    result.buffer,
-    result.byteOffset,
-    RESULT_HEADER_BYTES,
-  ).getUint32(0, true)
-  const metadata = JSON.parse(
-    decoder.decode(result.subarray(RESULT_HEADER_BYTES, RESULT_HEADER_BYTES + metadataLength)),
-  ) as RawResult
-  if (metadata.parseError) {
-    throw new ParseError(metadata.parseError)
-  }
-
-  if (metadata.message) {
-    throw new SyntaxError(metadata.message)
-  }
-
-  const ast = result.subarray(RESULT_HEADER_BYTES + metadataLength)
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
   return printOutput ? metadata.text : decodeAST(ast)
+}
+
+export const invokeSplitBraces = (
+  { memory, wasmAlloc, wasmFree, splitBraces, resultLength }: ProcessExports,
+  word: Word,
+): SplitBracesResult => {
+  const start = word.start
+  const end = word.end
+  const bytes = encodeAST(word)
+  const nodePointer = wasmAlloc(bytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(bytes, nodePointer)
+  const resultPointer = splitBraces(nodePointer, bytes.byteLength)
+  wasmFree(nodePointer)
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  const result = decodeAST(ast) as unknown as Word
+  result.start = start
+  result.end = end
+  return { word: result, changed: metadata.changed === true }
 }
