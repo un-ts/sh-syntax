@@ -89,7 +89,6 @@ jobs:
           PARSER_NO_WATCH: true
 
       - name: Benchmark
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 26 }}
         shell: bash
         env:
           NO_COLOR: '1'
