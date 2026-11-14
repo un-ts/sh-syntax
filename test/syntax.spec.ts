@@ -129,6 +129,16 @@ test('async splitBraces expands a word part', async () => {
   await expect(splitBracesAsync(ast as never)).rejects.toThrow(/requires a Word node/)
 })
 
+test('splitBraces handles empty alternatives', () => {
+  const ast = parseSync('echo {,a}\n')
+  const command = ast.stmts[0]?.cmd
+  if (command?.type !== 'CallExpr') {
+    throw new Error('expected a call expression')
+  }
+  const split = splitBraces(command.args[1]!)
+  expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
+})
+
 test('ParNamesOperator has a zero value', () => {
   const ast = parseSync('echo $foo\n')
   const command = ast.stmts[0].cmd

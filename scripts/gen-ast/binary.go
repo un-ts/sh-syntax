@@ -169,8 +169,7 @@ func (r *binaryReader) count() (int, error) {
 		fmt.Fprintf(buf, "func write%sBinary(buf *bytes.Buffer, v *syntax.%s) {\n", name, name)
 		fmt.Fprintln(buf, "\tif v == nil { return }")
 		if info.isNode {
-			fmt.Fprintln(buf, "\twriteBinaryUint(buf, uint64(v.Pos().Offset()))")
-			fmt.Fprintln(buf, "\twriteBinaryUint(buf, uint64(v.End().Offset()))")
+			fmt.Fprintln(buf, "\twriteBinaryNodeBounds(buf, v)")
 		}
 		for _, f := range info.fields {
 			fmt.Fprintf(buf, "\t%s\n", binaryWriteField(f.typ, "v."+f.name, interfaces))

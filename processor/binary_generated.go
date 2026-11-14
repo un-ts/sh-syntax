@@ -163,8 +163,7 @@ func writeFileBinary(buf *bytes.Buffer, v *syntax.File) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryString(buf, v.Name)
 	writeBinaryUint(buf, uint64(len(v.Stmts)))
 	for _, item := range v.Stmts {
@@ -238,8 +237,7 @@ func writeCommentBinary(buf *bytes.Buffer, v *syntax.Comment) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Hash)
 	writeBinaryString(buf, v.Text)
 }
@@ -273,8 +271,7 @@ func writeStmtBinary(buf *bytes.Buffer, v *syntax.Stmt) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryUint(buf, uint64(len(v.Comments)))
 	for i := range v.Comments {
 		writeCommentBinary(buf, &v.Comments[i])
@@ -396,8 +393,7 @@ func writeAssignBinary(buf *bytes.Buffer, v *syntax.Assign) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryBool(buf, v.Append)
 	writeBinaryBool(buf, v.Naked)
 	if v.Name == nil {
@@ -496,8 +492,7 @@ func writeRedirectBinary(buf *bytes.Buffer, v *syntax.Redirect) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	if v.N == nil {
@@ -588,8 +583,7 @@ func writeCallExprBinary(buf *bytes.Buffer, v *syntax.CallExpr) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryUint(buf, uint64(len(v.Assigns)))
 	for _, item := range v.Assigns {
 		if item == nil {
@@ -667,8 +661,7 @@ func writeSubshellBinary(buf *bytes.Buffer, v *syntax.Subshell) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lparen)
 	writeBinaryPos(buf, v.Rparen)
 	writeBinaryUint(buf, uint64(len(v.Stmts)))
@@ -750,8 +743,7 @@ func writeBlockBinary(buf *bytes.Buffer, v *syntax.Block) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lbrace)
 	writeBinaryPos(buf, v.Rbrace)
 	writeBinaryUint(buf, uint64(len(v.Stmts)))
@@ -833,8 +825,7 @@ func writeIfClauseBinary(buf *bytes.Buffer, v *syntax.IfClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Position)
 	writeBinaryPos(buf, v.ThenPos)
 	writeBinaryPos(buf, v.FiPos)
@@ -1009,8 +1000,7 @@ func writeWhileClauseBinary(buf *bytes.Buffer, v *syntax.WhileClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.WhilePos)
 	writeBinaryPos(buf, v.DoPos)
 	writeBinaryPos(buf, v.DonePos)
@@ -1156,8 +1146,7 @@ func writeForClauseBinary(buf *bytes.Buffer, v *syntax.ForClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.ForPos)
 	writeBinaryPos(buf, v.DoPos)
 	writeBinaryPos(buf, v.DonePos)
@@ -1271,8 +1260,7 @@ func writeWordIterBinary(buf *bytes.Buffer, v *syntax.WordIter) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	if v.Name == nil {
 		writeBinaryBool(buf, false)
 	} else {
@@ -1347,8 +1335,7 @@ func writeCStyleLoopBinary(buf *bytes.Buffer, v *syntax.CStyleLoop) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lparen)
 	writeBinaryPos(buf, v.Rparen)
 	writeArithmExprBinary(buf, v.Init)
@@ -1406,8 +1393,7 @@ func writeBinaryCmdBinary(buf *bytes.Buffer, v *syntax.BinaryCmd) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	if v.X == nil {
@@ -1479,8 +1465,7 @@ func writeFuncDeclBinary(buf *bytes.Buffer, v *syntax.FuncDecl) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Position)
 	writeBinaryBool(buf, v.RsrvWord)
 	writeBinaryBool(buf, v.Parens)
@@ -1590,8 +1575,7 @@ func writeWordBinary(buf *bytes.Buffer, v *syntax.Word) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryUint(buf, uint64(len(v.Parts)))
 	for _, item := range v.Parts {
 		writeWordPartBinary(buf, item)
@@ -1627,8 +1611,7 @@ func writeLitBinary(buf *bytes.Buffer, v *syntax.Lit) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.ValuePos)
 	writeBinaryPos(buf, v.ValueEnd)
 	writeBinaryString(buf, v.Value)
@@ -1670,8 +1653,7 @@ func writeSglQuotedBinary(buf *bytes.Buffer, v *syntax.SglQuoted) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeBinaryBool(buf, v.Dollar)
@@ -1721,8 +1703,7 @@ func writeDblQuotedBinary(buf *bytes.Buffer, v *syntax.DblQuoted) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeBinaryBool(buf, v.Dollar)
@@ -1782,8 +1763,7 @@ func writeCmdSubstBinary(buf *bytes.Buffer, v *syntax.CmdSubst) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeBinaryUint(buf, uint64(len(v.Stmts)))
@@ -1889,8 +1869,7 @@ func writeParamExpBinary(buf *bytes.Buffer, v *syntax.ParamExp) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Dollar)
 	writeBinaryPos(buf, v.Rbrace)
 	writeBinaryBool(buf, v.Short)
@@ -2259,8 +2238,7 @@ func writeArithmExpBinary(buf *bytes.Buffer, v *syntax.ArithmExp) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeBinaryBool(buf, v.Bracket)
@@ -2318,8 +2296,7 @@ func writeArithmCmdBinary(buf *bytes.Buffer, v *syntax.ArithmCmd) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeBinaryBool(buf, v.Unsigned)
@@ -2369,8 +2346,7 @@ func writeBinaryArithmBinary(buf *bytes.Buffer, v *syntax.BinaryArithm) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	writeArithmExprBinary(buf, v.X)
@@ -2420,8 +2396,7 @@ func writeUnaryArithmBinary(buf *bytes.Buffer, v *syntax.UnaryArithm) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	writeBinaryBool(buf, v.Post)
@@ -2471,8 +2446,7 @@ func writeParenArithmBinary(buf *bytes.Buffer, v *syntax.ParenArithm) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lparen)
 	writeBinaryPos(buf, v.Rparen)
 	writeArithmExprBinary(buf, v.X)
@@ -2514,8 +2488,7 @@ func writeFlagsArithmBinary(buf *bytes.Buffer, v *syntax.FlagsArithm) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	if v.Flags == nil {
 		writeBinaryBool(buf, false)
 	} else {
@@ -2560,8 +2533,7 @@ func writeCaseClauseBinary(buf *bytes.Buffer, v *syntax.CaseClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Case)
 	writeBinaryPos(buf, v.In)
 	writeBinaryPos(buf, v.Esac)
@@ -2678,8 +2650,7 @@ func writeCaseItemBinary(buf *bytes.Buffer, v *syntax.CaseItem) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryUint(buf, uint64(v.Op))
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(len(v.Comments)))
@@ -2809,8 +2780,7 @@ func writeTestClauseBinary(buf *bytes.Buffer, v *syntax.TestClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Left)
 	writeBinaryPos(buf, v.Right)
 	writeTestExprBinary(buf, v.X)
@@ -2852,8 +2822,7 @@ func writeBinaryTestBinary(buf *bytes.Buffer, v *syntax.BinaryTest) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	writeTestExprBinary(buf, v.X)
@@ -2903,8 +2872,7 @@ func writeUnaryTestBinary(buf *bytes.Buffer, v *syntax.UnaryTest) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	writeTestExprBinary(buf, v.X)
@@ -2946,8 +2914,7 @@ func writeParenTestBinary(buf *bytes.Buffer, v *syntax.ParenTest) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lparen)
 	writeBinaryPos(buf, v.Rparen)
 	writeTestExprBinary(buf, v.X)
@@ -2989,8 +2956,7 @@ func writeDeclClauseBinary(buf *bytes.Buffer, v *syntax.DeclClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	if v.Variant == nil {
 		writeBinaryBool(buf, false)
 	} else {
@@ -3057,8 +3023,7 @@ func writeArrayExprBinary(buf *bytes.Buffer, v *syntax.ArrayExpr) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Lparen)
 	writeBinaryPos(buf, v.Rparen)
 	writeBinaryUint(buf, uint64(len(v.Elems)))
@@ -3140,8 +3105,7 @@ func writeArrayElemBinary(buf *bytes.Buffer, v *syntax.ArrayElem) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeArithmExprBinary(buf, v.Index)
 	if v.Value == nil {
 		writeBinaryBool(buf, false)
@@ -3204,8 +3168,7 @@ func writeExtGlobBinary(buf *bytes.Buffer, v *syntax.ExtGlob) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryUint(buf, uint64(v.Op))
 	if v.Pattern == nil {
@@ -3258,8 +3221,7 @@ func writeProcSubstBinary(buf *bytes.Buffer, v *syntax.ProcSubst) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
 	writeBinaryPos(buf, v.Rparen)
 	writeBinaryUint(buf, uint64(v.Op))
@@ -3349,8 +3311,7 @@ func writeTimeClauseBinary(buf *bytes.Buffer, v *syntax.TimeClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Time)
 	writeBinaryBool(buf, v.PosixFormat)
 	if v.Stmt == nil {
@@ -3403,8 +3364,7 @@ func writeCoprocClauseBinary(buf *bytes.Buffer, v *syntax.CoprocClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Coproc)
 	if v.Name == nil {
 		writeBinaryBool(buf, false)
@@ -3468,8 +3428,7 @@ func writeLetClauseBinary(buf *bytes.Buffer, v *syntax.LetClause) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Let)
 	writeBinaryUint(buf, uint64(len(v.Exprs)))
 	for _, item := range v.Exprs {
@@ -3513,8 +3472,7 @@ func writeBraceExpBinary(buf *bytes.Buffer, v *syntax.BraceExp) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryBool(buf, v.Sequence)
 	writeBinaryUint(buf, uint64(len(v.Elems)))
 	for _, item := range v.Elems {
@@ -3570,8 +3528,7 @@ func writeTestDeclBinary(buf *bytes.Buffer, v *syntax.TestDecl) {
 	if v == nil {
 		return
 	}
-	writeBinaryUint(buf, uint64(v.Pos().Offset()))
-	writeBinaryUint(buf, uint64(v.End().Offset()))
+	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.Position)
 	if v.Description == nil {
 		writeBinaryBool(buf, false)

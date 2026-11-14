@@ -2,4 +2,4 @@
 "sh-syntax": patch
 ---
 
-Add `splitBraces(word)` to split brace expressions into `BraceExp` parts for analysis. The printer cannot render `BraceExp` and rejects such trees explicitly.
+Add `splitBraces(word)` to split brace expressions into `BraceExp` parts for analysis. Synthetic split nodes have no source positions, and the printer cannot render `BraceExp`; such trees are rejected explicitly.

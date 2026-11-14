@@ -18,6 +18,7 @@ func SplitBraces(encoded []byte) ([]byte, error) {
 		return nil, &SplitBracesError{Type: string(bytes.ReplaceAll([]byte(fmt.Sprintf("%T", node)), []byte("*syntax."), nil))}
 	}
 	syntax.SplitBraces(word)
+	clearSplitLitPositions(word)
 	var out bytes.Buffer
 	if err := EncodeNodeBinary(&out, word); err != nil {
 		return nil, err

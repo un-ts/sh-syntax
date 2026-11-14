@@ -75,3 +75,24 @@ func TestSplitBracesRejectsNonWord(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestSplitBracesEmptyAlternatives(t *testing.T) {
+	for _, source := range []string{"echo {,a}\n", "echo {a,}\n", "echo {a,,b}\n"} {
+		file, err := Parse(source, "", ParserOptions{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		word := file.Stmts[0].Cmd.(*syntax.CallExpr).Args[1]
+		encoded := new(bytes.Buffer)
+		if err := EncodeNodeBinary(encoded, word); err != nil {
+			t.Fatal(err)
+		}
+		result, err := SplitBraces(encoded.Bytes())
+		if err != nil {
+			t.Fatalf("%s: %v", source, err)
+		}
+		if _, err := DecodeNodeBinary(result); err != nil {
+			t.Fatalf("%s: %v", source, err)
+		}
+	}
+}
