@@ -196,7 +196,10 @@ export interface IParseError {
 export interface InteractiveResult {
   ast: File
   incomplete: boolean
-  /** Unconsumed source retained for the next write (comments, whitespace, incomplete syntax). */
+  /**
+   * Unconsumed source retained for the next write (comments, whitespace, incomplete syntax). This
+   * is often non-empty even for a complete chunk; use `incomplete`, not `remaining === ''`.
+   */
   remaining: string
 }
 
