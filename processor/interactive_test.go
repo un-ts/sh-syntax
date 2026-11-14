@@ -24,181 +24,74 @@ func interactiveResult(t *testing.T, out []byte) (map[string]any, []byte) {
 	return metadata, out[4+metaLength:]
 }
 
-func TestProcessInteractive(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo one\n", "", ParserOptions{}))
+func checkInteractive(t *testing.T, source string, incomplete bool, remaining string, statements int) {
+	t.Helper()
+	metadata, ast := interactiveResult(t, ProcessInteractive(source, "", ParserOptions{}))
 	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false || interactive["remaining"] != "\n" {
-		t.Fatalf("unexpected interactive metadata: %#v", interactive)
+	if interactive["incomplete"] != incomplete {
+		t.Fatalf("%q: incomplete = %#v", source, interactive["incomplete"])
+	}
+	if interactive["remaining"] != remaining {
+		t.Fatalf("%q: remaining = %#v", source, interactive["remaining"])
+	}
+	if statements < 0 {
+		return
 	}
 	file, err := DecodeNodeBinary(ast)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(file.(*syntax.File).Stmts) != 1 {
-		t.Fatalf("got %d statements, want 1", len(file.(*syntax.File).Stmts))
+	if got := len(file.(*syntax.File).Stmts); got != statements {
+		t.Fatalf("%q: got %d statements, want %d", source, got, statements)
 	}
+}
+
+func TestProcessInteractive(t *testing.T) {
+	checkInteractive(t, "echo one\n", false, "\n", 1)
 }
 
 func TestProcessInteractiveKeepsTrailingText(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo one\n# trailing\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false {
-		t.Fatalf("expected complete, got %#v", interactive)
-	}
-	if interactive["remaining"] != "\n# trailing\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(file.(*syntax.File).Stmts) != 1 {
-		t.Fatalf("got %d statements, want 1", len(file.(*syntax.File).Stmts))
-	}
+	checkInteractive(t, "echo one\n# trailing\n", false, "\n# trailing\n", 1)
 }
 
 func TestProcessInteractiveIncomplete(t *testing.T) {
-	metadata, _ := interactiveResult(t, ProcessInteractive("echo one\nif true; then\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != true {
-		t.Fatalf("expected incomplete, got %#v", interactive)
-	}
-	if interactive["remaining"] != "\nif true; then\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
+	checkInteractive(t, "echo one\nif true; then\n", true, "\nif true; then\n", -1)
 }
 
 func TestProcessInteractiveNoNewlineIsIncomplete(t *testing.T) {
 	for _, source := range []string{"echo one", "cat <<DOC\nbody\nDOC"} {
-		metadata, _ := interactiveResult(t, ProcessInteractive(source, "", ParserOptions{}))
-		interactive := metadata["interactive"].(map[string]any)
-		if interactive["incomplete"] != true {
-			t.Fatalf("%q: expected incomplete, got %#v", source, interactive)
-		}
-		if interactive["remaining"] != source {
-			t.Fatalf("%q: remaining = %#v", source, interactive["remaining"])
-		}
+		checkInteractive(t, source, true, source, -1)
 	}
 }
 
 func TestProcessInteractiveDoesNotDuplicateStatements(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo a; if true; then\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != true {
-		t.Fatalf("expected incomplete, got %#v", interactive)
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 1 {
-		t.Fatalf("got %d statements, want 1", got)
-	}
+	checkInteractive(t, "echo a; if true; then\n", true, " if true; then\n", 1)
 }
 
 func TestProcessInteractiveHeredocSemicolon(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("cat <<EOF;\nbody\nEOF\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false {
-		t.Fatalf("expected complete, got %#v", interactive)
-	}
-	if interactive["remaining"] != "\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 1 {
-		t.Fatalf("got %d statements, want 1", got)
-	}
+	checkInteractive(t, "cat <<EOF;\nbody\nEOF\n", false, "\n", 1)
 }
 
 func TestProcessInteractiveIncompleteHeredoc(t *testing.T) {
-	metadata, _ := interactiveResult(t, ProcessInteractive("cat <<EOF;\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != true {
-		t.Fatalf("expected incomplete, got %#v", interactive)
-	}
-	if interactive["remaining"] != "cat <<EOF;\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
+	checkInteractive(t, "cat <<EOF;\n", true, "cat <<EOF;\n", -1)
 }
 
 func TestProcessInteractivePendingHeredocStatement(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("cat <<EOF; echo x\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != true {
-		t.Fatalf("expected incomplete, got %#v", interactive)
-	}
-	if interactive["remaining"] != "cat <<EOF; echo x\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 0 {
-		t.Fatalf("got %d statements, want 0", got)
-	}
+	checkInteractive(t, "cat <<EOF; echo x\n", true, "cat <<EOF; echo x\n", 0)
 }
 
 func TestProcessInteractiveMixedPendingHeredoc(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo a\ncat <<EOF; echo x\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["remaining"] != "\ncat <<EOF; echo x\n" {
-		t.Fatalf("remaining = %#v", interactive["remaining"])
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 1 {
-		t.Fatalf("got %d statements, want 1", got)
-	}
+	checkInteractive(t, "echo a\ncat <<EOF; echo x\n", true, "\ncat <<EOF; echo x\n", 1)
 }
 
 func TestProcessInteractiveHeredocSemicolonStatement(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("cat <<EOF; echo x\nbody\nEOF\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false || interactive["remaining"] != "\n" {
-		t.Fatalf("unexpected interactive metadata: %#v", interactive)
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 2 {
-		t.Fatalf("got %d statements, want 2", got)
-	}
+	checkInteractive(t, "cat <<EOF; echo x\nbody\nEOF\n", false, "\n", 2)
 }
 
 func TestProcessInteractiveNestedPendingHeredoc(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo a && cat <<EOF; echo x\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != true || interactive["remaining"] != "echo a && cat <<EOF; echo x\n" {
-		t.Fatalf("unexpected interactive metadata: %#v", interactive)
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 0 {
-		t.Fatalf("got %d statements, want 0", got)
-	}
+	checkInteractive(t, "echo a && cat <<EOF; echo x\n", true, "echo a && cat <<EOF; echo x\n", 0)
 }
 
 func TestProcessInteractiveNestedHeredocCompletes(t *testing.T) {
-	metadata, ast := interactiveResult(t, ProcessInteractive("echo a && cat <<EOF; echo x\nbody\nEOF\n", "", ParserOptions{}))
-	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false || interactive["remaining"] != "\n" {
-		t.Fatalf("unexpected interactive metadata: %#v", interactive)
-	}
-	file, err := DecodeNodeBinary(ast)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := len(file.(*syntax.File).Stmts); got != 2 {
-		t.Fatalf("got %d statements, want 2", got)
-	}
+	checkInteractive(t, "echo a && cat <<EOF; echo x\nbody\nEOF\n", false, "\n", 2)
 }
