@@ -34,6 +34,12 @@ export interface WalkVisitors {
  *
  * `parent` is null at the root. `prop` is the key in the nearest enclosing object (which may be a
  * non-node wrapper), and `index` is its array index; both are null when absent.
+ *
+ * Traversal is not a snapshot of the whole tree: a container's object entries are captured when the
+ * walk reaches that container, after its `enter` callback. Edits made before then are seen, but
+ * replacing a property after its container was captured does not affect that walk. Mutating arrays
+ * while they are being walked is unspecified; collect structural edits and apply them after the
+ * walk.
  */
 export function walk(value: unknown, enter: WalkEnter): void
 export function walk(value: unknown, visitors: WalkVisitors): void
