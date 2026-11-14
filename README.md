@@ -67,6 +67,7 @@ const printedStmt = await print(ast.stmts[0])
 // File output ends with a newline; subtree output does not.
 
 // Split brace expressions into BraceExp parts for analysis.
+// `changed` can be true even when no BraceExp is produced ({x}, unterminated braces).
 // Synthetic split nodes have no source positions, and the printer rejects them.
 const braceAst = await parse('echo {a,b}')
 const { word: splitWord, changed } = await splitBraces(braceAst.stmts[0].cmd.args[1])
