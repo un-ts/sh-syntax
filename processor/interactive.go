@@ -9,6 +9,18 @@ import (
 
 // ProcessInteractive parses complete statements from an interactive chunk and
 // returns the unconsumed suffix. The next call should prepend Remaining.
+func hasPendingHeredoc(stmt *syntax.Stmt) bool {
+	for _, redir := range stmt.Redirs {
+		if redir.Op != syntax.Hdoc && redir.Op != syntax.DashHdoc {
+			continue
+		}
+		if redir.Hdoc == nil {
+			return true
+		}
+	}
+	return false
+}
+
 func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 	// A panic here is intentionally covered by ProcessInteractive's recover; it
 	// also guards incomplete nodes reached while extending the heredoc boundary.
@@ -27,6 +39,7 @@ func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
 	parser := newParser(parserOptions)
+	var collected []*syntax.Stmt
 	var stmts []*syntax.Stmt
 	var lastEnd uint
 	var err error
@@ -40,15 +53,20 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 			}
 		}()
 		err = parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
-			if len(parsed) > 0 {
-				stmts = append(stmts, parsed...)
-				if end := interactiveStatementEnd(parsed[len(parsed)-1]); end > lastEnd {
-					lastEnd = end
-				}
-			}
+			collected = append(collected, parsed...)
 			return true
 		})
 	}()
+
+	for _, stmt := range collected {
+		if hasPendingHeredoc(stmt) {
+			break
+		}
+		stmts = append(stmts, stmt)
+		if end := interactiveStatementEnd(stmt); end > lastEnd {
+			lastEnd = end
+		}
+	}
 
 	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || panicked
 	remaining := ""
