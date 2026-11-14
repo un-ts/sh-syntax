@@ -83,7 +83,7 @@ Source text input is a JavaScript string. Unpaired UTF-16 surrogates are replace
 
 ### Interactive parsing
 
-`createInteractiveParser()` is a JS-friendly REPL helper. It keeps the trailing incomplete input between calls and returns the complete statements parsed so far:
+`createInteractiveParser()` is a JS-friendly REPL helper. Each `write` returns only the statements completed by that chunk; earlier statements were already returned. The trailing input is retained between calls:
 
 ```js
 import { createInteractiveParser } from 'sh-syntax'
@@ -92,13 +92,16 @@ const parser = createInteractiveParser()
 
 const first = await parser.write('echo one\n')
 // first.ast.stmts has one statement; first.incomplete === false
+// first.remaining is the unconsumed trailing text
 
 const second = await parser.write('if true; then\n')
 // second.incomplete === true
 
 const third = await parser.write('  echo two\nfi\n')
-// third.ast.stmts has the completed if statement
+// third.ast.stmts has the completed if statement (not echo one)
 ```
+
+`remaining` also carries trailing comments/whitespace after the last complete statement, so callers can decide whether to keep them.
 
 The synchronous entry exposes the same function:
 

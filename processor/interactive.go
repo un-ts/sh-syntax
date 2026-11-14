@@ -40,12 +40,10 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 			errorKind = errorKindLanguage
 		}
 	}
-	if incomplete {
-		if lastEnd > uint(len(text)) {
-			lastEnd = uint(len(text))
-		}
-		remaining = text[lastEnd:]
+	if lastEnd > uint(len(text)) {
+		lastEnd = uint(len(text))
 	}
+	remaining = text[lastEnd:]
 
 	file := &syntax.File{Name: filepath, Stmts: stmts}
 	var encoded bytes.Buffer
@@ -53,6 +51,7 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		message = encodeErr.Error()
 		parseError = nil
 		errorKind = errorKindLanguage
+		encoded.Reset()
 	}
 
 	return encodeResult(encoded.Bytes(), "", parseError, message, nil, errorKind, &InteractiveMeta{

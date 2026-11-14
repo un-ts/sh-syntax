@@ -362,9 +362,10 @@ export const invokeInteractive = (
   wasmFree(optionsPointer)
 
   const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  const interactiveResult = metadata.interactive!
   return {
     ast: decodeAST(ast),
-    incomplete: metadata.interactive!.incomplete,
-    remaining: metadata.interactive!.remaining,
+    incomplete: interactiveResult.incomplete,
+    remaining: interactiveResult.remaining,
   }
 }

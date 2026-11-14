@@ -203,6 +203,7 @@ test('interactive parser emits complete statements', () => {
   const first = parser.write('echo one\n')
   expect(first.incomplete).toBe(false)
   expect(first.ast.stmts).toHaveLength(1)
+  expect(first.remaining).toBe('\n')
 
   const second = parser.write('if true; then\n')
   expect(second.incomplete).toBe(true)
@@ -212,6 +213,10 @@ test('interactive parser emits complete statements', () => {
   expect(third.incomplete).toBe(false)
   expect(third.ast.stmts).toHaveLength(1)
   expect(parser.incomplete).toBe(false)
+
+  const comment = parser.write('echo three\n# trailing\n')
+  expect(comment.ast.stmts).toHaveLength(1)
+  expect(comment.remaining).toContain('# trailing')
 
   parser.write('if true; then\n')
   expect(parser.incomplete).toBe(true)

@@ -12,6 +12,7 @@ import type {
   File,
   InteractiveParser,
   PrintableNode,
+  ShInteractiveOptions,
   ShOptions,
   ShPrintOptions,
   SplitBracesResult,
@@ -27,7 +28,7 @@ export interface Processor {
   (text: string, options?: ShOptions): File
   (node: PrintableNode, options?: ShPrintOptions): string
   splitBraces: (word: Word) => SplitBracesResult
-  createInteractiveParser: (options?: ShOptions) => InteractiveParser
+  createInteractiveParser: (options?: ShInteractiveOptions) => InteractiveParser
 }
 
 /**
@@ -77,7 +78,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return withRuntime(current => invoke(current.exports, textOrAst, options))
   }
 
-  processor.createInteractiveParser = (options: ShOptions = {}): InteractiveParser => {
+  processor.createInteractiveParser = (options: ShInteractiveOptions = {}): InteractiveParser => {
     let pending = ''
     let incomplete = false
     return {
@@ -92,7 +93,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
           const result = invokeInteractive(current.exports, pending + chunk, options)
           pending = result.remaining
           incomplete = result.incomplete
-          return { ast: result.ast, incomplete }
+          return { ast: result.ast, incomplete, remaining: result.remaining }
         })
       },
       reset() {

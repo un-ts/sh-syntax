@@ -166,6 +166,10 @@ export interface ShOptions extends ShSyntaxOptions {
   tabWidth?: number
 }
 
+export interface ShInteractiveOptions extends ShParserOptions {
+  filepath?: string
+}
+
 export interface ShPrintOptions extends ShOptions {
   /** Format this source text instead of the current AST. */
   originalText?: string
@@ -192,6 +196,8 @@ export interface IParseError {
 export interface InteractiveResult {
   ast: File
   incomplete: boolean
+  /** Unconsumed source retained for the next write (comments, whitespace, incomplete syntax). */
+  remaining: string
 }
 
 export interface InteractiveParser {

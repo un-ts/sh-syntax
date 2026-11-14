@@ -27,8 +27,26 @@ func interactiveResult(t *testing.T, out []byte) (map[string]any, []byte) {
 func TestProcessInteractive(t *testing.T) {
 	metadata, ast := interactiveResult(t, ProcessInteractive("echo one\n", "", ParserOptions{}))
 	interactive := metadata["interactive"].(map[string]any)
-	if interactive["incomplete"] != false || interactive["remaining"] != "" {
+	if interactive["incomplete"] != false || interactive["remaining"] != "\n" {
 		t.Fatalf("unexpected interactive metadata: %#v", interactive)
+	}
+	file, err := DecodeNodeBinary(ast)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(file.(*syntax.File).Stmts) != 1 {
+		t.Fatalf("got %d statements, want 1", len(file.(*syntax.File).Stmts))
+	}
+}
+
+func TestProcessInteractiveKeepsTrailingText(t *testing.T) {
+	metadata, ast := interactiveResult(t, ProcessInteractive("echo one\n# trailing\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != false {
+		t.Fatalf("expected complete, got %#v", interactive)
+	}
+	if interactive["remaining"] != "\n# trailing\n" {
+		t.Fatalf("remaining = %#v", interactive["remaining"])
 	}
 	file, err := DecodeNodeBinary(ast)
 	if err != nil {
