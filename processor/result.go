@@ -5,6 +5,13 @@ import (
 	"encoding/binary"
 )
 
+const (
+	errorKindLanguage    = "language"
+	errorKindPrint       = "print"
+	errorKindParse       = "parse"
+	errorKindSplitBraces = "splitBraces"
+)
+
 // encodeResult frames metadata JSON and an optional binary AST payload:
 // uint32 metadata length, metadata JSON, AST bytes. A non-nil changed adds the
 // splitBraces-only changed field. errorKind is language, print, parse, or

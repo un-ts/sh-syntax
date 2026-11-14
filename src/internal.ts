@@ -31,12 +31,14 @@ export interface ProcessExports {
   resultLength: () => number
 }
 
+type ErrorKind = 'language' | 'print' | 'parse' | 'splitBraces'
+
 interface RawResult {
   text: string
   parseError: IParseError | null
   message: string
   changed?: boolean
-  errorKind?: string
+  errorKind?: ErrorKind
 }
 
 const MAX_STOP_AT_BYTES = 4

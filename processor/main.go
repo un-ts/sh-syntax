@@ -68,11 +68,11 @@ func Process(
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
 		if err != nil {
-			errorKind = "language"
+			errorKind = errorKindLanguage
 		} else {
 			textOut, err = printSyntaxNode(file, printerOptions)
 			if err != nil {
-				errorKind = "print"
+				errorKind = errorKindPrint
 			}
 		}
 	} else {
@@ -99,7 +99,7 @@ func Process(
 	var parseError *ParseError
 	if mapped, mappedMessage := MapParseError(err); mapped != nil {
 		parseError = mapped
-		errorKind = "parse"
+		errorKind = errorKindParse
 		if mappedMessage != "" {
 			message = mappedMessage
 		}

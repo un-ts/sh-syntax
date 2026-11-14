@@ -7,5 +7,5 @@ func ProcessSplitBraces(encoded []byte) []byte {
 	if err != nil {
 		message = err.Error()
 	}
-	return encodeResult(ast, "", nil, message, &changed, "splitBraces")
+	return encodeResult(ast, "", nil, message, &changed, errorKindSplitBraces)
 }
