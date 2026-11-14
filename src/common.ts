@@ -2,17 +2,22 @@ import type { IParseError, Pos } from './types.js'
 
 /** Stable error codes for callers that should not depend on messages. */
 export const ErrorCode = {
-  parse: 'SH_SYNTAX_PARSE',
-  input: 'SH_SYNTAX_INPUT',
-  language: 'SH_SYNTAX_LANGUAGE',
-  print: 'SH_SYNTAX_PRINT',
-  splitBraces: 'SH_SYNTAX_SPLIT_BRACES',
+  Parse: 'SH_SYNTAX_PARSE',
+  Language: 'SH_SYNTAX_LANGUAGE',
+  Input: 'SH_SYNTAX_INPUT',
+  Print: 'SH_SYNTAX_PRINT',
+  SplitBraces: 'SH_SYNTAX_SPLIT_BRACES',
 } as const
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode]
 
-export class ParseError extends Error implements IParseError {
-  readonly code = ErrorCode.parse
+export abstract class ShSyntaxError extends SyntaxError {
+  abstract readonly code: ErrorCode
+  override name = 'ShSyntaxError'
+}
+
+export class ParseError extends ShSyntaxError implements IParseError {
+  override readonly code = ErrorCode.Parse
   override name = 'ParseError'
   filename?: string
   incomplete: boolean
@@ -28,29 +33,24 @@ export class ParseError extends Error implements IParseError {
   }
 }
 
-export abstract class ShSyntaxError extends SyntaxError {
-  abstract readonly code: ErrorCode
-  override name = 'ShSyntaxError'
-}
-
 export class LanguageError extends ShSyntaxError {
-  override readonly code = ErrorCode.language
+  override readonly code = ErrorCode.Language
   override name = 'LanguageError'
 }
 
+export class InputError extends TypeError {
+  readonly code = ErrorCode.Input
+  override name = 'InputError'
+}
+
 export class PrintError extends ShSyntaxError {
-  override readonly code = ErrorCode.print
+  override readonly code = ErrorCode.Print
   override name = 'PrintError'
 }
 
 export class SplitBracesError extends ShSyntaxError {
-  override readonly code = ErrorCode.splitBraces
+  override readonly code = ErrorCode.SplitBraces
   override name = 'SplitBracesError'
-}
-
-export class InputError extends TypeError {
-  readonly code = ErrorCode.input
-  override name = 'InputError'
 }
 
 export * from './ast.js'

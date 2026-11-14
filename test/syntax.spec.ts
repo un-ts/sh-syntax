@@ -4,6 +4,10 @@ import {
   ParseError,
   InputError,
   ErrorCode,
+  LanguageError,
+  PrintError,
+  ShSyntaxError,
+  SplitBracesError,
   RedirOperator,
   isIncomplete,
   parse,
@@ -63,7 +67,7 @@ test('rejects non-text input', () => {
     }
     throw new Error('expected parseSync to throw')
   })()
-  expect(inputError).toMatchObject({ name: 'InputError', code: ErrorCode.input })
+  expect(inputError).toMatchObject({ name: 'InputError', code: ErrorCode.Input })
 })
 
 test('print(ast, { originalText }) ignores the AST', async () => {
@@ -210,7 +214,7 @@ test('parse errors expose position and incompleteness', () => {
 
   expect(parseError).toBeInstanceOf(ParseError)
   expect(parseError.name).toBe('ParseError')
-  expect(parseError.code).toBe(ErrorCode.parse)
+  expect(parseError.code).toBe(ErrorCode.Parse)
   expect(parseError.message.length).toBeGreaterThan(0)
   expect(parseError.pos?.offset).toBe(5)
   expect(parseError.incomplete).toBe(false)
@@ -219,11 +223,35 @@ test('parse errors expose position and incompleteness', () => {
 test('language errors use the syntax error taxonomy', async () => {
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
     name: 'LanguageError',
-    code: ErrorCode.language,
+    code: ErrorCode.Language,
   })
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toBeInstanceOf(
     SyntaxError,
   )
+})
+
+test('error taxonomy is stable', () => {
+  const cases = [
+    [new ParseError({ incomplete: false, text: 'x' }), 'ParseError', ErrorCode.Parse],
+    [new LanguageError('x'), 'LanguageError', ErrorCode.Language],
+    [new InputError('x'), 'InputError', ErrorCode.Input],
+    [new PrintError('x'), 'PrintError', ErrorCode.Print],
+    [new SplitBracesError('x'), 'SplitBracesError', ErrorCode.SplitBraces],
+  ] as const
+  for (const [error, name, code] of cases) {
+    expect(error).toMatchObject({ name, code })
+  }
+  for (const error of [
+    new ParseError({ incomplete: false, text: 'x' }),
+    new LanguageError('x'),
+    new PrintError('x'),
+    new SplitBracesError('x'),
+  ]) {
+    expect(error).toBeInstanceOf(ShSyntaxError)
+    expect(error).toBeInstanceOf(SyntaxError)
+  }
+  expect(new InputError('x')).toBeInstanceOf(TypeError)
+  expect(new InputError('x')).not.toBeInstanceOf(ShSyntaxError)
 })
 
 test('recoverErrors marks recovered positions', () => {

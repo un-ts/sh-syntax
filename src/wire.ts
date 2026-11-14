@@ -6,6 +6,7 @@
  * no type/start/end header. The authoritative field order is src/wire-schema.ts, generated from
  * scripts/gen-ast/binary.go; the envelope lives in processor/result.go.
  */
+import { InputError } from './common.js'
 import type { File, PrintableNode } from './types.js'
 import { WIRE_SCHEMA, WIRE_TYPES, type WireField } from './wire-schema.js'
 
@@ -43,7 +44,7 @@ class Writer {
 
   uint(value: number): void {
     if (!Number.isSafeInteger(value) || value < 0) {
-      throw new TypeError('wire integers must be non-negative safe integers')
+      throw new InputError('wire integers must be non-negative safe integers')
     }
     while (value >= VARINT_BASE) {
       this.byte((value & VARINT_MASK) | VARINT_BASE)
@@ -95,7 +96,7 @@ class Reader {
       const byte = this.byte()
       value += (byte & VARINT_MASK) * shift
       if (!Number.isSafeInteger(value)) {
-        throw new TypeError('wire integer overflow')
+        throw new InputError('wire integer overflow')
       }
       if (byte < VARINT_BASE) {
         return value
@@ -128,11 +129,11 @@ class Reader {
 const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
   const schema = WIRE_SCHEMA[typeName]
   if (node == null || typeof node !== 'object' || !schema?.node) {
-    throw new TypeError(`wire expects a ${typeName} node`)
+    throw new InputError(`wire expects a ${typeName} node`)
   }
   const value = node as Record<string, unknown>
   if (value.type !== typeName) {
-    throw new TypeError(`wire expected ${typeName}, got ${String(value.type)}`)
+    throw new InputError(`wire expected ${typeName}, got ${String(value.type)}`)
   }
   writer.uint(Number(value.start ?? 0))
   writer.uint(Number(value.end ?? 0))
@@ -146,7 +147,7 @@ const writeTyped = (writer: Writer, value: unknown, typeName: string): void => {
     writeNode(writer, value, typeName)
   } else {
     if (value == null || typeof value !== 'object') {
-      throw new TypeError(`wire expects a ${typeName} record`)
+      throw new InputError(`wire expects a ${typeName} record`)
     }
     const record = value as Record<string, unknown>
     const fields = WIRE_SCHEMA[typeName]!.fields
@@ -202,7 +203,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
       const node = value as { type?: unknown }
       const id = WIRE_TYPES[node.type as string]
       if (!id) {
-        throw new TypeError(`unknown wire node type: ${String(node.type)}`)
+        throw new InputError(`unknown wire node type: ${String(node.type)}`)
       }
       writer.uint(id)
       writeNode(writer, value, node.type as string)
@@ -291,7 +292,7 @@ const readField = (reader: Reader, field: WireField): unknown => {
 /** Encodes the current JS AST as the compact binary wire. */
 export const encodeAST = (ast: PrintableNode): Uint8Array => {
   if (ast == null || !WIRE_SCHEMA[ast.type]?.node) {
-    throw new TypeError('print(node) requires a syntax node')
+    throw new InputError('print(node) requires a syntax node')
   }
   const writer = new Writer()
   writer.uint(WIRE_TYPES[ast.type]!)
