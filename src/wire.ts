@@ -96,7 +96,7 @@ class Reader {
       const byte = this.byte()
       value += (byte & VARINT_MASK) * shift
       if (!Number.isSafeInteger(value)) {
-        throw new Error('wire integer overflow')
+        throw new TypeError('wire integer overflow')
       }
       if (byte < VARINT_BASE) {
         return value
