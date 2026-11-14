@@ -195,6 +195,7 @@ export interface IParseError {
 
 export interface InteractiveResult {
   ast: File
+  /** True when the next chunk is required, including when this chunk lacks a trailing newline. */
   incomplete: boolean
   /**
    * Unconsumed source retained for the next write (comments, whitespace, incomplete syntax). This

@@ -218,6 +218,13 @@ test('interactive parser emits complete statements', () => {
   expect(comment.ast.stmts).toHaveLength(1)
   expect(comment.remaining).toContain('# trailing')
 
+  const noNewline = parser.write('echo four;')
+  expect(noNewline.incomplete).toBe(true)
+  expect(noNewline.ast.stmts).toHaveLength(0)
+  const afterNewline = parser.write('\n')
+  expect(afterNewline.incomplete).toBe(false)
+  expect(afterNewline.ast.stmts).toHaveLength(1)
+
   parser.write('if true; then\n')
   expect(parser.incomplete).toBe(true)
   parser.reset()

@@ -12,17 +12,10 @@ import (
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
 	parser := newParser(parserOptions)
 	var stmts []*syntax.Stmt
-	seen := map[*syntax.Stmt]struct{}{}
 	var lastEnd uint
 	err := parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
 		if len(parsed) > 0 {
-			for _, stmt := range parsed {
-				if _, ok := seen[stmt]; ok {
-					continue
-				}
-				seen[stmt] = struct{}{}
-				stmts = append(stmts, stmt)
-			}
+			stmts = append(stmts, parsed...)
 			if end := parsed[len(parsed)-1].End().Offset(); end > lastEnd {
 				lastEnd = end
 			}

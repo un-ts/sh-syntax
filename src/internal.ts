@@ -238,6 +238,8 @@ export const invoke = (
 
   const textBytes = encoder.encode(text)
 
+  const optionsPointer = writeOptions(exports, options, printOutput)
+
   let filePathPointer = 0
   let filePathLength = 0
   if (!astBytes) {
@@ -252,8 +254,6 @@ export const invoke = (
   const textPointer = wasmAlloc(inputBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(inputBytes, textPointer)
-
-  const optionsPointer = writeOptions(exports, options, printOutput)
 
   const resultPointer = astBytes
     ? printNode(textPointer, astBytes.byteLength, optionsPointer)
@@ -308,6 +308,7 @@ export const invokeInteractive = (
 
   const textBytes = encoder.encode(text)
   const filePathBytes = encoder.encode(filepath)
+  const optionsPointer = writeOptions(exports, options, false)
 
   const filePathPointer = wasmAlloc(filePathBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
@@ -315,8 +316,6 @@ export const invokeInteractive = (
   const textPointer = wasmAlloc(textBytes.byteLength)
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   new Uint8Array(memory.buffer).set(textBytes, textPointer)
-
-  const optionsPointer = writeOptions(exports, options, false)
 
   const resultPointer = interactive(
     filePathPointer,
