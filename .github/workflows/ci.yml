@@ -94,7 +94,6 @@ jobs:
           NO_COLOR: '1'
         run: |
           set +e
-          set -o pipefail
           node benchmark | tee "$RUNNER_TEMP/benchmark.txt"
           status=$?
           {
