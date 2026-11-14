@@ -63,8 +63,12 @@ func TestSplitBracesNoop(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := node.(*syntax.Word).Lit(); got != "plain" {
-		t.Fatalf("got %q, want plain", got)
+	got := node.(*syntax.Word)
+	if got.Lit() != "plain" {
+		t.Fatalf("got %q, want plain", got.Lit())
+	}
+	if got.Pos().Offset() != word.Pos().Offset() || got.End().Offset() != word.End().Offset() {
+		t.Fatalf("got span %d-%d, want %d-%d", got.Pos().Offset(), got.End().Offset(), word.Pos().Offset(), word.End().Offset())
 	}
 }
 

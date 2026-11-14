@@ -150,7 +150,11 @@ test('splitBraces handles empty alternatives', () => {
   if (plain?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  expect(splitBracesSync(plain.args[1]!).changed).toBe(false)
+  const plainWord = plain.args[1]!
+  const plainResult = splitBracesSync(plainWord)
+  expect(plainResult.changed).toBe(false)
+  expect(plainResult.word.start).toBe(plainWord.start)
+  expect(plainResult.word.end).toBe(plainWord.end)
 
   const fallback = parseSync('echo {x}\n').stmts[0]?.cmd
   if (fallback?.type !== 'CallExpr') {
