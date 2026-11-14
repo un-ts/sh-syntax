@@ -89,7 +89,20 @@ jobs:
           PARSER_NO_WATCH: true
 
       - name: Benchmark
-        run: node benchmark
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 26 }}
+        shell: bash
+        env:
+          NO_COLOR: '1'
+        run: |
+          set -o pipefail
+          node benchmark | tee "$RUNNER_TEMP/benchmark.txt"
+          {
+            echo '## Benchmark'
+            echo
+            echo '```text'
+            cat "$RUNNER_TEMP/benchmark.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
