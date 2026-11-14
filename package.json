@@ -90,7 +90,7 @@
     "test": "vitest run",
     "test:built": "node scripts/test-built.ts",
     "typecov": "type-coverage",
-    "wasm": "yarn gen:ast && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w\" -o main.wasm . && yarn wasm:opt",
+    "wasm": "yarn gen:ast && GOOS=js GOARCH=wasm go build -buildvcs=false -trimpath -ldflags=\"-s -w -buildid=\" -o main.wasm . && yarn wasm:opt",
     "wasm:opt": "wasm-opt --enable-bulk-memory --enable-sign-ext --enable-mutable-globals --enable-nontrapping-float-to-int -Oz main.wasm -o main.wasm"
   },
   "devDependencies": {
