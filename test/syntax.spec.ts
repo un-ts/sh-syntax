@@ -265,17 +265,24 @@ test('async interactive parser emits complete statements', async () => {
   ).rejects.toBeInstanceOf(InputError)
 })
 
+test('concurrent interactive writes preserve order', async () => {
+  const parser = createInteractiveParser()
+  const [first, second] = await Promise.all([
+    parser.write('if true; then\n'),
+    parser.write('  echo hi\nfi\n'),
+  ])
+  expect(first.incomplete).toBe(true)
+  expect(first.ast.stmts).toHaveLength(0)
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(1)
+})
+
 test('interactive reset invalidates queued writes', async () => {
   const parser = createInteractiveParser()
-  const first = parser.write('echo one\n')
+  const first = parser.write('if true; then\n')
   parser.reset()
-  const second = await parser.write('echo two\n')
+  await expect(parser.write('  echo hi\nfi\n')).rejects.toThrow(/can only be used to end/)
   await first
-  const command = second.ast.stmts[0]?.cmd
-  if (command?.type !== 'CallExpr') {
-    throw new Error('expected a call expression')
-  }
-  expect(command.args[0]?.parts[0]).toMatchObject({ type: 'Lit', value: 'echo' })
   expect(parser.incomplete).toBe(false)
 })
 

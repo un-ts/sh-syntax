@@ -192,6 +192,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
   ): AsyncInteractiveParser => {
     let pending = ''
     let incomplete = false
+    let generation = 0
     return {
       get incomplete() {
         return incomplete
@@ -200,6 +201,7 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
         if (typeof chunk !== 'string') {
           throw new InputError('interactive chunks must be strings')
         }
+        const writeGeneration = generation
         /* istanbul ignore if -- @preserve */
         if (!ready) {
           await init()
@@ -207,13 +209,16 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
         return enqueue(() =>
           withRuntime(current => {
             const result = invokeInteractive(current.exports, pending + chunk, options)
-            pending = result.remaining
-            incomplete = result.incomplete
-            return { ast: result.ast, incomplete, remaining: result.remaining }
+            if (writeGeneration === generation) {
+              pending = result.remaining
+              incomplete = result.incomplete
+            }
+            return { ast: result.ast, incomplete: result.incomplete, remaining: result.remaining }
           }),
         )
       },
       reset() {
+        generation += 1
         pending = ''
         incomplete = false
       },
