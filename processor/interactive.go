@@ -31,7 +31,8 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 	panicked := false
 	func() {
 		defer func() {
-			// Upstream Interactive can panic while iterating incomplete heredocs.
+			// Upstream Interactive can panic while iterating incomplete heredocs;
+			// see https://github.com/mvdan/sh/issues/1459.
 			if recover() != nil {
 				panicked = true
 			}
