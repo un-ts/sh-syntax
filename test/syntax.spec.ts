@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import {
   LangVariant,
   ParNamesOperator,
@@ -11,12 +13,15 @@ import {
   print,
   processor,
   splitBraces,
+  createInteractiveParser,
+  getProcessor,
   walk,
 } from 'sh-syntax'
 import {
   parse as parseSync,
   print as printSync,
   splitBraces as splitBracesSync,
+  createInteractiveParser as createInteractiveParserSync,
 } from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
@@ -194,6 +199,136 @@ test('splitBraces handles empty alternatives', () => {
   const fallbackResult = splitBracesSync(fallback.args[1]!)
   expect(fallbackResult.changed).toBe(true)
   expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
+})
+
+test('interactive parser emits complete statements', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('echo one\n')
+  expect(first.incomplete).toBe(false)
+  expect(first.ast.stmts).toHaveLength(1)
+  expect(first.remaining).toBe('\n')
+
+  const second = parser.write('if true; then\n')
+  expect(second.incomplete).toBe(true)
+  expect(second.ast.stmts).toHaveLength(0)
+
+  const third = parser.write('  echo two\nfi\n')
+  expect(third.incomplete).toBe(false)
+  expect(third.ast.stmts).toHaveLength(1)
+  expect(parser.incomplete).toBe(false)
+
+  const comment = parser.write('echo three\n# trailing\n')
+  expect(comment.ast.stmts).toHaveLength(1)
+  expect(comment.remaining).toContain('# trailing')
+
+  const heredoc = parser.write('cat <<EOF;\nbody\nEOF\n')
+  expect(heredoc.incomplete).toBe(false)
+  expect(heredoc.ast.stmts).toHaveLength(1)
+  expect(heredoc.remaining).toBe('\n')
+
+  const noNewline = parser.write('echo four;')
+  expect(noNewline.incomplete).toBe(true)
+  expect(noNewline.ast.stmts).toHaveLength(0)
+  const afterNewline = parser.write('\n')
+  expect(afterNewline.incomplete).toBe(false)
+  expect(afterNewline.ast.stmts).toHaveLength(1)
+
+  parser.write('if true; then\n')
+  expect(parser.incomplete).toBe(true)
+  parser.reset()
+  expect(parser.incomplete).toBe(false)
+  expect(() => parser.write(1 as never)).toThrow(InputError)
+  expect(() => createInteractiveParserSync({ variant: LangVariant.LangAuto })).not.toThrow()
+  const invalid = createInteractiveParserSync({ variant: LangVariant.LangAuto })
+  expect(() => invalid.write('echo hi\n')).toThrow(InputError)
+  expect(() => createInteractiveParserSync({ stopAt: 'longer' }).write('echo hi\n')).toThrow(
+    InputError,
+  )
+})
+
+test('async interactive parser emits complete statements', async () => {
+  const parser = createInteractiveParser()
+  const first = await parser.write('echo one\n')
+  expect(first.incomplete).toBe(false)
+  expect(first.ast.stmts).toHaveLength(1)
+
+  const second = await parser.write('if true; then\n')
+  expect(second.incomplete).toBe(true)
+  expect(second.ast.stmts).toHaveLength(0)
+
+  const third = await parser.write('  echo two\nfi\n')
+  expect(third.incomplete).toBe(false)
+  expect(third.ast.stmts).toHaveLength(1)
+
+  await parser.write('if true; then\n')
+  expect(parser.incomplete).toBe(true)
+  parser.reset()
+  expect(parser.incomplete).toBe(false)
+  await expect(parser.write(1 as never)).rejects.toBeInstanceOf(InputError)
+  await expect(
+    createInteractiveParser({ variant: LangVariant.LangAuto }).write('echo hi\n'),
+  ).rejects.toBeInstanceOf(InputError)
+  await expect(
+    createInteractiveParser({ stopAt: 'longer' }).write('echo hi\n'),
+  ).rejects.toBeInstanceOf(InputError)
+})
+
+test('concurrent interactive writes preserve order', async () => {
+  const parser = createInteractiveParser()
+  const [first, second] = await Promise.all([
+    parser.write('if true; then\n'),
+    parser.write('  echo hi\nfi\n'),
+  ])
+  expect(first.incomplete).toBe(true)
+  expect(first.ast.stmts).toHaveLength(0)
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(1)
+})
+
+test('interactive writes preserve order across initialization', async () => {
+  const wasm = readFileSync(new URL('../main.wasm', import.meta.url))
+  const { promise: ready, resolve: release } = Promise.withResolvers<void>()
+  const delayedProcessor = getProcessor(async () => {
+    await ready
+    return wasm
+  })
+  const parser = delayedProcessor.createInteractiveParser()
+  const first = parser.write('if true; then\n')
+  const second = parser.write('  echo hi\nfi\n')
+  release()
+  const [incompleteResult, completeResult] = await Promise.all([first, second])
+  expect(incompleteResult.incomplete).toBe(true)
+  expect(completeResult.incomplete).toBe(false)
+  expect(completeResult.ast.stmts).toHaveLength(1)
+})
+
+test('interactive incomplete heredoc does not panic', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('cat <<EOF;\n')
+  expect(first.incomplete).toBe(true)
+  const second = parser.write('body\nEOF\n')
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(1)
+})
+
+test('interactive pending heredoc statement is not committed', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('cat <<EOF; echo x\n')
+  expect(first.incomplete).toBe(true)
+  expect(first.ast.stmts).toHaveLength(0)
+  expect(first.remaining).toBe('cat <<EOF; echo x\n')
+  const second = parser.write('body\nEOF\n')
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(2)
+})
+
+test('interactive reset invalidates queued writes', async () => {
+  const parser = createInteractiveParser()
+  const first = parser.write('if true; then\n')
+  parser.reset()
+  await expect(parser.write('  echo hi\nfi\n')).rejects.toThrow(/can only be used to end/)
+  await first
+  expect(parser.incomplete).toBe(false)
 })
 
 test('ParNamesOperator has a zero value', () => {
