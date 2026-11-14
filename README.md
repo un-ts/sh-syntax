@@ -77,7 +77,7 @@ const { word: splitWord, changed } = await splitBraces(braceAst.stmts[0].cmd.arg
 const formattedSource = await print(ast, { originalText: text })
 ```
 
-Errors expose stable codes via `ErrorCode`: `SH_SYNTAX_PARSE`, `SH_SYNTAX_LANGUAGE`, `SH_SYNTAX_INPUT`, `SH_SYNTAX_PRINT`, and `SH_SYNTAX_SPLIT_BRACES`.
+Errors expose stable codes via `ErrorCode`: `SH_SYNTAX_PARSE`, `SH_SYNTAX_LANGUAGE`, `SH_SYNTAX_INPUT`, `SH_SYNTAX_PRINT`, and `SH_SYNTAX_SPLIT_BRACES`. `name` distinguishes `ParseError`, `InputError`, and the shared `ShSyntaxError`; use `code` for language/print/split failures.
 
 The synchronous Node API is available from `sh-syntax/sync`:
 

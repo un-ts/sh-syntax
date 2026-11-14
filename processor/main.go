@@ -77,12 +77,19 @@ func Process(
 	message := ""
 
 	var err error
+	errorKind := ""
 
 	if printOutput {
-		textOut, err = Print(text, filepath, SyntaxOptions{
-			ParserOptions:  parserOptions,
-			PrinterOptions: printerOptions,
-		})
+		var file *syntax.File
+		file, err = Parse(text, filepath, parserOptions)
+		if err != nil {
+			errorKind = "language"
+		} else {
+			textOut, err = printSyntaxNode(file, printerOptions)
+			if err != nil {
+				errorKind = "print"
+			}
+		}
 	} else {
 		var file *syntax.File
 		file, err = Parse(text, filepath, parserOptions)
@@ -96,6 +103,8 @@ func Process(
 			} else {
 				ast = encoded.Bytes()
 			}
+		} else {
+			errorKind = "language"
 		}
 	}
 
@@ -105,10 +114,11 @@ func Process(
 	var parseError *ParseError
 	if mapped, mappedMessage := MapParseError(err); mapped != nil {
 		parseError = mapped
+		errorKind = "parse"
 		if mappedMessage != "" {
 			message = mappedMessage
 		}
 	}
 
-	return encodeResult(ast, textOut, parseError, message, nil)
+	return encodeResult(ast, textOut, parseError, message, nil, errorKind)
 }

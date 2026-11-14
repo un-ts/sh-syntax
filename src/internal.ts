@@ -36,6 +36,7 @@ interface RawResult {
   parseError: IParseError | null
   message: string
   changed?: boolean
+  errorKind?: string
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -92,7 +93,6 @@ const readResult = (
   memory: WebAssembly.Memory,
   resultPointer: number,
   resultLength: number,
-  errorCode: ErrorCode,
 ): DecodedResult => {
   // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
   const result = new Uint8Array(memory.buffer).subarray(resultPointer, resultPointer + resultLength)
@@ -110,6 +110,12 @@ const readResult = (
     throw new ParseError(metadata.parseError)
   }
   if (metadata.message) {
+    const errorCode =
+      metadata.errorKind === 'print'
+        ? ErrorCode.Print
+        : metadata.errorKind === 'splitBraces'
+          ? ErrorCode.SplitBraces
+          : ErrorCode.Language
     throw new ShSyntaxError(errorCode, metadata.message)
   }
   return {
@@ -239,12 +245,7 @@ export const invoke = (
   wasmFree(textPointer)
   wasmFree(optionsPointer)
 
-  const { metadata, ast } = readResult(
-    memory,
-    resultPointer,
-    resultLength(),
-    astBytes || printOutput ? ErrorCode.Print : ErrorCode.Language,
-  )
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
   return printOutput ? metadata.text : decodeAST(ast)
 }
 
@@ -260,7 +261,7 @@ export const invokeSplitBraces = (
   new Uint8Array(memory.buffer).set(bytes, nodePointer)
   const resultPointer = splitBraces(nodePointer, bytes.byteLength)
   wasmFree(nodePointer)
-  const { metadata, ast } = readResult(memory, resultPointer, resultLength(), ErrorCode.SplitBraces)
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
   const result = decodeAST(ast) as unknown as Word
   result.start = start
   result.end = end

@@ -96,6 +96,7 @@ class Reader {
       const byte = this.byte()
       value += (byte & VARINT_MASK) * shift
       if (!Number.isSafeInteger(value)) {
+        // Wires come from the decoder; this is not caller input, so keep it out of InputError.
         throw new TypeError('wire integer overflow')
       }
       if (byte < VARINT_BASE) {

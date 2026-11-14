@@ -131,9 +131,26 @@ test('sync splitBraces expands a word part', () => {
   const { word: split, changed } = splitBracesSync(command.args[1]!)
   expect(changed).toBe(true)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
-  expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
+  const splitError = (() => {
+    try {
+      splitBracesSync(ast as never)
+    } catch (error) {
+      return error as ShSyntaxError
+    }
+    throw new Error('expected splitBracesSync to throw')
+  })()
+  expect(splitError).toMatchObject({ name: 'ShSyntaxError', code: ErrorCode.SplitBraces })
   expect(() => splitBracesSync(null as never)).toThrow(InputError)
-  expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
+
+  const printError = (() => {
+    try {
+      printSync(split)
+    } catch (error) {
+      return error as ShSyntaxError
+    }
+    throw new Error('expected printSync to throw')
+  })()
+  expect(printError).toMatchObject({ name: 'ShSyntaxError', code: ErrorCode.Print })
 })
 
 test('async splitBraces expands a word part', async () => {
@@ -221,6 +238,10 @@ test('parse errors expose position and incompleteness', () => {
 
 test('language errors use the syntax error taxonomy', async () => {
   await expect(parse('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
+    name: 'ShSyntaxError',
+    code: ErrorCode.Language,
+  })
+  await expect(print('foo <<<input', { variant: LangVariant.LangPOSIX })).rejects.toMatchObject({
     name: 'ShSyntaxError',
     code: ErrorCode.Language,
   })
