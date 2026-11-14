@@ -7,10 +7,14 @@ import {
   parse,
   print,
   processor,
-  splitBraces as splitBracesAsync,
+  splitBraces,
   walk,
 } from 'sh-syntax'
-import { parse as parseSync, print as printSync, splitBraces } from 'sh-syntax/sync'
+import {
+  parse as parseSync,
+  print as printSync,
+  splitBraces as splitBracesSync,
+} from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
   const ast = parseSync('echo hi # note\n', {
@@ -106,15 +110,15 @@ test('print(node) prints subtrees and rejects invalid input', () => {
   expect(() => printSync([] as never)).toThrow(TypeError)
 })
 
-test('splitBraces expands a word part', () => {
+test('sync splitBraces expands a word part', () => {
   const ast = parseSync('echo {a,b}\n')
   const command = ast.stmts[0]?.cmd
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = splitBraces(command.args[1]!)
+  const split = splitBracesSync(command.args[1]!)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
-  expect(() => splitBraces(ast as never)).toThrow(/requires a Word node/)
+  expect(() => splitBracesSync(ast as never)).toThrow(/requires a Word node/)
   expect(() => printSync(split)).toThrow(/cannot print BraceExp/)
 })
 
@@ -124,9 +128,9 @@ test('async splitBraces expands a word part', async () => {
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = await splitBracesAsync(command.args[1]!)
+  const split = await splitBraces(command.args[1]!)
   expect(split.parts.some(part => part.type === 'BraceExp')).toBe(true)
-  await expect(splitBracesAsync(ast as never)).rejects.toThrow(/requires a Word node/)
+  await expect(splitBraces(ast as never)).rejects.toThrow(/requires a Word node/)
 })
 
 test('splitBraces handles empty alternatives', () => {
@@ -135,7 +139,7 @@ test('splitBraces handles empty alternatives', () => {
   if (command?.type !== 'CallExpr') {
     throw new Error('expected a call expression')
   }
-  const split = splitBraces(command.args[1]!)
+  const split = splitBracesSync(command.args[1]!)
   expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
 })
 
