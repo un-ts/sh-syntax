@@ -274,6 +274,13 @@ test('error taxonomy is stable', () => {
   expect(new InputError('x')).not.toBeInstanceOf(ShSyntaxError)
 })
 
+test('input encoding is explicit', () => {
+  const ast = parseSync("echo '\u{D800}'")
+  expect(ast.stmts[0]?.cmd?.type).toBe('CallExpr')
+  expect(JSON.stringify(ast)).toContain('\u{FFFD}')
+  expect(() => parseSync(new Uint8Array([101, 99, 104, 111]) as never)).toThrow(InputError)
+})
+
 test('recoverErrors marks recovered positions', () => {
   const ast = parseSync('(foo |\n', { recoverErrors: 2 })
   expect(JSON.stringify(ast)).toContain('"recovered":true')
