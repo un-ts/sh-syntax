@@ -9,21 +9,45 @@ import (
 
 // ProcessInteractive parses complete statements from an interactive chunk and
 // returns the unconsumed suffix. The next call should prepend Remaining.
+func interactiveStatementEnd(stmt *syntax.Stmt) uint {
+	end := stmt.End().Offset()
+	syntax.Walk(stmt, func(node syntax.Node) bool {
+		if node == nil {
+			return false
+		}
+		if nodeEnd := node.End().Offset(); nodeEnd > end {
+			end = nodeEnd
+		}
+		return true
+	})
+	return end
+}
+
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
 	parser := newParser(parserOptions)
 	var stmts []*syntax.Stmt
 	var lastEnd uint
-	err := parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
-		if len(parsed) > 0 {
-			stmts = append(stmts, parsed...)
-			if end := parsed[len(parsed)-1].End().Offset(); end > lastEnd {
-				lastEnd = end
+	var err error
+	panicked := false
+	func() {
+		defer func() {
+			// Upstream Interactive can panic while iterating incomplete heredocs.
+			if recover() != nil {
+				panicked = true
 			}
-		}
-		return true
-	})
+		}()
+		err = parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
+			if len(parsed) > 0 {
+				stmts = append(stmts, parsed...)
+				if end := interactiveStatementEnd(parsed[len(parsed)-1]); end > lastEnd {
+					lastEnd = end
+				}
+			}
+			return true
+		})
+	}()
 
-	incomplete := syntax.IsIncomplete(err)
+	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || panicked
 	remaining := ""
 	message := ""
 	var parseError *ParseError

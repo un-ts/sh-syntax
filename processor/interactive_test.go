@@ -95,3 +95,32 @@ func TestProcessInteractiveDoesNotDuplicateStatements(t *testing.T) {
 		t.Fatalf("got %d statements, want 1", got)
 	}
 }
+
+func TestProcessInteractiveHeredocSemicolon(t *testing.T) {
+	metadata, ast := interactiveResult(t, ProcessInteractive("cat <<EOF;\nbody\nEOF\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != false {
+		t.Fatalf("expected complete, got %#v", interactive)
+	}
+	if interactive["remaining"] != "\n" {
+		t.Fatalf("remaining = %#v", interactive["remaining"])
+	}
+	file, err := DecodeNodeBinary(ast)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := len(file.(*syntax.File).Stmts); got != 1 {
+		t.Fatalf("got %d statements, want 1", got)
+	}
+}
+
+func TestProcessInteractiveIncompleteHeredoc(t *testing.T) {
+	metadata, _ := interactiveResult(t, ProcessInteractive("cat <<EOF;\n", "", ParserOptions{}))
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != true {
+		t.Fatalf("expected incomplete, got %#v", interactive)
+	}
+	if interactive["remaining"] != "cat <<EOF;\n" {
+		t.Fatalf("remaining = %#v", interactive["remaining"])
+	}
+}

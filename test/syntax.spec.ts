@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import {
   LangVariant,
   ParNamesOperator,
@@ -12,6 +14,7 @@ import {
   processor,
   splitBraces,
   createInteractiveParser,
+  getProcessor,
   walk,
 } from 'sh-syntax'
 import {
@@ -218,6 +221,11 @@ test('interactive parser emits complete statements', () => {
   expect(comment.ast.stmts).toHaveLength(1)
   expect(comment.remaining).toContain('# trailing')
 
+  const heredoc = parser.write('cat <<EOF;\nbody\nEOF\n')
+  expect(heredoc.incomplete).toBe(false)
+  expect(heredoc.ast.stmts).toHaveLength(1)
+  expect(heredoc.remaining).toBe('\n')
+
   const noNewline = parser.write('echo four;')
   expect(noNewline.incomplete).toBe(true)
   expect(noNewline.ast.stmts).toHaveLength(0)
@@ -273,6 +281,32 @@ test('concurrent interactive writes preserve order', async () => {
   ])
   expect(first.incomplete).toBe(true)
   expect(first.ast.stmts).toHaveLength(0)
+  expect(second.incomplete).toBe(false)
+  expect(second.ast.stmts).toHaveLength(1)
+})
+
+test('interactive writes preserve order across initialization', async () => {
+  const wasm = readFileSync(new URL('../main.wasm', import.meta.url))
+  const { promise: ready, resolve: release } = Promise.withResolvers<void>()
+  const delayedProcessor = getProcessor(async () => {
+    await ready
+    return wasm
+  })
+  const parser = delayedProcessor.createInteractiveParser()
+  const first = parser.write('if true; then\n')
+  const second = parser.write('  echo hi\nfi\n')
+  release()
+  const [incompleteResult, completeResult] = await Promise.all([first, second])
+  expect(incompleteResult.incomplete).toBe(true)
+  expect(completeResult.incomplete).toBe(false)
+  expect(completeResult.ast.stmts).toHaveLength(1)
+})
+
+test('interactive incomplete heredoc does not panic', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('cat <<EOF;\n')
+  expect(first.incomplete).toBe(true)
+  const second = parser.write('body\nEOF\n')
   expect(second.incomplete).toBe(false)
   expect(second.ast.stmts).toHaveLength(1)
 })

@@ -202,20 +202,19 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
           throw new InputError('interactive chunks must be strings')
         }
         const writeGeneration = generation
-        /* istanbul ignore if -- @preserve */
-        if (!ready) {
-          await init()
-        }
-        return enqueue(() =>
-          withRuntime(current => {
+        return enqueue(async () => {
+          if (!ready) {
+            await init()
+          }
+          return withRuntime(current => {
             const result = invokeInteractive(current.exports, pending + chunk, options)
             if (writeGeneration === generation) {
               pending = result.remaining
               incomplete = result.incomplete
             }
             return { ast: result.ast, incomplete: result.incomplete, remaining: result.remaining }
-          }),
-        )
+          })
+        })
       },
       reset() {
         generation += 1
