@@ -225,6 +225,8 @@ For TypeScript Worker builds, select the runtime declaration:
 
 ## Benchmark
 
+`sh-ast` is another WASM binding of the same upstream `mvdan/sh` parser with a Go-shaped AST. Its numbers include its AST transport, so this table is not a comparison of different parsers.
+
 ```console
 clk: ~3.13 GHz
 cpu: Apple M1 Max
