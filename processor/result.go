@@ -5,6 +5,12 @@ import (
 	"encoding/binary"
 )
 
+// InteractiveMeta describes the unconsumed suffix after an interactive step.
+type InteractiveMeta struct {
+	Remaining  string
+	Incomplete bool
+}
+
 const (
 	errorKindLanguage    = "language"
 	errorKindPrint       = "print"
@@ -16,7 +22,7 @@ const (
 // uint32 metadata length, metadata JSON, AST bytes. A non-nil changed adds the
 // splitBraces-only changed field. errorKind is language, print, parse, or
 // splitBraces when an operation fails.
-func encodeResult(ast []byte, text string, parseError *ParseError, message string, changed *bool, errorKind string) []byte {
+func encodeResult(ast []byte, text string, parseError *ParseError, message string, changed *bool, errorKind string, interactive *InteractiveMeta) []byte {
 	var meta bytes.Buffer
 	meta.WriteString(`{"text":`)
 	writeString(&meta, text)
@@ -31,6 +37,13 @@ func encodeResult(ast []byte, text string, parseError *ParseError, message strin
 	if errorKind != "" {
 		meta.WriteString(`,"errorKind":`)
 		writeString(&meta, errorKind)
+	}
+	if interactive != nil {
+		meta.WriteString(`,"interactive":{"remaining":`)
+		writeString(&meta, interactive.Remaining)
+		meta.WriteString(`,"incomplete":`)
+		writeBool(&meta, interactive.Incomplete)
+		meta.WriteByte('}')
 	}
 	meta.WriteByte('}')
 

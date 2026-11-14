@@ -105,6 +105,22 @@ func resultLength() uint32 {
 	return uint32(len(lastResult))
 }
 
+//go:wasmexport interactive
+func interactive(
+	filepathPointer unsafe.Pointer, filepathLength uint32,
+	textPointer unsafe.Pointer, textLength uint32,
+	optionsPointer unsafe.Pointer,
+) unsafe.Pointer {
+	options := (*processOptions)(optionsPointer)
+
+	lastResult = processor.ProcessInteractive(
+		string(bytesAt(textPointer, textLength)),
+		string(bytesAt(filepathPointer, filepathLength)),
+		parserOptions(options),
+	)
+	return unsafe.Pointer(&lastResult[0])
+}
+
 //go:wasmexport splitBraces
 func splitBraces(
 	nodePointer unsafe.Pointer, nodeLength uint32,

@@ -1,5 +1,7 @@
+import { InputError } from '../common.js'
 import {
   invoke,
+  invokeInteractive,
   invokeSplitBraces,
   startGoRuntime,
   type InternalOptions,
@@ -8,6 +10,7 @@ import {
 import type { WebAssemblyBaseSource } from '../processor.js'
 import type {
   File,
+  InteractiveParser,
   PrintableNode,
   ShOptions,
   ShPrintOptions,
@@ -24,6 +27,7 @@ export interface Processor {
   (text: string, options?: ShOptions): File
   (node: PrintableNode, options?: ShPrintOptions): string
   splitBraces: (word: Word) => SplitBracesResult
+  createInteractiveParser: (options?: ShOptions) => InteractiveParser
 }
 
 /**
@@ -73,6 +77,30 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return withRuntime(current => invoke(current.exports, textOrAst, options))
   }
 
+  processor.createInteractiveParser = (options: ShOptions = {}): InteractiveParser => {
+    let pending = ''
+    let incomplete = false
+    return {
+      get incomplete() {
+        return incomplete
+      },
+      write(chunk: string) {
+        if (typeof chunk !== 'string') {
+          throw new InputError('interactive chunks must be strings')
+        }
+        return withRuntime(current => {
+          const result = invokeInteractive(current.exports, pending + chunk, options)
+          pending = result.remaining
+          incomplete = result.incomplete
+          return { ast: result.ast, incomplete }
+        })
+      },
+      reset() {
+        pending = ''
+        incomplete = false
+      },
+    }
+  }
   processor.splitBraces = (word: Word): SplitBracesResult =>
     withRuntime(current => invokeSplitBraces(current.exports, word))
   return processor

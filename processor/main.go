@@ -25,8 +25,7 @@ type PrinterOptions struct {
 	FunctionNextLine bool
 }
 
-// Parse converts shell script text into a structured syntax tree.
-func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
+func newParser(parserOptions ParserOptions) *syntax.Parser {
 	var options []syntax.ParserOption
 
 	options = append(options, syntax.KeepComments(parserOptions.KeepComments), syntax.Variant(parserOptions.Variant))
@@ -39,9 +38,12 @@ func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.F
 		options = append(options, syntax.RecoverErrors(parserOptions.RecoverErrors))
 	}
 
-	parser := syntax.NewParser(options...)
+	return syntax.NewParser(options...)
+}
 
-	return parser.Parse(bytes.NewReader([]byte(text)), filepath)
+// Parse converts shell script text into a structured syntax tree.
+func Parse(text string, filepath string, parserOptions ParserOptions) (*syntax.File, error) {
+	return newParser(parserOptions).Parse(bytes.NewReader([]byte(text)), filepath)
 }
 
 // Process performs formatting or parsing and returns a framed binary result.
@@ -105,5 +107,5 @@ func Process(
 		}
 	}
 
-	return encodeResult(ast, textOut, parseError, message, nil, errorKind)
+	return encodeResult(ast, textOut, parseError, message, nil, errorKind, nil)
 }

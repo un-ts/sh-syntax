@@ -28,6 +28,13 @@ export interface ProcessExports {
   ) => number
   printNode: (nodePointer: number, nodeLength: number, optionsPointer: number) => number
   splitBraces: (nodePointer: number, nodeLength: number) => number
+  interactive: (
+    filePathPointer: number,
+    filePathLength: number,
+    textPointer: number,
+    textLength: number,
+    optionsPointer: number,
+  ) => number
   resultLength: () => number
 }
 
@@ -39,6 +46,7 @@ interface RawResult {
   message: string
   changed?: boolean
   errorKind?: ErrorKind
+  interactive?: { remaining: string; incomplete: boolean }
 }
 
 const MAX_STOP_AT_BYTES = 4
@@ -268,4 +276,95 @@ export const invokeSplitBraces = (
   result.start = start
   result.end = end
   return { word: result, changed: metadata.changed === true }
+}
+
+export interface InvokeInteractiveResult {
+  ast: File
+  incomplete: boolean
+  remaining: string
+}
+
+export const invokeInteractive = (
+  { memory, wasmAlloc, wasmFree, interactive, resultLength }: ProcessExports,
+  text: string,
+  {
+    filepath = '',
+    keepComments = true,
+    variant = LangVariant.LangBash,
+    stopAt = '',
+    recoverErrors = 0,
+  }: InternalOptions,
+): InvokeInteractiveResult => {
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  encoder ??= new TextEncoder()
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- lazy module cache
+  decoder ??= new TextDecoder()
+
+  if (!supportedVariants.has(variant)) {
+    throw new InputError(`Unsupported shell variant: ${variant}`)
+  }
+
+  const textBytes = encoder.encode(text)
+  const filePathBytes = encoder.encode(filepath)
+  const stopAtBytes = encoder.encode(stopAt)
+  if (stopAtBytes.byteLength > MAX_STOP_AT_BYTES) {
+    throw new InputError('stopAt must be at most 4 bytes')
+  }
+
+  const filePathPointer = wasmAlloc(filePathBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(filePathBytes, filePathPointer)
+  const textPointer = wasmAlloc(textBytes.byteLength)
+  // eslint-disable-next-line unicorn/no-unsafe-buffer-conversion -- WASM linear memory
+  new Uint8Array(memory.buffer).set(textBytes, textPointer)
+
+  const optionValues = [
+    false,
+    keepComments,
+    variant,
+    recoverErrors,
+    0,
+    stopAtBytes.byteLength,
+    false,
+    2,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+  ] as const
+  const optionsPointer = wasmAlloc(optionValues.length * Uint32Array.BYTES_PER_ELEMENT)
+  const options = new DataView(
+    memory.buffer,
+    optionsPointer,
+    optionValues.length * Uint32Array.BYTES_PER_ELEMENT,
+  )
+  let optionOffset = 0
+  for (const value of optionValues) {
+    options.setUint32(optionOffset, Number(value), true)
+    optionOffset += Uint32Array.BYTES_PER_ELEMENT
+  }
+  new Uint8Array(memory.buffer, optionsPointer + STOP_AT_OPTION_OFFSET, MAX_STOP_AT_BYTES).set(
+    stopAtBytes,
+  )
+
+  const resultPointer = interactive(
+    filePathPointer,
+    filePathBytes.byteLength,
+    textPointer,
+    textBytes.byteLength,
+    optionsPointer,
+  )
+  wasmFree(filePathPointer)
+  wasmFree(textPointer)
+  wasmFree(optionsPointer)
+
+  const { metadata, ast } = readResult(memory, resultPointer, resultLength())
+  return {
+    ast: decodeAST(ast),
+    incomplete: metadata.interactive!.incomplete,
+    remaining: metadata.interactive!.remaining,
+  }
 }

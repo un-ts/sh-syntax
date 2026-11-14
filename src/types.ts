@@ -189,6 +189,23 @@ export interface IParseError {
   pos?: Pos
 }
 
+export interface InteractiveResult {
+  ast: File
+  incomplete: boolean
+}
+
+export interface InteractiveParser {
+  readonly incomplete: boolean
+  write: (chunk: string) => InteractiveResult
+  reset: () => void
+}
+
+export interface AsyncInteractiveParser {
+  readonly incomplete: boolean
+  write: (chunk: string) => Promise<InteractiveResult>
+  reset: () => void
+}
+
 export interface SplitBracesResult {
   word: Word
   changed: boolean

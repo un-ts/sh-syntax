@@ -81,6 +81,34 @@ Errors expose stable codes via `ErrorCode`: `SH_SYNTAX_PARSE`, `SH_SYNTAX_LANGUA
 
 Source text input is a JavaScript string. Unpaired UTF-16 surrogates are replaced with U+FFFD by `TextEncoder`, and byte input such as `Uint8Array` is not accepted.
 
+### Interactive parsing
+
+`createInteractiveParser()` is a JS-friendly REPL helper. It keeps the trailing incomplete input between calls and returns the complete statements parsed so far:
+
+```js
+import { createInteractiveParser } from 'sh-syntax'
+
+const parser = createInteractiveParser()
+
+const first = await parser.write('echo one\n')
+// first.ast.stmts has one statement; first.incomplete === false
+
+const second = await parser.write('if true; then\n')
+// second.incomplete === true
+
+const third = await parser.write('  echo two\nfi\n')
+// third.ast.stmts has the completed if statement
+```
+
+The synchronous entry exposes the same function:
+
+```js
+import { createInteractiveParser } from 'sh-syntax/sync'
+
+const parser = createInteractiveParser()
+parser.write('echo one\n')
+```
+
 The synchronous Node API is available from `sh-syntax/sync`:
 
 ```js

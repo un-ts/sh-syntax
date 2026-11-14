@@ -11,12 +11,14 @@ import {
   print,
   processor,
   splitBraces,
+  createInteractiveParser,
   walk,
 } from 'sh-syntax'
 import {
   parse as parseSync,
   print as printSync,
   splitBraces as splitBracesSync,
+  createInteractiveParser as createInteractiveParserSync,
 } from 'sh-syntax/sync'
 
 test('sync parser returns the full typed tree', () => {
@@ -194,6 +196,61 @@ test('splitBraces handles empty alternatives', () => {
   const fallbackResult = splitBracesSync(fallback.args[1]!)
   expect(fallbackResult.changed).toBe(true)
   expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
+})
+
+test('interactive parser emits complete statements', () => {
+  const parser = createInteractiveParserSync()
+  const first = parser.write('echo one\n')
+  expect(first.incomplete).toBe(false)
+  expect(first.ast.stmts).toHaveLength(1)
+
+  const second = parser.write('if true; then\n')
+  expect(second.incomplete).toBe(true)
+  expect(second.ast.stmts).toHaveLength(0)
+
+  const third = parser.write('  echo two\nfi\n')
+  expect(third.incomplete).toBe(false)
+  expect(third.ast.stmts).toHaveLength(1)
+  expect(parser.incomplete).toBe(false)
+
+  parser.write('if true; then\n')
+  expect(parser.incomplete).toBe(true)
+  parser.reset()
+  expect(parser.incomplete).toBe(false)
+  expect(() => parser.write(1 as never)).toThrow(InputError)
+  expect(() => createInteractiveParserSync({ variant: LangVariant.LangAuto })).not.toThrow()
+  const invalid = createInteractiveParserSync({ variant: LangVariant.LangAuto })
+  expect(() => invalid.write('echo hi\n')).toThrow(InputError)
+  expect(() => createInteractiveParserSync({ stopAt: 'longer' }).write('echo hi\n')).toThrow(
+    InputError,
+  )
+})
+
+test('async interactive parser emits complete statements', async () => {
+  const parser = createInteractiveParser()
+  const first = await parser.write('echo one\n')
+  expect(first.incomplete).toBe(false)
+  expect(first.ast.stmts).toHaveLength(1)
+
+  const second = await parser.write('if true; then\n')
+  expect(second.incomplete).toBe(true)
+  expect(second.ast.stmts).toHaveLength(0)
+
+  const third = await parser.write('  echo two\nfi\n')
+  expect(third.incomplete).toBe(false)
+  expect(third.ast.stmts).toHaveLength(1)
+
+  await parser.write('if true; then\n')
+  expect(parser.incomplete).toBe(true)
+  parser.reset()
+  expect(parser.incomplete).toBe(false)
+  await expect(parser.write(1 as never)).rejects.toBeInstanceOf(InputError)
+  await expect(
+    createInteractiveParser({ variant: LangVariant.LangAuto }).write('echo hi\n'),
+  ).rejects.toBeInstanceOf(InputError)
+  await expect(
+    createInteractiveParser({ stopAt: 'longer' }).write('echo hi\n'),
+  ).rejects.toBeInstanceOf(InputError)
 })
 
 test('ParNamesOperator has a zero value', () => {
