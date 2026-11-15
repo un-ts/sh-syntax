@@ -44,33 +44,31 @@ func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 	return end
 }
 
+func recoverPanic(fn func()) (panicked bool) {
+	defer func() {
+		if recover() != nil {
+			panicked = true
+		}
+	}()
+	fn()
+	return
+}
+
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
 	parser := newParser(parserOptions)
 	var collected []*syntax.Stmt
 	var stmts []*syntax.Stmt
 	var lastEnd uint
 	var err error
-	panicked := false
-	func() {
-		defer func() {
-			// Upstream Interactive can panic while iterating incomplete heredocs;
-			// see https://github.com/mvdan/sh/issues/1459.
-			if recover() != nil {
-				panicked = true
-			}
-		}()
+	// Upstream Interactive can panic while iterating incomplete heredocs;
+	// see https://github.com/mvdan/sh/issues/1459.
+	panicked := recoverPanic(func() {
 		err = parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
 			collected = append(collected, parsed...)
 			return true
 		})
-	}()
-
-	func() {
-		defer func() {
-			if recover() != nil {
-				panicked = true
-			}
-		}()
+	})
+	panicked = recoverPanic(func() {
 		for _, stmt := range collected {
 			if hasPendingHeredoc(stmt) {
 				break
@@ -80,7 +78,7 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 				lastEnd = end
 			}
 		}
-	}()
+	}) || panicked
 
 	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || panicked
 	remaining := ""
