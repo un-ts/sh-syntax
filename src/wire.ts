@@ -16,10 +16,12 @@ const MAX_VARINT_BYTES = 8
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
-const NODE_TYPES = new Map<number, string>(
-  Object.entries(WIRE_TYPES).map(([name, id]) => [id, name]),
+type WireTypeName = keyof typeof WIRE_SCHEMA
+
+const NODE_TYPES = new Map<number, WireTypeName>(
+  Object.entries(WIRE_TYPES).map(([name, id]) => [id, name as WireTypeName]),
 )
-const schemaFor = (typeName: string) => WIRE_SCHEMA[typeName as keyof typeof WIRE_SCHEMA]
+const schemaFor = (typeName: WireTypeName) => WIRE_SCHEMA[typeName]
 
 class Writer {
   private bytes = new Uint8Array(1024)
@@ -128,7 +130,7 @@ class Reader {
   }
 }
 
-const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
+const writeNode = (writer: Writer, node: unknown, typeName: WireTypeName): void => {
   const schema = schemaFor(typeName)
   if (node == null || typeof node !== 'object' || !schema?.node) {
     throw new InputError(`wire expects a ${typeName} node`)
@@ -144,7 +146,7 @@ const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
   }
 }
 
-const writeTyped = (writer: Writer, value: unknown, typeName: string): void => {
+const writeTyped = (writer: Writer, value: unknown, typeName: WireTypeName): void => {
   if (schemaFor(typeName)?.node) {
     writeNode(writer, value, typeName)
   } else {
@@ -194,7 +196,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         }
         writer.byte(1)
       }
-      writeTyped(writer, value, field.t!)
+      writeTyped(writer, value, field.t as WireTypeName)
       break
     }
     case 'iface': {
@@ -208,7 +210,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         throw new InputError(`unknown wire node type: ${String(node.type)}`)
       }
       writer.uint(id)
-      writeNode(writer, value, node.type as string)
+      writeNode(writer, value, node.type as WireTypeName)
       break
     }
     case 'slice': {
@@ -222,7 +224,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
   }
 }
 
-const readNode = (reader: Reader, typeName: string): Record<string, unknown> => {
+const readNode = (reader: Reader, typeName: WireTypeName): Record<string, unknown> => {
   const schema = schemaFor(typeName)!
   const node: Record<string, unknown> = {
     type: typeName,
@@ -235,7 +237,7 @@ const readNode = (reader: Reader, typeName: string): Record<string, unknown> => 
   return node
 }
 
-const readTyped = (reader: Reader, typeName: string): unknown => {
+const readTyped = (reader: Reader, typeName: WireTypeName): unknown => {
   if (schemaFor(typeName)?.node) {
     return readNode(reader, typeName)
   }
@@ -266,7 +268,7 @@ const readField = (reader: Reader, field: WireField): unknown => {
       if (field.n && reader.byte() === 0) {
         return null
       }
-      return readTyped(reader, field.t!)
+      return readTyped(reader, field.t as WireTypeName)
     }
     case 'iface': {
       const id = reader.uint()
