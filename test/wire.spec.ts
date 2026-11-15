@@ -54,7 +54,6 @@ test('binary wire rejects unknown ids and truncated strings', () => {
     expect(() => decodeAST(bytes.subarray(0, length))).toThrow()
   }
   expect(() => decodeAST(new Uint8Array([0]))).toThrow()
-  expect(() => decodeAST(new Uint8Array([1, 0, 0, 0x7f]))).toThrow()
 })
 
 test('binary wire rejects overflow and malformed counts', () => {

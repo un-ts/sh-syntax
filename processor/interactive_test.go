@@ -3,6 +3,7 @@ package processor
 import (
 	"encoding/binary"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"mvdan.cc/sh/v3/syntax"
@@ -94,4 +95,26 @@ func TestProcessInteractiveNestedPendingHeredoc(t *testing.T) {
 
 func TestProcessInteractiveNestedHeredocCompletes(t *testing.T) {
 	checkInteractive(t, "echo a && cat <<EOF; echo x\nbody\nEOF\n", false, "\n", 2)
+}
+
+func TestProcessInteractiveEmptyHeredoc(t *testing.T) {
+	checkInteractive(t, "cat <<EOF\nEOF\n", false, "\n", 1)
+}
+
+func TestProcessInteractiveTerminalError(t *testing.T) {
+	metadata, _ := interactiveResult(t, ProcessInteractive("echo )\nmore", "", ParserOptions{}))
+	if metadata["parseError"] == nil {
+		t.Fatalf("expected a terminal parse error, got %#v", metadata)
+	}
+	interactive := metadata["interactive"].(map[string]any)
+	if interactive["incomplete"] != false {
+		t.Fatalf("expected complete error, got %#v", interactive)
+	}
+}
+
+func TestParseDepthLimit(t *testing.T) {
+	source := "echo " + strings.Repeat("$(", 5000) + "hi" + strings.Repeat(")", 5000) + "\n"
+	if _, err := Parse(source, "", ParserOptions{}); err == nil || !strings.Contains(err.Error(), "nesting") {
+		t.Fatalf("expected the upstream nesting limit, got %v", err)
+	}
 }

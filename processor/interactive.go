@@ -37,6 +37,12 @@ func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 		if nodeEnd := node.End().Offset(); nodeEnd > end {
 			end = nodeEnd
 		}
+		if redir, ok := node.(*syntax.Redirect); ok &&
+			redir.Word != nil && redir.Hdoc == nil && redir.ClosePos.IsValid() {
+			if closeEnd := redir.ClosePos.Offset() + uint(len(redir.Word.Lit())); closeEnd > end {
+				end = closeEnd
+			}
+		}
 		return true
 	})
 	return end
@@ -72,7 +78,10 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 			lastEnd = end
 		}
 	}
-	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || pendingHeredoc || pendingLine
+	incomplete := syntax.IsIncomplete(err)
+	if err == nil {
+		incomplete = parser.Incomplete() || pendingHeredoc || pendingLine
+	}
 	remaining := ""
 	message := ""
 	var parseError *ParseError
@@ -93,9 +102,6 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		lastEnd = uint(len(text))
 	}
 	remaining = text[lastEnd:]
-	if !incomplete && remaining != "" && !strings.HasSuffix(text, "\n") {
-		incomplete = true
-	}
 
 	file := &syntax.File{Name: filepath, Stmts: stmts}
 	var encoded bytes.Buffer

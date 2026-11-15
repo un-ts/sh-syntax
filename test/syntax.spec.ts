@@ -337,6 +337,19 @@ test('interactive nested pending heredoc is not committed', () => {
   expect(second.ast.stmts).toHaveLength(2)
 })
 
+test('interactive empty heredoc keeps the terminator consumed', () => {
+  const parser = createInteractiveParserSync()
+  const result = parser.write('cat <<EOF\nEOF\n')
+  expect(result.incomplete).toBe(false)
+  expect(result.remaining).toBe('\n')
+  expect(result.ast.stmts).toHaveLength(1)
+})
+
+test('interactive terminal errors are not masked by a pending line', () => {
+  const parser = createInteractiveParserSync()
+  expect(() => parser.write('echo )\nmore')).toThrow(ParseError)
+})
+
 test('interactive reset invalidates queued writes', async () => {
   const parser = createInteractiveParser()
   const first = parser.write('if true; then\n')
