@@ -29,8 +29,8 @@ func hasPendingHeredoc(stmt *syntax.Stmt) bool {
 }
 
 func interactiveStatementEnd(stmt *syntax.Stmt) uint {
-	// A panic here is intentionally covered by ProcessInteractive's recover; it
-	// also guards incomplete nodes reached while extending the heredoc boundary.
+	// Parser output normally contains only node types Walk handles; the caller
+	// still guards this boundary extension with a recover for incomplete nodes.
 	end := stmt.End().Offset()
 	syntax.Walk(stmt, func(node syntax.Node) bool {
 		if node == nil {
@@ -65,15 +65,22 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		})
 	}()
 
-	for _, stmt := range collected {
-		if hasPendingHeredoc(stmt) {
-			break
+	func() {
+		defer func() {
+			if recover() != nil {
+				panicked = true
+			}
+		}()
+		for _, stmt := range collected {
+			if hasPendingHeredoc(stmt) {
+				break
+			}
+			stmts = append(stmts, stmt)
+			if end := interactiveStatementEnd(stmt); end > lastEnd {
+				lastEnd = end
+			}
 		}
-		stmts = append(stmts, stmt)
-		if end := interactiveStatementEnd(stmt); end > lastEnd {
-			lastEnd = end
-		}
-	}
+	}()
 
 	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || panicked
 	remaining := ""
