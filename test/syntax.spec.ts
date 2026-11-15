@@ -338,11 +338,13 @@ test('interactive nested pending heredoc is not committed', () => {
 })
 
 test('interactive empty heredoc keeps the terminator consumed', () => {
-  const parser = createInteractiveParserSync()
-  const result = parser.write('cat <<EOF\nEOF\n')
-  expect(result.incomplete).toBe(false)
-  expect(result.remaining).toBe('\n')
-  expect(result.ast.stmts).toHaveLength(1)
+  for (const source of ['cat <<EOF\nEOF\n', "cat <<'EOF'\nEOF\n", 'cat <<-EOF\n\tEOF\n']) {
+    const parser = createInteractiveParserSync()
+    const result = parser.write(source)
+    expect(result.incomplete).toBe(false)
+    expect(result.remaining).toBe('\n')
+    expect(result.ast.stmts).toHaveLength(1)
+  }
 })
 
 test('interactive terminal errors are not masked by a pending line', () => {

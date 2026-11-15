@@ -28,7 +28,7 @@ func hasPendingHeredoc(stmt *syntax.Stmt) bool {
 	return pending
 }
 
-func interactiveStatementEnd(stmt *syntax.Stmt) uint {
+func interactiveStatementEnd(stmt *syntax.Stmt, text string) uint {
 	end := stmt.End().Offset()
 	syntax.Walk(stmt, func(node syntax.Node) bool {
 		if node == nil {
@@ -38,8 +38,14 @@ func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 			end = nodeEnd
 		}
 		if redir, ok := node.(*syntax.Redirect); ok &&
-			redir.Word != nil && redir.Hdoc == nil && redir.ClosePos.IsValid() {
-			if closeEnd := redir.ClosePos.Offset() + uint(len(redir.Word.Lit())); closeEnd > end {
+			redir.Hdoc == nil && redir.ClosePos.IsValid() {
+			closeEnd := redir.ClosePos.Offset()
+			if lineEnd := strings.IndexByte(text[closeEnd:], '\n'); lineEnd >= 0 {
+				closeEnd += uint(lineEnd)
+			} else {
+				closeEnd = uint(len(text))
+			}
+			if closeEnd > end {
 				end = closeEnd
 			}
 		}
@@ -74,7 +80,7 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 			break
 		}
 		stmts = append(stmts, stmt)
-		if end := interactiveStatementEnd(stmt); end > lastEnd {
+		if end := interactiveStatementEnd(stmt, text); end > lastEnd {
 			lastEnd = end
 		}
 	}

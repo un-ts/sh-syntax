@@ -98,7 +98,9 @@ func TestProcessInteractiveNestedHeredocCompletes(t *testing.T) {
 }
 
 func TestProcessInteractiveEmptyHeredoc(t *testing.T) {
-	checkInteractive(t, "cat <<EOF\nEOF\n", false, "\n", 1)
+	for _, source := range []string{"cat <<EOF\nEOF\n", "cat <<'EOF'\nEOF\n", "cat <<-EOF\n\tEOF\n"} {
+		checkInteractive(t, source, false, "\n", 1)
+	}
 }
 
 func TestProcessInteractiveTerminalError(t *testing.T) {
