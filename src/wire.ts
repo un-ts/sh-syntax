@@ -8,7 +8,13 @@
  */
 import { InputError } from './common.js'
 import type { File, PrintableNode } from './types.js'
-import { WIRE_SCHEMA, WIRE_TYPES, type WireField, type WireTypeName } from './wire-schema.js'
+import {
+  WIRE_SCHEMA,
+  WIRE_TYPES,
+  type WireField,
+  type WireNodeName,
+  type WireTypeName,
+} from './wire-schema.js'
 
 const VARINT_BASE = 0x80
 const VARINT_MASK = 0x7f
@@ -16,8 +22,8 @@ const MAX_VARINT_BYTES = 8
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
-const NODE_TYPES = new Map<number, WireTypeName>(
-  Object.entries(WIRE_TYPES).map(([name, id]) => [id, name as WireTypeName]),
+const NODE_TYPES = new Map<number, WireNodeName>(
+  Object.entries(WIRE_TYPES).map(([name, id]) => [id, name as WireNodeName]),
 )
 class Writer {
   private bytes = new Uint8Array(1024)
@@ -201,7 +207,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         return
       }
       const node = value as { type?: unknown }
-      const id = WIRE_TYPES[node.type as keyof typeof WIRE_TYPES]
+      const id = WIRE_TYPES[node.type as WireNodeName]
       if (!id) {
         throw new InputError(`unknown wire node type: ${String(node.type)}`)
       }

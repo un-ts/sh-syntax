@@ -107,6 +107,8 @@ export const WIRE_TYPES = {
   WordIter: 46,
 } as const satisfies Record<string, number>
 
+export type WireNodeName = keyof typeof WIRE_TYPES
+
 export const WIRE_SCHEMA = {
   File: {
     node: true,

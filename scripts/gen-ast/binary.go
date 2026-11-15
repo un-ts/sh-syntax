@@ -82,6 +82,7 @@ func writeWireSchema(structs map[string]*typeInfo, allTypes []string, interfaces
 		fmt.Fprintf(&b, "  %q: %d,\n", name, i+1)
 	}
 	b.WriteString("} as const satisfies Record<string, number>\n\n")
+	b.WriteString("export type WireNodeName = keyof typeof WIRE_TYPES\n\n")
 	b.WriteString("export const WIRE_SCHEMA = {\n")
 	for _, name := range allTypes {
 		info := structs[name]
