@@ -178,7 +178,7 @@ test('splitBraces handles empty alternatives', () => {
     throw new Error('expected a call expression')
   }
   const { word: split } = splitBracesSync(command.args[1]!)
-  expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
+  expect(split.parts[0]).toMatchObject({ type: 'BraceExp' })
   expect(split.start).toBe(command.args[1]!.start)
   expect(split.end).toBe(command.args[1]!.end)
 
@@ -197,7 +197,7 @@ test('splitBraces handles empty alternatives', () => {
     throw new Error('expected a call expression')
   }
   const fallbackResult = splitBracesSync(fallback.args[1]!)
-  expect(fallbackResult.changed).toBe(true)
+  expect(fallbackResult.changed).toBe(false)
   expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
 })
 

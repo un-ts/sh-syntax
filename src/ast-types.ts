@@ -59,6 +59,7 @@ export interface Assign extends BaseNode {
 export interface Redirect extends BaseNode {
   type: 'Redirect'
   opPos: Pos
+  closePos: Pos
   op: RedirOperator
   n: Lit | null
   word: Word | null
@@ -85,6 +86,13 @@ export interface Block extends BaseNode {
   rbrace: Pos
   stmts: Stmt[]
   lastComments: Comment[]
+}
+
+export interface TryClause extends BaseNode {
+  type: 'TryClause'
+  try: Block | null
+  alwaysPos: Pos
+  always: Block | null
 }
 
 export interface IfClause extends BaseNode {
@@ -124,9 +132,21 @@ export interface ForClause extends BaseNode {
   doComments: Comment[]
 }
 
+export interface RepeatClause extends BaseNode {
+  type: 'RepeatClause'
+  repeatPos: Pos
+  doPos: Pos
+  donePos: Pos
+  braces: boolean
+  count: Word | null
+  do: Stmt[]
+  doComments: Comment[]
+}
+
 export interface WordIter extends BaseNode {
   type: 'WordIter'
   name: Lit | null
+  names: Lit[]
   inPos: Pos
   items: Word[]
 }
@@ -156,6 +176,7 @@ export interface FuncDecl extends BaseNode {
   name: Lit | null
   names: Lit[]
   body: Stmt | null
+  args: Word[]
 }
 
 export interface Word extends BaseNode {
@@ -213,6 +234,7 @@ export interface ParamExp extends BaseNode {
   param: Lit | null
   nestedParam: WordPart | null
   index: ArithmExpr | null
+  subscripts: ArithmExpr[]
   modifiers: Lit[]
   slice: Slice | null
   repl: Replace | null
@@ -282,6 +304,14 @@ export interface FlagsArithm extends BaseNode {
   x: ArithmExpr | null
 }
 
+export interface CallArithm extends BaseNode {
+  type: 'CallArithm'
+  name: Lit | null
+  lparen: Pos
+  rparen: Pos
+  args: ArithmExpr[]
+}
+
 export interface CaseClause extends BaseNode {
   type: 'CaseClause'
   case: Pos
@@ -336,6 +366,7 @@ export interface DeclClause extends BaseNode {
   type: 'DeclClause'
   variant: Lit | null
   args: Assign[]
+  assigns: Assign[]
 }
 
 export interface ArrayExpr extends BaseNode {
@@ -391,6 +422,8 @@ export interface LetClause extends BaseNode {
 
 export interface BraceExp extends BaseNode {
   type: 'BraceExp'
+  lbrace: Pos
+  rbrace: Pos
   sequence: boolean
   elems: Word[]
 }
@@ -414,10 +447,12 @@ export type Command =
   | FuncDecl
   | IfClause
   | LetClause
+  | RepeatClause
   | Subshell
   | TestClause
   | TestDecl
   | TimeClause
+  | TryClause
   | WhileClause
 
 export type WordPart =
@@ -433,7 +468,7 @@ export type WordPart =
 
 export type Loop = CStyleLoop | WordIter
 
-export type ArithmExpr = BinaryArithm | FlagsArithm | ParenArithm | UnaryArithm | Word
+export type ArithmExpr = BinaryArithm | CallArithm | FlagsArithm | ParenArithm | UnaryArithm | Word
 
 export type TestExpr = BinaryTest | ParenTest | UnaryTest | Word
 
@@ -448,6 +483,7 @@ export type Node =
   | BinaryTest
   | Block
   | BraceExp
+  | CallArithm
   | CallExpr
   | CaseClause
   | CaseItem
@@ -470,12 +506,14 @@ export type Node =
   | ParenTest
   | ProcSubst
   | Redirect
+  | RepeatClause
   | SglQuoted
   | Stmt
   | Subshell
   | TestClause
   | TestDecl
   | TimeClause
+  | TryClause
   | UnaryArithm
   | UnaryTest
   | WhileClause

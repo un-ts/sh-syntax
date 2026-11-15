@@ -2,15 +2,13 @@ package processor
 
 import "mvdan.cc/sh/v3/syntax"
 
-// containsBraceExp reports whether node contains a BraceExp. syntax.Walk has
-// no BraceExp case, so it panics on that node; recover turns that into a match.
-func containsBraceExp(node syntax.Node) (found bool) {
-	defer func() {
-		if recover() != nil {
-			found = true
-		}
-	}()
+// containsBraceExp reports whether node contains a BraceExp.
+func containsBraceExp(node syntax.Node) bool {
+	found := false
 	syntax.Walk(node, func(current syntax.Node) bool {
+		if current == nil {
+			return false
+		}
 		if _, ok := current.(*syntax.BraceExp); ok {
 			found = true
 			return false

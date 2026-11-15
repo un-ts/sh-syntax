@@ -178,6 +178,7 @@ exports[`full AST snapshot 1`] = `
             },
           },
         ],
+        "assigns": [],
         "end": 64,
         "start": 48,
         "type": "DeclClause",
@@ -316,6 +317,7 @@ exports[`full AST snapshot 1`] = `
                     "slice": null,
                     "split": 0,
                     "start": 74,
+                    "subscripts": [],
                     "type": "ParamExp",
                     "width": false,
                   },
@@ -350,6 +352,11 @@ exports[`full AST snapshot 1`] = `
       },
       "redirs": [
         {
+          "closePos": {
+            "column": 0,
+            "line": 0,
+            "offset": 0,
+          },
           "end": 84,
           "hdoc": null,
           "n": null,
@@ -386,6 +393,11 @@ exports[`full AST snapshot 1`] = `
           },
         },
         {
+          "closePos": {
+            "column": 0,
+            "line": 0,
+            "offset": 0,
+          },
           "end": 89,
           "hdoc": null,
           "n": {
@@ -522,6 +534,7 @@ exports[`full AST snapshot 1`] = `
                       "slice": null,
                       "split": 0,
                       "start": 100,
+                      "subscripts": [],
                       "type": "ParamExp",
                       "width": false,
                     },
@@ -1013,6 +1026,7 @@ exports[`full AST snapshot 1`] = `
                           "slice": null,
                           "split": 0,
                           "start": 199,
+                          "subscripts": [],
                           "type": "ParamExp",
                           "width": false,
                         },
@@ -1143,6 +1157,7 @@ exports[`full AST snapshot 1`] = `
               "offset": 178,
             },
           },
+          "names": [],
           "start": 178,
           "type": "WordIter",
         },
@@ -1357,6 +1372,7 @@ exports[`full AST snapshot 1`] = `
                           "slice": null,
                           "split": 0,
                           "start": 240,
+                          "subscripts": [],
                           "type": "ParamExp",
                           "width": false,
                         },
@@ -1432,6 +1448,11 @@ exports[`full AST snapshot 1`] = `
       },
       "redirs": [
         {
+          "closePos": {
+            "column": 0,
+            "line": 0,
+            "offset": 0,
+          },
           "end": 259,
           "hdoc": null,
           "n": null,
@@ -1778,6 +1799,7 @@ exports[`full AST snapshot 1`] = `
               "slice": null,
               "split": 0,
               "start": 266,
+              "subscripts": [],
               "type": "ParamExp",
               "width": false,
             },
@@ -1808,6 +1830,7 @@ exports[`full AST snapshot 1`] = `
     {
       "background": false,
       "cmd": {
+        "args": [],
         "body": {
           "background": false,
           "cmd": {
@@ -1878,6 +1901,7 @@ exports[`full AST snapshot 1`] = `
                       },
                     },
                   ],
+                  "assigns": [],
                   "end": 331,
                   "start": 322,
                   "type": "DeclClause",
@@ -2000,6 +2024,7 @@ exports[`full AST snapshot 1`] = `
                               "slice": null,
                               "split": 0,
                               "start": 340,
+                              "subscripts": [],
                               "type": "ParamExp",
                               "width": false,
                             },
@@ -2518,6 +2543,7 @@ exports[`full AST snapshot 1`] = `
                 "slice": null,
                 "split": 0,
                 "start": 390,
+                "subscripts": [],
                 "type": "ParamExp",
                 "width": false,
               },
@@ -2595,6 +2621,11 @@ exports[`full AST snapshot 1`] = `
       },
       "redirs": [
         {
+          "closePos": {
+            "column": 0,
+            "line": 38,
+            "offset": 427,
+          },
           "end": 430,
           "hdoc": {
             "end": 430,
@@ -2659,6 +2690,7 @@ exports[`full AST snapshot 1`] = `
                 "slice": null,
                 "split": 0,
                 "start": 422,
+                "subscripts": [],
                 "type": "ParamExp",
                 "width": false,
               },

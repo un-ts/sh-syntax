@@ -22,38 +22,41 @@ var binaryNodeIDs = map[string]uint64{
 	"Block":        9,
 	"BraceExp":     10,
 	"CStyleLoop":   11,
-	"CallExpr":     12,
-	"CaseClause":   13,
-	"CaseItem":     14,
-	"CmdSubst":     15,
-	"Comment":      16,
-	"CoprocClause": 17,
-	"DblQuoted":    18,
-	"DeclClause":   19,
-	"ExtGlob":      20,
-	"File":         21,
-	"FlagsArithm":  22,
-	"ForClause":    23,
-	"FuncDecl":     24,
-	"IfClause":     25,
-	"LetClause":    26,
-	"Lit":          27,
-	"ParamExp":     28,
-	"ParenArithm":  29,
-	"ParenTest":    30,
-	"ProcSubst":    31,
-	"Redirect":     32,
-	"SglQuoted":    33,
-	"Stmt":         34,
-	"Subshell":     35,
-	"TestClause":   36,
-	"TestDecl":     37,
-	"TimeClause":   38,
-	"UnaryArithm":  39,
-	"UnaryTest":    40,
-	"WhileClause":  41,
-	"Word":         42,
-	"WordIter":     43,
+	"CallArithm":   12,
+	"CallExpr":     13,
+	"CaseClause":   14,
+	"CaseItem":     15,
+	"CmdSubst":     16,
+	"Comment":      17,
+	"CoprocClause": 18,
+	"DblQuoted":    19,
+	"DeclClause":   20,
+	"ExtGlob":      21,
+	"File":         22,
+	"FlagsArithm":  23,
+	"ForClause":    24,
+	"FuncDecl":     25,
+	"IfClause":     26,
+	"LetClause":    27,
+	"Lit":          28,
+	"ParamExp":     29,
+	"ParenArithm":  30,
+	"ParenTest":    31,
+	"ProcSubst":    32,
+	"Redirect":     33,
+	"RepeatClause": 34,
+	"SglQuoted":    35,
+	"Stmt":         36,
+	"Subshell":     37,
+	"TestClause":   38,
+	"TestDecl":     39,
+	"TimeClause":   40,
+	"TryClause":    41,
+	"UnaryArithm":  42,
+	"UnaryTest":    43,
+	"WhileClause":  44,
+	"Word":         45,
+	"WordIter":     46,
 }
 
 func writeBinaryUint(buf *bytes.Buffer, value uint64) {
@@ -494,6 +497,7 @@ func writeRedirectBinary(buf *bytes.Buffer, v *syntax.Redirect) {
 	}
 	writeBinaryNodeBounds(buf, v)
 	writeBinaryPos(buf, v.OpPos)
+	writeBinaryPos(buf, v.ClosePos)
 	writeBinaryUint(buf, uint64(v.Op))
 	if v.N == nil {
 		writeBinaryBool(buf, false)
@@ -529,6 +533,13 @@ func readRedirectBinary(r *binaryReader) (*syntax.Redirect, error) {
 			return nil, err
 		}
 		v.OpPos = value
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.ClosePos = value
 	}
 	{
 		value, err := r.uint()
@@ -816,6 +827,70 @@ func readBlockBinary(r *binaryReader) (*syntax.Block, error) {
 				return nil, err
 			}
 			v.Last = append(v.Last, *item)
+		}
+	}
+	return v, nil
+}
+
+func writeTryClauseBinary(buf *bytes.Buffer, v *syntax.TryClause) {
+	if v == nil {
+		return
+	}
+	writeBinaryNodeBounds(buf, v)
+	if v.Try == nil {
+		writeBinaryBool(buf, false)
+	} else {
+		writeBinaryBool(buf, true)
+		writeBlockBinary(buf, v.Try)
+	}
+	writeBinaryPos(buf, v.AlwaysPos)
+	if v.Always == nil {
+		writeBinaryBool(buf, false)
+	} else {
+		writeBinaryBool(buf, true)
+		writeBlockBinary(buf, v.Always)
+	}
+}
+
+func readTryClauseBinary(r *binaryReader) (*syntax.TryClause, error) {
+	v := &syntax.TryClause{}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	{
+		present, err := r.bool()
+		if err != nil {
+			return nil, err
+		}
+		if present {
+			item, err := readBlockBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Try = item
+		}
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.AlwaysPos = value
+	}
+	{
+		present, err := r.bool()
+		if err != nil {
+			return nil, err
+		}
+		if present {
+			item, err := readBlockBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Always = item
 		}
 	}
 	return v, nil
@@ -1256,6 +1331,123 @@ func readForClauseBinary(r *binaryReader) (*syntax.ForClause, error) {
 	return v, nil
 }
 
+func writeRepeatClauseBinary(buf *bytes.Buffer, v *syntax.RepeatClause) {
+	if v == nil {
+		return
+	}
+	writeBinaryNodeBounds(buf, v)
+	writeBinaryPos(buf, v.RepeatPos)
+	writeBinaryPos(buf, v.DoPos)
+	writeBinaryPos(buf, v.DonePos)
+	writeBinaryBool(buf, v.Braces)
+	if v.Count == nil {
+		writeBinaryBool(buf, false)
+	} else {
+		writeBinaryBool(buf, true)
+		writeWordBinary(buf, v.Count)
+	}
+	writeBinaryUint(buf, uint64(len(v.Do)))
+	for _, item := range v.Do {
+		if item == nil {
+			writeBinaryBool(buf, false)
+		} else {
+			writeBinaryBool(buf, true)
+			writeStmtBinary(buf, item)
+		}
+	}
+	writeBinaryUint(buf, uint64(len(v.DoLast)))
+	for i := range v.DoLast {
+		writeCommentBinary(buf, &v.DoLast[i])
+	}
+}
+
+func readRepeatClauseBinary(r *binaryReader) (*syntax.RepeatClause, error) {
+	v := &syntax.RepeatClause{}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.RepeatPos = value
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.DoPos = value
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.DonePos = value
+	}
+	{
+		value, err := r.bool()
+		if err != nil {
+			return nil, err
+		}
+		v.Braces = value
+	}
+	{
+		present, err := r.bool()
+		if err != nil {
+			return nil, err
+		}
+		if present {
+			item, err := readWordBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Count = item
+		}
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Do = make([]*syntax.Stmt, 0)
+		for i := 0; i < count; i++ {
+			present, err := r.bool()
+			if err != nil {
+				return nil, err
+			}
+			if !present {
+				return nil, fmt.Errorf("null element")
+			}
+			item, err := readStmtBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Do = append(v.Do, item)
+		}
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.DoLast = make([]syntax.Comment, 0)
+		for i := 0; i < count; i++ {
+			item, err := readCommentBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.DoLast = append(v.DoLast, *item)
+		}
+	}
+	return v, nil
+}
+
 func writeWordIterBinary(buf *bytes.Buffer, v *syntax.WordIter) {
 	if v == nil {
 		return
@@ -1266,6 +1458,15 @@ func writeWordIterBinary(buf *bytes.Buffer, v *syntax.WordIter) {
 	} else {
 		writeBinaryBool(buf, true)
 		writeLitBinary(buf, v.Name)
+	}
+	writeBinaryUint(buf, uint64(len(v.Names)))
+	for _, item := range v.Names {
+		if item == nil {
+			writeBinaryBool(buf, false)
+		} else {
+			writeBinaryBool(buf, true)
+			writeLitBinary(buf, item)
+		}
 	}
 	writeBinaryPos(buf, v.InPos)
 	writeBinaryUint(buf, uint64(len(v.Items)))
@@ -1298,6 +1499,27 @@ func readWordIterBinary(r *binaryReader) (*syntax.WordIter, error) {
 				return nil, err
 			}
 			v.Name = item
+		}
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Names = make([]*syntax.Lit, 0)
+		for i := 0; i < count; i++ {
+			present, err := r.bool()
+			if err != nil {
+				return nil, err
+			}
+			if !present {
+				return nil, fmt.Errorf("null element")
+			}
+			item, err := readLitBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Names = append(v.Names, item)
 		}
 	}
 	{
@@ -1490,6 +1712,15 @@ func writeFuncDeclBinary(buf *bytes.Buffer, v *syntax.FuncDecl) {
 		writeBinaryBool(buf, true)
 		writeStmtBinary(buf, v.Body)
 	}
+	writeBinaryUint(buf, uint64(len(v.Args)))
+	for _, item := range v.Args {
+		if item == nil {
+			writeBinaryBool(buf, false)
+		} else {
+			writeBinaryBool(buf, true)
+			writeWordBinary(buf, item)
+		}
+	}
 }
 
 func readFuncDeclBinary(r *binaryReader) (*syntax.FuncDecl, error) {
@@ -1566,6 +1797,27 @@ func readFuncDeclBinary(r *binaryReader) (*syntax.FuncDecl, error) {
 				return nil, err
 			}
 			v.Body = item
+		}
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Args = make([]*syntax.Word, 0)
+		for i := 0; i < count; i++ {
+			present, err := r.bool()
+			if err != nil {
+				return nil, err
+			}
+			if !present {
+				return nil, fmt.Errorf("null element")
+			}
+			item, err := readWordBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Args = append(v.Args, item)
 		}
 	}
 	return v, nil
@@ -1894,6 +2146,10 @@ func writeParamExpBinary(buf *bytes.Buffer, v *syntax.ParamExp) {
 	}
 	writeWordPartBinary(buf, v.NestedParam)
 	writeArithmExprBinary(buf, v.Index)
+	writeBinaryUint(buf, uint64(len(v.Subscripts)))
+	for _, item := range v.Subscripts {
+		writeArithmExprBinary(buf, item)
+	}
 	writeBinaryUint(buf, uint64(len(v.Modifiers)))
 	for _, item := range v.Modifiers {
 		if item == nil {
@@ -2041,6 +2297,20 @@ func readParamExpBinary(r *binaryReader) (*syntax.ParamExp, error) {
 			return nil, err
 		}
 		v.Index = item
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Subscripts = make([]syntax.ArithmExpr, 0)
+		for i := 0; i < count; i++ {
+			item, err := readArithmExprBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Subscripts = append(v.Subscripts, item)
+		}
 	}
 	{
 		count, err := r.count()
@@ -2529,6 +2799,77 @@ func readFlagsArithmBinary(r *binaryReader) (*syntax.FlagsArithm, error) {
 	return v, nil
 }
 
+func writeCallArithmBinary(buf *bytes.Buffer, v *syntax.CallArithm) {
+	if v == nil {
+		return
+	}
+	writeBinaryNodeBounds(buf, v)
+	if v.Name == nil {
+		writeBinaryBool(buf, false)
+	} else {
+		writeBinaryBool(buf, true)
+		writeLitBinary(buf, v.Name)
+	}
+	writeBinaryPos(buf, v.Lparen)
+	writeBinaryPos(buf, v.Rparen)
+	writeBinaryUint(buf, uint64(len(v.Args)))
+	for _, item := range v.Args {
+		writeArithmExprBinary(buf, item)
+	}
+}
+
+func readCallArithmBinary(r *binaryReader) (*syntax.CallArithm, error) {
+	v := &syntax.CallArithm{}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	if _, err := r.uint(); err != nil {
+		return nil, err
+	}
+	{
+		present, err := r.bool()
+		if err != nil {
+			return nil, err
+		}
+		if present {
+			item, err := readLitBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Name = item
+		}
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.Lparen = value
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.Rparen = value
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Args = make([]syntax.ArithmExpr, 0)
+		for i := 0; i < count; i++ {
+			item, err := readArithmExprBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Args = append(v.Args, item)
+		}
+	}
+	return v, nil
+}
+
 func writeCaseClauseBinary(buf *bytes.Buffer, v *syntax.CaseClause) {
 	if v == nil {
 		return
@@ -2972,6 +3313,15 @@ func writeDeclClauseBinary(buf *bytes.Buffer, v *syntax.DeclClause) {
 			writeAssignBinary(buf, item)
 		}
 	}
+	writeBinaryUint(buf, uint64(len(v.Assigns)))
+	for _, item := range v.Assigns {
+		if item == nil {
+			writeBinaryBool(buf, false)
+		} else {
+			writeBinaryBool(buf, true)
+			writeAssignBinary(buf, item)
+		}
+	}
 }
 
 func readDeclClauseBinary(r *binaryReader) (*syntax.DeclClause, error) {
@@ -3014,6 +3364,27 @@ func readDeclClauseBinary(r *binaryReader) (*syntax.DeclClause, error) {
 				return nil, err
 			}
 			v.Args = append(v.Args, item)
+		}
+	}
+	{
+		count, err := r.count()
+		if err != nil {
+			return nil, err
+		}
+		v.Assigns = make([]*syntax.Assign, 0)
+		for i := 0; i < count; i++ {
+			present, err := r.bool()
+			if err != nil {
+				return nil, err
+			}
+			if !present {
+				return nil, fmt.Errorf("null element")
+			}
+			item, err := readAssignBinary(r)
+			if err != nil {
+				return nil, err
+			}
+			v.Assigns = append(v.Assigns, item)
 		}
 	}
 	return v, nil
@@ -3473,6 +3844,8 @@ func writeBraceExpBinary(buf *bytes.Buffer, v *syntax.BraceExp) {
 		return
 	}
 	writeBinaryNodeBounds(buf, v)
+	writeBinaryPos(buf, v.Lbrace)
+	writeBinaryPos(buf, v.Rbrace)
 	writeBinaryBool(buf, v.Sequence)
 	writeBinaryUint(buf, uint64(len(v.Elems)))
 	for _, item := range v.Elems {
@@ -3492,6 +3865,20 @@ func readBraceExpBinary(r *binaryReader) (*syntax.BraceExp, error) {
 	}
 	if _, err := r.uint(); err != nil {
 		return nil, err
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.Lbrace = value
+	}
+	{
+		value, err := r.pos()
+		if err != nil {
+			return nil, err
+		}
+		v.Rbrace = value
 	}
 	{
 		value, err := r.bool()
@@ -3606,12 +3993,18 @@ func writeCommandBinary(buf *bytes.Buffer, v syntax.Command) {
 	case *syntax.ForClause:
 		writeBinaryUint(buf, binaryNodeIDs["ForClause"])
 		writeForClauseBinary(buf, v)
+	case *syntax.RepeatClause:
+		writeBinaryUint(buf, binaryNodeIDs["RepeatClause"])
+		writeRepeatClauseBinary(buf, v)
 	case *syntax.CaseClause:
 		writeBinaryUint(buf, binaryNodeIDs["CaseClause"])
 		writeCaseClauseBinary(buf, v)
 	case *syntax.Block:
 		writeBinaryUint(buf, binaryNodeIDs["Block"])
 		writeBlockBinary(buf, v)
+	case *syntax.TryClause:
+		writeBinaryUint(buf, binaryNodeIDs["TryClause"])
+		writeTryClauseBinary(buf, v)
 	case *syntax.Subshell:
 		writeBinaryUint(buf, binaryNodeIDs["Subshell"])
 		writeSubshellBinary(buf, v)
@@ -3663,10 +4056,14 @@ func readCommandBinary(r *binaryReader) (syntax.Command, error) {
 		return readWhileClauseBinary(r)
 	case binaryNodeIDs["ForClause"]:
 		return readForClauseBinary(r)
+	case binaryNodeIDs["RepeatClause"]:
+		return readRepeatClauseBinary(r)
 	case binaryNodeIDs["CaseClause"]:
 		return readCaseClauseBinary(r)
 	case binaryNodeIDs["Block"]:
 		return readBlockBinary(r)
+	case binaryNodeIDs["TryClause"]:
+		return readTryClauseBinary(r)
 	case binaryNodeIDs["Subshell"]:
 		return readSubshellBinary(r)
 	case binaryNodeIDs["BinaryCmd"]:
@@ -3813,6 +4210,9 @@ func writeArithmExprBinary(buf *bytes.Buffer, v syntax.ArithmExpr) {
 	case *syntax.FlagsArithm:
 		writeBinaryUint(buf, binaryNodeIDs["FlagsArithm"])
 		writeFlagsArithmBinary(buf, v)
+	case *syntax.CallArithm:
+		writeBinaryUint(buf, binaryNodeIDs["CallArithm"])
+		writeCallArithmBinary(buf, v)
 	case *syntax.Word:
 		writeBinaryUint(buf, binaryNodeIDs["Word"])
 		writeWordBinary(buf, v)
@@ -3837,6 +4237,8 @@ func readArithmExprBinary(r *binaryReader) (syntax.ArithmExpr, error) {
 		return readParenArithmBinary(r)
 	case binaryNodeIDs["FlagsArithm"]:
 		return readFlagsArithmBinary(r)
+	case binaryNodeIDs["CallArithm"]:
+		return readCallArithmBinary(r)
 	case binaryNodeIDs["Word"]:
 		return readWordBinary(r)
 	default:
@@ -3915,6 +4317,9 @@ func EncodeNodeBinary(w io.Writer, node syntax.Node) error {
 	case *syntax.Block:
 		writeBinaryUint(&buf, binaryNodeIDs["Block"])
 		writeBlockBinary(&buf, node)
+	case *syntax.TryClause:
+		writeBinaryUint(&buf, binaryNodeIDs["TryClause"])
+		writeTryClauseBinary(&buf, node)
 	case *syntax.IfClause:
 		writeBinaryUint(&buf, binaryNodeIDs["IfClause"])
 		writeIfClauseBinary(&buf, node)
@@ -3924,6 +4329,9 @@ func EncodeNodeBinary(w io.Writer, node syntax.Node) error {
 	case *syntax.ForClause:
 		writeBinaryUint(&buf, binaryNodeIDs["ForClause"])
 		writeForClauseBinary(&buf, node)
+	case *syntax.RepeatClause:
+		writeBinaryUint(&buf, binaryNodeIDs["RepeatClause"])
+		writeRepeatClauseBinary(&buf, node)
 	case *syntax.WordIter:
 		writeBinaryUint(&buf, binaryNodeIDs["WordIter"])
 		writeWordIterBinary(&buf, node)
@@ -3972,6 +4380,9 @@ func EncodeNodeBinary(w io.Writer, node syntax.Node) error {
 	case *syntax.FlagsArithm:
 		writeBinaryUint(&buf, binaryNodeIDs["FlagsArithm"])
 		writeFlagsArithmBinary(&buf, node)
+	case *syntax.CallArithm:
+		writeBinaryUint(&buf, binaryNodeIDs["CallArithm"])
+		writeCallArithmBinary(&buf, node)
 	case *syntax.CaseClause:
 		writeBinaryUint(&buf, binaryNodeIDs["CaseClause"])
 		writeCaseClauseBinary(&buf, node)
@@ -4051,12 +4462,16 @@ func DecodeNodeBinary(data []byte) (syntax.Node, error) {
 		node, err = readSubshellBinary(r)
 	case binaryNodeIDs["Block"]:
 		node, err = readBlockBinary(r)
+	case binaryNodeIDs["TryClause"]:
+		node, err = readTryClauseBinary(r)
 	case binaryNodeIDs["IfClause"]:
 		node, err = readIfClauseBinary(r)
 	case binaryNodeIDs["WhileClause"]:
 		node, err = readWhileClauseBinary(r)
 	case binaryNodeIDs["ForClause"]:
 		node, err = readForClauseBinary(r)
+	case binaryNodeIDs["RepeatClause"]:
+		node, err = readRepeatClauseBinary(r)
 	case binaryNodeIDs["WordIter"]:
 		node, err = readWordIterBinary(r)
 	case binaryNodeIDs["CStyleLoop"]:
@@ -4089,6 +4504,8 @@ func DecodeNodeBinary(data []byte) (syntax.Node, error) {
 		node, err = readParenArithmBinary(r)
 	case binaryNodeIDs["FlagsArithm"]:
 		node, err = readFlagsArithmBinary(r)
+	case binaryNodeIDs["CallArithm"]:
+		node, err = readCallArithmBinary(r)
 	case binaryNodeIDs["CaseClause"]:
 		node, err = readCaseClauseBinary(r)
 	case binaryNodeIDs["CaseItem"]:
