@@ -5,7 +5,7 @@ import { WIRE_TYPES } from '../src/wire-schema.js'
 import { decodeAST, encodeAST } from '../src/wire.js'
 
 const ast = parse('echo "héllo" # note\n')
-const fileId = WIRE_TYPES.File!
+const fileId = WIRE_TYPES.File
 
 test('binary wire round-trips the full tree', () => {
   expect(decodeAST(encodeAST(ast))).toEqual(ast)
