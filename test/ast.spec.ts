@@ -1,3 +1,4 @@
+import { walk } from 'sh-syntax'
 import { parse as parseSync } from 'sh-syntax/sync'
 
 const script = `#!/usr/bin/env bash
@@ -42,4 +43,14 @@ EOF
 
 test('full AST snapshot', () => {
   expect(parseSync(script, { keepComments: true })).toMatchSnapshot()
+})
+
+test('walk traverses deep trees iteratively', () => {
+  const depth = 1000
+  const ast = parseSync(`echo ${'$('.repeat(depth)}hi${')'.repeat(depth)}\n`)
+  let count = 0
+  walk(ast, () => {
+    count += 1
+  })
+  expect(count).toBeGreaterThan(depth)
 })

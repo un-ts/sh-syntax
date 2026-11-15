@@ -48,48 +48,75 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
   const enter = isEnter ? enterOrVisitors : enterOrVisitors.enter
   const exit = isEnter ? null : enterOrVisitors.exit
 
-  const visitEntries = (container: object, parent: Node | null): boolean => {
-    for (const [key, entry] of Object.entries(container as Record<string, unknown>)) {
-      if (visit(entry, parent, key, null)) {
-        return true
+  type WalkTask =
+    | {
+        kind: 'value'
+        child: unknown
+        parent: Node | null
+        prop: string | null
+        index: number | null
       }
-    }
-    return false
-  }
+    | { kind: 'entries'; entries: [string, unknown][]; parent: Node | null }
+    | { kind: 'array'; array: unknown[]; index: number; parent: Node | null; prop: string | null }
+    | {
+        kind: 'exit'
+        node: Node
+        parent: Node | null
+        prop: string | null
+        index: number | null
+      }
 
-  const visit = (
-    child: unknown,
-    parent: Node | null,
-    prop: string | null,
-    index: number | null,
-  ): boolean => {
+  const stack: WalkTask[] = [{ kind: 'value', child: value, parent: null, prop: null, index: null }]
+  while (stack.length > 0) {
+    const task = stack.pop()!
+    if (task.kind === 'exit') {
+      if (exit?.(task.node, task.parent, task.prop, task.index) === false) {
+        return
+      }
+      continue
+    }
+    if (task.kind === 'entries') {
+      for (let index = task.entries.length - 1; index >= 0; index--) {
+        const [prop, child] = task.entries[index]!
+        stack.push({ kind: 'value', child, parent: task.parent, prop, index: null })
+      }
+      continue
+    }
+    if (task.kind === 'array') {
+      if (task.index >= task.array.length) {
+        continue
+      }
+      stack.push({ ...task, index: task.index + 1 })
+      stack.push({
+        kind: 'value',
+        child: task.array[task.index],
+        parent: task.parent,
+        prop: task.prop,
+        index: task.index,
+      })
+      continue
+    }
+
+    const { child, parent, prop, index } = task
     if (Array.isArray(child)) {
-      let i = 0
-      for (const item of child as unknown[]) {
-        if (visit(item, parent, prop, i)) {
-          return true
-        }
-        i += 1
-      }
-      return false
+      stack.push({ kind: 'array', array: child, index: 0, parent, prop })
+      continue
     }
-
     if (child == null || typeof child !== 'object') {
-      return false
+      continue
     }
-
     if (typeof (child as { type?: unknown }).type !== 'string') {
-      return visitEntries(child, parent)
+      stack.push({ kind: 'entries', entries: Object.entries(child), parent })
+      continue
     }
 
     const node = child as Node
-    if (enter?.(node, parent, prop, index) !== false && visitEntries(node, node)) {
-      return true
+    const enterResult = enter?.(node, parent, prop, index)
+    stack.push({ kind: 'exit', node, parent, prop, index })
+    if (enterResult !== false) {
+      stack.push({ kind: 'entries', entries: Object.entries(node), parent: node })
     }
-    return exit?.(node, parent, prop, index) === false
   }
-
-  visit(value, null, null, null)
 }
 
 /** Reports whether an error was caused by incomplete shell source. */

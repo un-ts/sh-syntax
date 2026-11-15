@@ -152,11 +152,11 @@
   "size-limit": [
     {
       "path": "lib/browser.js",
-      "limit": "9 kB"
+      "limit": "9.5 kB"
     },
     {
       "path": "lib/index.js",
-      "limit": "9 kB"
+      "limit": "9.5 kB"
     },
     {
       "path": "lib/sync/index.js",

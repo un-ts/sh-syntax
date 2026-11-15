@@ -132,50 +132,59 @@ class Reader {
   }
 }
 
-const writeNode = (writer: Writer, node: unknown, typeName: WireTypeName): void => {
+type WriteTask =
+  | { kind: 'node'; value: unknown; typeName: WireTypeName }
+  | { kind: 'typed'; value: unknown; typeName: WireTypeName }
+  | { kind: 'field'; value: unknown; field: WireField }
+
+const pushFields = (
+  stack: WriteTask[],
+  value: Record<string, unknown>,
+  fields: readonly (readonly [string, WireField])[],
+): void => {
+  for (let index = fields.length - 1; index >= 0; index--) {
+    const [name, field] = fields[index]!
+    stack.push({ kind: 'field', value: value[name], field })
+  }
+}
+
+const writeNodeTask = (
+  writer: Writer,
+  stack: WriteTask[],
+  task: Extract<WriteTask, { kind: 'node' }>,
+): void => {
+  const { typeName, value } = task
   const schema = WIRE_SCHEMA[typeName]
-  if (node == null || typeof node !== 'object' || !schema?.node) {
+  if (value == null || typeof value !== 'object' || !schema?.node) {
     throw new InputError(`wire expects a ${typeName} node`)
   }
-  const value = node as Record<string, unknown>
-  if (value.type !== typeName) {
-    throw new InputError(`wire expected ${typeName}, got ${String(value.type)}`)
+  const record = value as Record<string, unknown>
+  if (record.type !== typeName) {
+    throw new InputError(`wire expected ${typeName}, got ${String(record.type)}`)
   }
-  writer.uint(Number(value.start ?? 0))
-  writer.uint(Number(value.end ?? 0))
-  for (const [name, field] of schema.fields) {
-    writeField(writer, value[name], field)
-  }
+  writer.uint(Number(record.start ?? 0))
+  writer.uint(Number(record.end ?? 0))
+  pushFields(stack, record, schema.fields)
 }
 
-const writeTyped = (writer: Writer, value: unknown, typeName: WireTypeName): void => {
-  if (WIRE_SCHEMA[typeName]?.node) {
-    writeNode(writer, value, typeName)
-  } else {
-    if (value == null || typeof value !== 'object') {
-      throw new InputError(`wire expects a ${typeName} record`)
-    }
-    const record = value as Record<string, unknown>
-    const fields = WIRE_SCHEMA[typeName]!.fields
-    for (const [name, field] of fields) {
-      writeField(writer, record[name], field)
-    }
-  }
-}
-
-const writeField = (writer: Writer, value: unknown, field: WireField): void => {
+const writeFieldTask = (
+  writer: Writer,
+  stack: WriteTask[],
+  task: Extract<WriteTask, { kind: 'field' }>,
+): void => {
+  const { field, value } = task
   switch (field.k) {
     case 'string': {
       writer.string(typeof value === 'string' ? value : '')
-      break
+      return
     }
     case 'bool': {
       writer.byte(value ? 1 : 0)
-      break
+      return
     }
     case 'uint': {
       writer.uint(Number(value ?? 0))
-      break
+      return
     }
     case 'pos': {
       const position = (value ?? {}) as {
@@ -188,7 +197,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
       writer.uint(Number(position.line ?? 0))
       writer.uint(Number(position.column ?? 0))
       writer.byte(position.recovered ? 1 : 0)
-      break
+      return
     }
     case 'ref': {
       if (field.n) {
@@ -198,8 +207,8 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         }
         writer.byte(1)
       }
-      writeTyped(writer, value, field.t)
-      break
+      stack.push({ kind: 'typed', value, typeName: field.t })
+      return
     }
     case 'iface': {
       if (value == null) {
@@ -212,46 +221,77 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         throw new InputError(`unknown wire node type: ${String(node.type)}`)
       }
       writer.uint(id)
-      writeNode(writer, value, node.type as WireTypeName)
-      break
+      stack.push({ kind: 'node', value, typeName: node.type as WireNodeName })
+      return
     }
     case 'slice': {
       const items: unknown[] = Array.isArray(value) ? value : []
       writer.uint(items.length)
-      for (const item of items) {
-        writeField(writer, item, field.e!)
+      for (let index = items.length - 1; index >= 0; index--) {
+        stack.push({ kind: 'field', value: items[index], field: field.e })
       }
-      break
     }
   }
 }
 
-const readNode = (reader: Reader, typeName: WireTypeName): Record<string, unknown> => {
-  const schema = WIRE_SCHEMA[typeName]!
-  const node: Record<string, unknown> = {
-    type: typeName,
-    start: reader.uint(),
-    end: reader.uint(),
+/** Encodes the current JS AST as the compact binary wire. */
+export const encodeAST = (ast: PrintableNode): Uint8Array => {
+  if (ast == null || !WIRE_SCHEMA[ast.type]?.node) {
+    throw new InputError('print(node) requires a syntax node')
   }
-  for (const [name, field] of schema.fields) {
-    node[name] = readField(reader, field)
+  const writer = new Writer()
+  writer.uint(WIRE_TYPES[ast.type]!)
+  const stack: WriteTask[] = [{ kind: 'node', value: ast, typeName: ast.type }]
+  while (stack.length > 0) {
+    const task = stack.pop()!
+    if (task.kind === 'node') {
+      writeNodeTask(writer, stack, task)
+      continue
+    }
+    if (task.kind === 'typed') {
+      if (WIRE_SCHEMA[task.typeName]?.node) {
+        stack.push({ kind: 'node', value: task.value, typeName: task.typeName })
+        continue
+      }
+      if (task.value == null || typeof task.value !== 'object') {
+        throw new InputError(`wire expects a ${task.typeName} record`)
+      }
+      const record = task.value as Record<string, unknown>
+      pushFields(stack, record, WIRE_SCHEMA[task.typeName]!.fields)
+      continue
+    }
+
+    writeFieldTask(writer, stack, task)
   }
-  return node
+  return writer.finish()
 }
 
-const readTyped = (reader: Reader, typeName: WireTypeName): unknown => {
-  if (WIRE_SCHEMA[typeName]?.node) {
-    return readNode(reader, typeName)
-  }
-  const record: Record<string, unknown> = {}
-  const fields = WIRE_SCHEMA[typeName]!.fields
-  for (const [name, field] of fields) {
-    record[name] = readField(reader, field)
-  }
-  return record
+interface ObjectFrame {
+  kind: 'object'
+  value: Record<string, unknown>
+  fields: readonly (readonly [string, WireField])[]
+  index: number
+  assign: (value: unknown) => void
 }
 
-const readField = (reader: Reader, field: WireField): unknown => {
+interface SliceFrame {
+  kind: 'slice'
+  values: unknown[]
+  field: WireField
+  remaining: number
+  assign: (value: unknown) => void
+}
+
+type ReadFrame = ObjectFrame | SliceFrame
+
+interface ReaderState {
+  frames: ReadFrame[]
+  reader: Reader
+  startObject: (typeName: WireTypeName, assign: (value: unknown) => void) => void
+  readValue: (field: WireField, assign: (value: unknown) => void) => void
+}
+
+const readScalar = (reader: Reader, field: WireField): unknown => {
   switch (field.k) {
     case 'string':
       return reader.string()
@@ -266,57 +306,110 @@ const readField = (reader: Reader, field: WireField): unknown => {
       const recovered = reader.byte() !== 0
       return recovered ? { offset, line, column, recovered: true } : { offset, line, column }
     }
-    case 'ref': {
-      if (field.n && reader.byte() === 0) {
-        return null
-      }
-      return readTyped(reader, field.t)
-    }
-    case 'iface': {
-      const id = reader.uint()
-      if (id === 0) {
-        return null
-      }
-      const typeName = NODE_TYPES.get(id)
-      /* istanbul ignore next -- schema/id mismatch guard */
-      if (!typeName) {
-        throw new Error(`unknown wire node id: ${id}`)
-      }
-      return readNode(reader, typeName)
-    }
-    case 'slice': {
-      const count = reader.count()
-      const items: unknown[] = []
-      for (let index = 0; index < count; index++) {
-        items.push(readField(reader, field.e!))
-      }
-      return items
-    }
+    /* istanbul ignore next -- caller only passes scalar fields */
+    default:
+      throw new Error('unexpected wire scalar field')
   }
 }
 
-/** Encodes the current JS AST as the compact binary wire. */
-export const encodeAST = (ast: PrintableNode): Uint8Array => {
-  if (ast == null || !WIRE_SCHEMA[ast.type]?.node) {
-    throw new InputError('print(node) requires a syntax node')
+const readValue = (
+  state: ReaderState,
+  field: WireField,
+  assign: (value: unknown) => void,
+): void => {
+  if (field.k === 'ref') {
+    if (field.n && state.reader.byte() === 0) {
+      assign(null)
+      return
+    }
+    state.startObject(field.t!, assign)
+    return
   }
-  const writer = new Writer()
-  writer.uint(WIRE_TYPES[ast.type]!)
-  writeNode(writer, ast, ast.type)
-  return writer.finish()
+  if (field.k === 'iface') {
+    const id = state.reader.uint()
+    if (id === 0) {
+      assign(null)
+      return
+    }
+    const typeName = NODE_TYPES.get(id)
+    /* istanbul ignore next -- schema/id mismatch guard */
+    if (!typeName) {
+      throw new Error(`unknown wire node id: ${id}`)
+    }
+    state.startObject(typeName, assign)
+    return
+  }
+  if (field.k === 'slice') {
+    const count = state.reader.count()
+    const values: unknown[] = []
+    if (count === 0) {
+      assign(values)
+      return
+    }
+    state.frames.push({
+      kind: 'slice',
+      values,
+      field: field.e!,
+      remaining: count,
+      assign,
+    })
+    return
+  }
+  assign(readScalar(state.reader, field))
 }
 
 /** Decodes a binary AST payload into plain JS objects. */
 export const decodeAST = (bytes: Uint8Array): File => {
   const reader = new Reader(bytes)
-  const id = reader.uint()
-  const typeName = NODE_TYPES.get(id)
-  if (!typeName) {
-    throw new Error(`unknown wire node id: ${id}`)
+  const rootID = reader.uint()
+  const rootType = NODE_TYPES.get(rootID)
+  if (!rootType) {
+    throw new Error(`unknown wire node id: ${rootID}`)
   }
-  const node = readNode(reader, typeName)
+  const state: ReaderState = {
+    frames: [],
+    reader,
+    startObject: (typeName, assign) => {
+      const schema = WIRE_SCHEMA[typeName]!
+      const value: Record<string, unknown> = schema.node
+        ? { type: typeName, start: reader.uint(), end: reader.uint() }
+        : {}
+      state.frames.push({ kind: 'object', value, fields: schema.fields, index: 0, assign })
+    },
+    readValue: (field, assign) => readValue(state, field, assign),
+  }
+  let root: unknown
+  state.startObject(rootType, value => {
+    root = value
+  })
+
+  while (state.frames.length > 0) {
+    const frame = state.frames[state.frames.length - 1]!
+    if (frame.kind === 'slice') {
+      if (frame.remaining === 0) {
+        state.frames.pop()
+        frame.assign(frame.values)
+        continue
+      }
+      frame.remaining -= 1
+      state.readValue(frame.field, value => {
+        frame.values.push(value)
+      })
+      continue
+    }
+    if (frame.index >= frame.fields.length) {
+      state.frames.pop()
+      frame.assign(frame.value)
+      continue
+    }
+    const [name, field] = frame.fields[frame.index++]!
+    state.readValue(field, value => {
+      frame.value[name] = value
+    })
+  }
+
   if (reader.offset !== reader.length) {
     throw new Error('unexpected trailing wire data')
   }
-  return node as unknown as File
+  return root as File
 }
