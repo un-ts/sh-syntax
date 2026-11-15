@@ -8,5 +8,5 @@ func ProcessNode(encoded []byte, printerOptions PrinterOptions) []byte {
 		message = err.Error()
 	}
 
-	return encodeResult(nil, textOut, nil, message, nil, errorKindPrint)
+	return encodeResult(nil, textOut, nil, message, resultMeta{errorKind: errorKindPrint})
 }

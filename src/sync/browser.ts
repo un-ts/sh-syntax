@@ -20,7 +20,7 @@ const loadWasm = async (): Promise<WebAssembly.Module> => {
 export const processor = getProcessor(await loadWasm())
 
 export const { parse, print } = createProcessorAPI(processor)
-export const { splitBraces } = processor
+export const { splitBraces, createInteractiveParser } = processor
 
 export * from '../common.js'
 

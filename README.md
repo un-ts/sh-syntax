@@ -81,6 +81,37 @@ Errors expose stable codes via `ErrorCode`: `SH_SYNTAX_PARSE`, `SH_SYNTAX_LANGUA
 
 Source text input is a JavaScript string. Unpaired UTF-16 surrogates are replaced with U+FFFD by `TextEncoder`, and byte input such as `Uint8Array` is not accepted.
 
+### Interactive parsing
+
+`createInteractiveParser()` is a JS-friendly REPL helper. Each `write` returns only the statements completed by that chunk; earlier statements were already returned. The trailing input is retained between calls:
+
+```js
+import { createInteractiveParser } from 'sh-syntax'
+
+const parser = createInteractiveParser()
+
+const first = await parser.write('echo one\n')
+// first.ast.stmts has one statement; first.incomplete === false
+// first.remaining is the unconsumed trailing text
+
+const second = await parser.write('if true; then\n')
+// second.incomplete === true
+
+const third = await parser.write('  echo two\nfi\n')
+// third.ast.stmts has the completed if statement (not echo one)
+```
+
+`remaining` is the unconsumed suffix after this chunk, including trailing comments/whitespace; the parser reuses it for the next write unless `reset()` intervenes. It is often non-empty even for a complete chunk (for example a trailing newline); use `incomplete`, not `remaining === ''`, to decide whether more input is required. `incomplete` also means this chunk did not end with a newline, so `echo one;` is syntactically complete but still waits for Enter.
+
+The synchronous entry exposes the same function:
+
+```js
+import { createInteractiveParser } from 'sh-syntax/sync'
+
+const parser = createInteractiveParser()
+parser.write('echo one\n')
+```
+
 The synchronous Node API is available from `sh-syntax/sync`:
 
 ```js

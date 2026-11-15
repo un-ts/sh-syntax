@@ -1,5 +1,7 @@
+import { InputError } from './common.js'
 import {
   invoke,
+  invokeInteractive,
   invokeSplitBraces,
   startGoRuntime,
   type GoRuntime,
@@ -8,9 +10,11 @@ import {
 import {
   type File,
   type PrintableNode,
+  type ShInteractiveOptions,
   type ShOptions,
   type ShPrintOptions,
   type SplitBracesResult,
+  type AsyncInteractiveParser,
   type Word,
 } from './types.js'
 
@@ -37,6 +41,7 @@ export interface Processor {
   (text: string, options?: ShOptions & { print: true }): Promise<string>
   (node: PrintableNode, options?: ShPrintOptions): Promise<string>
   splitBraces: (word: Word) => Promise<SplitBracesResult>
+  createInteractiveParser: (options?: ShInteractiveOptions) => AsyncInteractiveParser
   /** Loads and initializes the WASM runtime. Repeated calls share one initialization. */
   init(): Promise<void>
 }
@@ -182,6 +187,42 @@ export const getProcessor = (getWasm: GetWebAssembly): Processor => {
     return enqueue(() => withRuntime(current => invoke(current.exports, textOrAst, options)))
   }) as Processor
   processor.init = init
+  processor.createInteractiveParser = (
+    options: ShInteractiveOptions = {},
+  ): AsyncInteractiveParser => {
+    let pending = ''
+    let incomplete = false
+    let generation = 0
+    return {
+      get incomplete() {
+        return incomplete
+      },
+      write: async (chunk: string) => {
+        if (typeof chunk !== 'string') {
+          throw new InputError('interactive chunks must be strings')
+        }
+        const writeGeneration = generation
+        return enqueue(async () => {
+          if (!ready) {
+            await init()
+          }
+          return withRuntime(current => {
+            const result = invokeInteractive(current.exports, pending + chunk, options)
+            if (writeGeneration === generation) {
+              pending = result.remaining
+              incomplete = result.incomplete
+            }
+            return { ast: result.ast, incomplete: result.incomplete, remaining: result.remaining }
+          })
+        })
+      },
+      reset() {
+        generation += 1
+        pending = ''
+        incomplete = false
+      },
+    }
+  }
   processor.splitBraces = async (word: Word): Promise<SplitBracesResult> => {
     /* istanbul ignore if -- @preserve */
     if (!ready) {

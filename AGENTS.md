@@ -70,7 +70,7 @@ yarn test:built  # built ESM/CJS smoke test; needs Node >=22.18
 - The generator reads `syntax/nodes.go` from `mvdan.cc/sh/v3`; it runs `go mod download mvdan.cc/sh/v3` first so it works with an empty module cache.
 - Builds are byte-for-byte reproducible with the pinned Go version and the lockfile-pinned `wasm-opt` (Binaryen 132). CI rebuilds the generated sources and WASM and runs `git diff --exit-code`; keep them in sync in every commit that changes their inputs.
 - `wasm-opt@2.0.1` declares Node >=24.14. This only affects `yarn wasm`; the published package still supports Node >=18 because `wasm-opt` is a devDependency. The Build Wasm CI job uses Node 26.
-- The WASM build uses `-trimpath -ldflags="-s -w"` and the standard Go runtime GC; TinyGo is tracked separately in #153.
+- The WASM build uses `-trimpath -ldflags="-s -w -buildid="` and the standard Go runtime GC; the empty build ID is intentional so action-ID-only toolchain/build differences cannot churn `main.wasm`. TinyGo is tracked separately in #153.
 
 ## Tests and snapshots
 

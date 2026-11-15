@@ -166,6 +166,10 @@ export interface ShOptions extends ShSyntaxOptions {
   tabWidth?: number
 }
 
+export interface ShInteractiveOptions extends ShParserOptions {
+  filepath?: string
+}
+
 export interface ShPrintOptions extends ShOptions {
   /** Format this source text instead of the current AST. */
   originalText?: string
@@ -187,6 +191,30 @@ export interface IParseError {
   incomplete: boolean
   text: string
   pos?: Pos
+}
+
+export interface InteractiveResult {
+  ast: File
+  /** True when the next chunk is required, including when this chunk lacks a trailing newline. */
+  incomplete: boolean
+  /**
+   * Unconsumed suffix after this chunk (comments, whitespace, incomplete syntax). The parser reuses
+   * it for the next write unless `reset()` intervenes. This is often non-empty even for a complete
+   * chunk; use `incomplete`, not `remaining === ''`.
+   */
+  remaining: string
+}
+
+export interface InteractiveParser {
+  readonly incomplete: boolean
+  write: (chunk: string) => InteractiveResult
+  reset: () => void
+}
+
+export interface AsyncInteractiveParser {
+  readonly incomplete: boolean
+  write: (chunk: string) => Promise<InteractiveResult>
+  reset: () => void
 }
 
 export interface SplitBracesResult {
