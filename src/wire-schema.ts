@@ -5,7 +5,7 @@ export interface WireField {
   n?: boolean
   e?: WireField
 }
-export const WIRE_TYPES: Record<string, number> = {
+export const WIRE_TYPES = {
   ArithmCmd: 1,
   ArithmExp: 2,
   ArrayElem: 3,
@@ -52,7 +52,7 @@ export const WIRE_TYPES: Record<string, number> = {
   WhileClause: 44,
   Word: 45,
   WordIter: 46,
-} as const
+} as const satisfies Record<string, number>
 
 export const WIRE_SCHEMA: Record<string, { node: boolean; fields: [string, WireField][] }> = {
   File: {

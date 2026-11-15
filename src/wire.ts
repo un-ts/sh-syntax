@@ -202,7 +202,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
         return
       }
       const node = value as { type?: unknown }
-      const id = WIRE_TYPES[node.type as string]
+      const id = WIRE_TYPES[node.type as keyof typeof WIRE_TYPES]
       if (!id) {
         throw new InputError(`unknown wire node type: ${String(node.type)}`)
       }
