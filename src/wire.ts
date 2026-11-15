@@ -288,10 +288,12 @@ interface ReaderState {
   frames: ReadFrame[]
   reader: Reader
   startObject: (typeName: WireTypeName, assign: (value: unknown) => void) => void
-  readValue: (field: WireField, assign: (value: unknown) => void) => void
 }
 
-const readScalar = (reader: Reader, field: WireField): unknown => {
+const readScalar = (
+  reader: Reader,
+  field: Extract<WireField, { k: 'string' | 'bool' | 'uint' | 'pos' }>,
+): unknown => {
   switch (field.k) {
     case 'string':
       return reader.string()
@@ -306,9 +308,6 @@ const readScalar = (reader: Reader, field: WireField): unknown => {
       const recovered = reader.byte() !== 0
       return recovered ? { offset, line, column, recovered: true } : { offset, line, column }
     }
-    /* istanbul ignore next -- caller only passes scalar fields */
-    default:
-      throw new Error('unexpected wire scalar field')
   }
 }
 
@@ -376,7 +375,6 @@ export const decodeAST = (bytes: Uint8Array): File => {
         : {}
       state.frames.push({ kind: 'object', value, fields: schema.fields, index: 0, assign })
     },
-    readValue: (field, assign) => readValue(state, field, assign),
   }
   let root: unknown
   state.startObject(rootType, value => {
@@ -392,7 +390,7 @@ export const decodeAST = (bytes: Uint8Array): File => {
         continue
       }
       frame.remaining -= 1
-      state.readValue(frame.field, value => {
+      readValue(state, frame.field, value => {
         frame.values.push(value)
       })
       continue
@@ -403,7 +401,7 @@ export const decodeAST = (bytes: Uint8Array): File => {
       continue
     }
     const [name, field] = frame.fields[frame.index++]!
-    state.readValue(field, value => {
+    readValue(state, field, value => {
       frame.value[name] = value
     })
   }

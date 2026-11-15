@@ -46,11 +46,20 @@ test('full AST snapshot', () => {
 })
 
 test('walk traverses deep trees iteratively', () => {
-  const depth = 1000
-  const ast = parseSync(`echo ${'$('.repeat(depth)}hi${')'.repeat(depth)}\n`)
+  interface DeepNode {
+    type: 'Comment'
+    next?: DeepNode
+  }
+  const depth = 10_000
+  const root: DeepNode = { type: 'Comment' }
+  let cursor = root
+  for (let index = 0; index < depth; index++) {
+    cursor.next = { type: 'Comment' }
+    cursor = cursor.next
+  }
   let count = 0
-  walk(ast, () => {
+  walk(root, () => {
     count += 1
   })
-  expect(count).toBeGreaterThan(depth)
+  expect(count).toBe(depth + 1)
 })

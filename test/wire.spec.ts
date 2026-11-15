@@ -158,3 +158,38 @@ test('binary wire preserves a leading BOM in strings', () => {
   const value = command?.type === 'CallExpr' ? command.args[1]?.parts[0] : undefined
   expect(value).toMatchObject({ type: 'SglQuoted', value: '\u{FEFF}value' })
 })
+
+test('binary wire handles deep trees iteratively', () => {
+  const depth = 10_000
+  const pos = { column: 0, line: 0, offset: 0 }
+  let node: Record<string, unknown> = {
+    type: 'Lit',
+    start: 0,
+    end: 0,
+    valuePos: pos,
+    valueEnd: pos,
+    value: 'x',
+  }
+  for (let index = 0; index < depth; index++) {
+    node = {
+      type: 'DblQuoted',
+      start: 0,
+      end: 0,
+      left: pos,
+      right: pos,
+      dollar: false,
+      parts: [node],
+    }
+  }
+  const decoded = decodeAST(encodeAST(node as never)) as unknown as {
+    type: string
+    parts?: unknown[]
+  }
+  let actual = 0
+  let cursor: typeof decoded | undefined = decoded
+  while (cursor?.type === 'DblQuoted') {
+    actual += 1
+    cursor = cursor.parts?.[0] as typeof decoded | undefined
+  }
+  expect(actual).toBe(depth)
+})
