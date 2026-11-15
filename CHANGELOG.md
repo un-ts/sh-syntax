@@ -1,5 +1,13 @@
 # sh-syntax
 
+## 0.8.7
+
+### Patch Changes
+
+- [#185](https://github.com/un-ts/sh-syntax/pull/185) [`7df9dae`](https://github.com/un-ts/sh-syntax/commit/7df9daebdb7765ce4f0421bd468775d5d83164d9) Thanks [@JounQin](https://github.com/JounQin)! - Add `createInteractiveParser()` for REPL-style chunked parsing. Each `write(chunk)` returns the statements completed by that chunk, the unconsumed trailing text, and whether it is incomplete.
+
+- [#187](https://github.com/un-ts/sh-syntax/pull/187) [`ac975ad`](https://github.com/un-ts/sh-syntax/commit/ac975ad4365d834013044ff54f48978d21ab68cd) Thanks [@JounQin](https://github.com/JounQin)! - Update `mvdan.cc/sh/v3` to a pinned commit containing the parser nesting limit, `BraceExp` walk support, heredoc/Interactive fixes, and current AST fields. AST heredoc redirects now expose `closePos`, and split brace expansions retain their brace positions. Deeper JS/WASM transport handling, including the nesting limit's practical ceiling, remains tracked in [#188](https://github.com/un-ts/sh-syntax/issues/188).
+
 ## 0.8.6
 
 ### Patch Changes
