@@ -3962,12 +3962,10 @@ EOF
               shift
               ;;
             --lts)
-              NVM_LTS='*'
-              shift
+              NVM_LTS='*'; shift
               ;;
             --lts=*)
-              NVM_LTS="\${1##--lts=}"
-              shift
+              NVM_LTS="\${1##--lts=}"; shift
               ;;
             *)
               if [ -n "$1" ]; then
@@ -4037,16 +4035,13 @@ EOF
         while [ $# -gt 0 ]; do
           case "$1" in
             --silent)
-              NVM_SILENT=1
-              shift
+              NVM_SILENT=1; shift
               ;;
             --lts)
-              NVM_LTS='*'
-              shift
+              NVM_LTS='*'; shift
               ;;
             --lts=*)
-              NVM_LTS="\${1##--lts=}"
-              shift
+              NVM_LTS="\${1##--lts=}"; shift
               ;;
             --) break ;;
             --*)

@@ -19,7 +19,7 @@ func hasPendingHeredoc(stmt *syntax.Stmt) bool {
 		if !ok {
 			return true
 		}
-		if (redir.Op == syntax.Hdoc || redir.Op == syntax.DashHdoc) && redir.Hdoc == nil {
+		if (redir.Op == syntax.Hdoc || redir.Op == syntax.DashHdoc) && !redir.ClosePos.IsValid() {
 			pending = true
 			return false
 		}
@@ -28,9 +28,7 @@ func hasPendingHeredoc(stmt *syntax.Stmt) bool {
 	return pending
 }
 
-func interactiveStatementEnd(stmt *syntax.Stmt) uint {
-	// Parser output normally contains only node types Walk handles; the caller
-	// still guards this boundary extension with a recover for incomplete nodes.
+func interactiveStatementEnd(stmt *syntax.Stmt, text string) uint {
 	end := stmt.End().Offset()
 	syntax.Walk(stmt, func(node syntax.Node) bool {
 		if node == nil {
@@ -39,48 +37,57 @@ func interactiveStatementEnd(stmt *syntax.Stmt) uint {
 		if nodeEnd := node.End().Offset(); nodeEnd > end {
 			end = nodeEnd
 		}
+		if redir, ok := node.(*syntax.Redirect); ok &&
+			redir.Hdoc == nil && redir.ClosePos.IsValid() {
+			closeEnd := redir.ClosePos.Offset()
+			if lineEnd := strings.IndexByte(text[closeEnd:], '\n'); lineEnd >= 0 {
+				closeEnd += uint(lineEnd)
+			} else {
+				closeEnd = uint(len(text))
+			}
+			if closeEnd > end {
+				end = closeEnd
+			}
+		}
 		return true
 	})
 	return end
 }
 
-func recoverPanic(fn func()) (panicked bool) {
-	defer func() {
-		if recover() != nil {
-			panicked = true
-		}
-	}()
-	fn()
-	return
-}
-
 func ProcessInteractive(text string, filepath string, parserOptions ParserOptions) []byte {
+	parseText := text
+	pendingLine := false
+	if text != "" && !strings.HasSuffix(text, "\n") {
+		pendingLine = true
+		if end := strings.LastIndexByte(text, '\n'); end >= 0 {
+			parseText = text[:end+1]
+		} else {
+			parseText = ""
+		}
+	}
 	parser := newParser(parserOptions)
 	var collected []*syntax.Stmt
 	var stmts []*syntax.Stmt
 	var lastEnd uint
-	var err error
-	// Upstream Interactive can panic while iterating incomplete heredocs;
-	// see https://github.com/mvdan/sh/issues/1459.
-	panicked := recoverPanic(func() {
-		err = parser.Interactive(strings.NewReader(text), func(parsed []*syntax.Stmt) bool {
-			collected = append(collected, parsed...)
-			return true
-		})
+	err := parser.Interactive(strings.NewReader(parseText), func(parsed []*syntax.Stmt) bool {
+		collected = append(collected, parsed...)
+		return true
 	})
-	panicked = recoverPanic(func() {
-		for _, stmt := range collected {
-			if hasPendingHeredoc(stmt) {
-				break
-			}
-			stmts = append(stmts, stmt)
-			if end := interactiveStatementEnd(stmt); end > lastEnd {
-				lastEnd = end
-			}
+	pendingHeredoc := false
+	for _, stmt := range collected {
+		if hasPendingHeredoc(stmt) {
+			pendingHeredoc = true
+			break
 		}
-	}) || panicked
-
-	incomplete := syntax.IsIncomplete(err) || parser.Incomplete() || panicked
+		stmts = append(stmts, stmt)
+		if end := interactiveStatementEnd(stmt, text); end > lastEnd {
+			lastEnd = end
+		}
+	}
+	incomplete := syntax.IsIncomplete(err)
+	if err == nil {
+		incomplete = parser.Incomplete() || pendingHeredoc || pendingLine
+	}
 	remaining := ""
 	message := ""
 	var parseError *ParseError
@@ -101,9 +108,6 @@ func ProcessInteractive(text string, filepath string, parserOptions ParserOption
 		lastEnd = uint(len(text))
 	}
 	remaining = text[lastEnd:]
-	if !incomplete && remaining != "" && !strings.HasSuffix(text, "\n") {
-		incomplete = true
-	}
 
 	file := &syntax.File{Name: filepath, Stmts: stmts}
 	var encoded bytes.Buffer

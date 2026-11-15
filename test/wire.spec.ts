@@ -1,9 +1,11 @@
 // oxlint-disable no-magic-numbers, vitest/require-to-throw-message -- byte-level wire fixtures
 import { parse } from 'sh-syntax/sync'
 
+import { WIRE_TYPES } from '../src/wire-schema.js'
 import { decodeAST, encodeAST } from '../src/wire.js'
 
 const ast = parse('echo "héllo" # note\n')
+const fileId = WIRE_TYPES.File
 
 test('binary wire round-trips the full tree', () => {
   expect(decodeAST(encodeAST(ast))).toEqual(ast)
@@ -43,14 +45,16 @@ test('binary wire rejects malformed payloads', () => {
   expect(() => decodeAST(new Uint8Array())).toThrow()
   expect(() => decodeAST(new Uint8Array([0xff]))).toThrow()
   expect(() => decodeAST(new Uint8Array([1, 0]))).toThrow()
-  expect(() => decodeAST(new Uint8Array([21, 0, 0]))).toThrow()
-  expect(() => decodeAST(new Uint8Array([21, 0, 0, 1]))).toThrow()
-  expect(() => decodeAST(new Uint8Array([21, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]))).toThrow()
+  expect(() => decodeAST(new Uint8Array([fileId, 0, 0]))).toThrow()
+  expect(() => decodeAST(new Uint8Array([fileId, 0, 0, 1]))).toThrow()
+  expect(() => decodeAST(new Uint8Array([fileId, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]))).toThrow()
 })
 
 test('binary wire rejects unknown ids and truncated strings', () => {
   const bytes = encodeAST(ast)
-  expect(() => decodeAST(bytes.subarray(0, bytes.length - 1))).toThrow()
+  for (let length = 0; length < bytes.length; length++) {
+    expect(() => decodeAST(bytes.subarray(0, length))).toThrow()
+  }
   expect(() => decodeAST(new Uint8Array([0]))).toThrow()
 })
 
@@ -66,7 +70,7 @@ test('binary wire rejects overflow and malformed counts', () => {
   expect(() =>
     decodeAST(new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80])),
   ).toThrow()
-  expect(() => decodeAST(new Uint8Array([21, 0, 0, 0, 0xff]))).toThrow()
+  expect(() => decodeAST(new Uint8Array([fileId, 0, 0, 0, 0xff]))).toThrow()
   expect(() => decodeAST(new Uint8Array([255]))).toThrow()
 })
 

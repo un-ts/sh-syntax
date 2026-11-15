@@ -178,7 +178,11 @@ test('splitBraces handles empty alternatives', () => {
     throw new Error('expected a call expression')
   }
   const { word: split } = splitBracesSync(command.args[1]!)
-  expect(split.parts[0]).toMatchObject({ type: 'BraceExp', start: 0, end: 0 })
+  expect(split.parts[0]).toMatchObject({
+    type: 'BraceExp',
+    start: command.args[1]!.start,
+    end: command.args[1]!.end,
+  })
   expect(split.start).toBe(command.args[1]!.start)
   expect(split.end).toBe(command.args[1]!.end)
 
@@ -197,7 +201,7 @@ test('splitBraces handles empty alternatives', () => {
     throw new Error('expected a call expression')
   }
   const fallbackResult = splitBracesSync(fallback.args[1]!)
-  expect(fallbackResult.changed).toBe(true)
+  expect(fallbackResult.changed).toBe(false)
   expect(fallbackResult.word.parts.some(part => part.type === 'BraceExp')).toBe(false)
 })
 
@@ -331,6 +335,21 @@ test('interactive nested pending heredoc is not committed', () => {
   const second = parser.write('body\nEOF\n')
   expect(second.incomplete).toBe(false)
   expect(second.ast.stmts).toHaveLength(2)
+})
+
+test('interactive empty heredoc keeps the terminator consumed', () => {
+  for (const source of ['cat <<EOF\nEOF\n', "cat <<'EOF'\nEOF\n", 'cat <<-EOF\n\tEOF\n']) {
+    const parser = createInteractiveParserSync()
+    const result = parser.write(source)
+    expect(result.incomplete).toBe(false)
+    expect(result.remaining).toBe('\n')
+    expect(result.ast.stmts).toHaveLength(1)
+  }
+})
+
+test('interactive terminal errors are not masked by a pending line', () => {
+  const parser = createInteractiveParserSync()
+  expect(() => parser.write('echo )\nmore')).toThrow(ParseError)
 })
 
 test('interactive reset invalidates queued writes', async () => {
