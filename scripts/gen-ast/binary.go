@@ -62,7 +62,7 @@ func writeWireSchema(structs map[string]*typeInfo, allTypes []string, interfaces
 		fmt.Fprintf(&b, "  %q: %d,\n", name, i+1)
 	}
 	b.WriteString("} as const satisfies Record<string, number>\n\n")
-	b.WriteString("export const WIRE_SCHEMA: Record<string, { node: boolean; fields: [string, WireField][] }> = {\n")
+	b.WriteString("export const WIRE_SCHEMA = {\n")
 	for _, name := range allTypes {
 		info := structs[name]
 		fmt.Fprintf(&b, "  %q: { node: %t, fields: [\n", name, info.isNode)
@@ -71,7 +71,7 @@ func writeWireSchema(structs map[string]*typeInfo, allTypes []string, interfaces
 		}
 		b.WriteString("  ] },\n")
 	}
-	b.WriteString("} as const\n")
+	b.WriteString("} as const satisfies Record<string, { node: boolean; fields: readonly (readonly [string, WireField])[] }>\n")
 	if err := os.WriteFile("src/wire-schema.ts", []byte(b.String()), 0o644); err != nil {
 		fatalf("write wire schema: %v", err)
 	}

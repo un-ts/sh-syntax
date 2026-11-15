@@ -54,7 +54,7 @@ export const WIRE_TYPES = {
   WordIter: 46,
 } as const satisfies Record<string, number>
 
-export const WIRE_SCHEMA: Record<string, { node: boolean; fields: [string, WireField][] }> = {
+export const WIRE_SCHEMA = {
   File: {
     node: true,
     fields: [
@@ -517,4 +517,7 @@ export const WIRE_SCHEMA: Record<string, { node: boolean; fields: [string, WireF
       ['body', { k: 'ref', t: 'Stmt', n: true }],
     ],
   },
-} as const
+} as const satisfies Record<
+  string,
+  { node: boolean; fields: readonly (readonly [string, WireField])[] }
+>

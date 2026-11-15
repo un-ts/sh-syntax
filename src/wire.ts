@@ -19,6 +19,7 @@ const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
 const NODE_TYPES = new Map<number, string>(
   Object.entries(WIRE_TYPES).map(([name, id]) => [id, name]),
 )
+const schemaFor = (typeName: string) => WIRE_SCHEMA[typeName as keyof typeof WIRE_SCHEMA]
 
 class Writer {
   private bytes = new Uint8Array(1024)
@@ -128,7 +129,7 @@ class Reader {
 }
 
 const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
-  const schema = WIRE_SCHEMA[typeName]
+  const schema = schemaFor(typeName)
   if (node == null || typeof node !== 'object' || !schema?.node) {
     throw new InputError(`wire expects a ${typeName} node`)
   }
@@ -144,14 +145,14 @@ const writeNode = (writer: Writer, node: unknown, typeName: string): void => {
 }
 
 const writeTyped = (writer: Writer, value: unknown, typeName: string): void => {
-  if (WIRE_SCHEMA[typeName]?.node) {
+  if (schemaFor(typeName)?.node) {
     writeNode(writer, value, typeName)
   } else {
     if (value == null || typeof value !== 'object') {
       throw new InputError(`wire expects a ${typeName} record`)
     }
     const record = value as Record<string, unknown>
-    const fields = WIRE_SCHEMA[typeName]!.fields
+    const fields = schemaFor(typeName)!.fields
     for (const [name, field] of fields) {
       writeField(writer, record[name], field)
     }
@@ -222,7 +223,7 @@ const writeField = (writer: Writer, value: unknown, field: WireField): void => {
 }
 
 const readNode = (reader: Reader, typeName: string): Record<string, unknown> => {
-  const schema = WIRE_SCHEMA[typeName]!
+  const schema = schemaFor(typeName)!
   const node: Record<string, unknown> = {
     type: typeName,
     start: reader.uint(),
@@ -235,11 +236,11 @@ const readNode = (reader: Reader, typeName: string): Record<string, unknown> => 
 }
 
 const readTyped = (reader: Reader, typeName: string): unknown => {
-  if (WIRE_SCHEMA[typeName]?.node) {
+  if (schemaFor(typeName)?.node) {
     return readNode(reader, typeName)
   }
   const record: Record<string, unknown> = {}
-  const fields = WIRE_SCHEMA[typeName]!.fields
+  const fields = schemaFor(typeName)!.fields
   for (const [name, field] of fields) {
     record[name] = readField(reader, field)
   }
@@ -292,7 +293,7 @@ const readField = (reader: Reader, field: WireField): unknown => {
 
 /** Encodes the current JS AST as the compact binary wire. */
 export const encodeAST = (ast: PrintableNode): Uint8Array => {
-  if (ast == null || !WIRE_SCHEMA[ast.type]?.node) {
+  if (ast == null || !schemaFor(ast.type)?.node) {
     throw new InputError('print(node) requires a syntax node')
   }
   const writer = new Writer()
