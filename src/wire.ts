@@ -384,7 +384,7 @@ export const decodeAST = (bytes: Uint8Array): File => {
   })
 
   while (state.frames.length > 0) {
-    const frame = state.frames[state.frames.length - 1]!
+    const frame = state.frames.at(-1)!
     if (frame.kind === 'slice') {
       if (frame.remaining === 0) {
         state.frames.pop()

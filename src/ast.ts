@@ -86,14 +86,16 @@ export function walk(value: unknown, enterOrVisitors: WalkEnter | WalkVisitors):
       if (task.index >= task.array.length) {
         continue
       }
-      stack.push({ ...task, index: task.index + 1 })
-      stack.push({
-        kind: 'value',
-        child: task.array[task.index],
-        parent: task.parent,
-        prop: task.prop,
-        index: task.index,
-      })
+      stack.push(
+        { ...task, index: task.index + 1 },
+        {
+          kind: 'value',
+          child: task.array[task.index],
+          parent: task.parent,
+          prop: task.prop,
+          index: task.index,
+        },
+      )
       continue
     }
 
